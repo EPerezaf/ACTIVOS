@@ -59,8 +59,46 @@ app.post('/guardar', async (req, res) => {
     }
 });
 
-//AUTOINCREMENTO DE CONCEPTO
+const CuentaSchema = new mongosee.Schema({
+    _id: {type: String }, //
+    seq: {type: Number, default: 0}
+});
+const Cuenta = mongosee.model('ContadorFA', CuentaSchema);
 
+const familiaConceptoSchema = new mongosee.Schema({
+    id: {type: Number, unique: true},
+    estatus: String,
+    descripcion: String
+});
+const familiaCon = mongosee.model('familiaConcepto',familiaConceptoSchema);
+
+//AUTOINCREMENTO DE CONCEPTO
+app.post('/guardarConceptoFamilia', async (req, res) =>{
+    console.log('Peticion post');
+    console.log('Body recibido: ', req.body);
+    const { estatus, descripcion } = req.body;
+
+    try{
+        //OBETENER EL SIGUIENTE NUMERO DE SECUENCIA
+        const counter = await Cuenta.findByIdAndUpdate(
+            { _id: 'registroId'},
+            { $inc: { seq: 1 } },
+            { new: true, upsert: true }
+        );
+
+        console.log('Siguiente ID generado: ',counter.seq);
+        const nuevoRegistro = new familiaCon({
+            id: counter.seq,
+            estatus,
+            descripcion
+        });
+        await nuevoRegistro.save();
+        res.json({ message: 'Datos guardados correctamente' });
+    }catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Error al guardar los datos' })
+    }
+});
 
 //INICIAR SERVIDOR 
 app.listen(PORT, () => {

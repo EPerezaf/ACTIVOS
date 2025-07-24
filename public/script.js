@@ -1,47 +1,46 @@
 const formulario = document.getElementById('formulario');
-if(formulario){
+if (formulario) {
     formulario.addEventListener('submit', async e => {
-    e.preventDefault();
-    const formData = new FormData(formulario);
-    const data = {
-        estatus: formData.get('estatus'),
-        concepto: formData.get('concepto')
-    };
+        e.preventDefault();
+        const formData = new FormData(formulario);
+        const data = {
+            estatus: formData.get('estatus'),
+            concepto: formData.get('concepto')
+        };
 
-    const response = await fetch('/guardar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
+        const response = await fetch('/guardar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
 
-    const result = await response.json();
-    alert(result.message);
-    formulario.reset();
-})
+        const result = await response.json();
+        alert(result.message);
+        formulario.reset();
+    })
 }
 
 
 //AGREGAR CONCEPTOFAMILIA 
 const familiaConcepto = document.getElementById('familiaConcepto');
-if(familiaConcepto){
+if (familiaConcepto) {
     familiaConcepto.addEventListener('submit', async e => {
-    e.preventDefault();
-    const formData = new FormData(familiaConcepto);
-    const data = {
-        estatus: formData.get('estatus'),
-        concepto: formData.get('concepto')
-    };
+        e.preventDefault();
+        const formData = new FormData(familiaConcepto);
+        const data = {
+            estatus: formData.get('estatus'),
+            descripcion: formData.get('descripcion')
+        };
 
-    const response = await fetch('/guardar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
+        const response = await fetch('/guardarConceptoFamilia', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
 
-    const result = await response.json();
-    alert(result.message);
-})
-
+        const result = await response.json();
+        alert(result.message);
+    })
 }
 
 
@@ -58,7 +57,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             option.textContent = item.nombre;
             select.appendChild(option);
         });
-    } catch(error) {
+    } catch (error) {
         console.error(' Error cargando estatus');
     }
 });
