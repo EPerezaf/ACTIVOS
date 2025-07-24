@@ -59,12 +59,14 @@ app.post('/guardar', async (req, res) => {
     }
 });
 
+//CONCEPTOFAMILIA
 const CuentaSchema = new mongosee.Schema({
     _id: {type: String }, //
     seq: {type: Number, default: 0}
 });
 const Cuenta = mongosee.model('ContadorFA', CuentaSchema);
 
+//CONCEPTOFAMILIA
 const familiaConceptoSchema = new mongosee.Schema({
     id: {type: Number, unique: true},
     estatus: String,
@@ -98,6 +100,46 @@ app.post('/guardarConceptoFamilia', async (req, res) =>{
         console.log(err);
         res.status(500).json({ message: 'Error al guardar los datos' })
     }
+});
+
+const contadorSubFamiliaSchema = new mongosee.Schema({
+    _id: {type: String},
+    seq: {type: Number, default: 0}
+});
+const contadorSF = mongosee.model('ContadorSF', contadorSubFamiliaSchema);
+
+const subFamiliaSchema = new mongosee.Schema({
+    id: {type: Number, unique: true},
+    estatus: String,
+    descripcion: String
+});
+
+
+//CONCEPTOSUBFAMILIA
+app.post('/guardarSubFamilia', async (req,res) =>{
+    console.log('Peticion POST');
+    console.log('Recibiendo');
+    const {estatus, concepto} = req.body;
+    try{
+        //OBTENER EL NUMERO DE SECUENCIA
+        const counter =await contadorSF.findByIdAndUpdate(
+            { _id: 'registroId'},
+            { $inc: {seq: 1}},
+            { new: true, upsert: true }
+        );
+        console.log('Siguiente ID generado:', counter.seq);
+        const nuevoRegistro = new subFamiliaSchema({
+            id: counter.seq,
+            estatus,
+            descripcion
+        });
+        await nuevoRegistro.save();
+        res.json({ message: 'Datos guardados correctamente'});
+    }catch (err){
+        console.log(err),
+        res.status(500).json('Error al guardar')
+    }
+
 });
 
 //INICIAR SERVIDOR 

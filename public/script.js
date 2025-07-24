@@ -43,6 +43,27 @@ if (familiaConcepto) {
     })
 }
 
+//AGREGAR CONCEPTO SUB FAMILIA
+const subfamilia = document.getElementById('ConSubFamilia');
+if(subfamilia){
+    subfamilia.addEventListener('submit', async e =>{
+        e.preventDefault();
+        const formData = new FormData(subfamilia);
+        const data = {
+            estatus: formData('estatus'),
+            concepto: formData.get('concepto')
+        };
+
+        const response = await fetch('/guardarSubFamilia', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        alert(result.message);
+    })
+}
+
 
 window.addEventListener('DOMContentLoaded', async () => {
     const select = document.getElementById('selectEstatus');
