@@ -44,13 +44,13 @@ if (familiaConcepto) {
 }
 
 //AGREGAR CONCEPTO SUB FAMILIA
-const subfamilia = document.getElementById('ConSubFamilia');
-if(subfamilia){
-    subfamilia.addEventListener('submit', async e =>{
+const Consubfamilia = document.getElementById('ConSubFamilia');
+if(Consubfamilia){
+    Consubfamilia.addEventListener('submit', async e =>{
         e.preventDefault();
-        const formData = new FormData(subfamilia);
+        const formData = new FormData(Consubfamilia);
         const data = {
-            estatus: formData('estatus'),
+            estatus: formData.get('estatus'),
             concepto: formData.get('concepto')
         };
 
@@ -63,22 +63,3 @@ if(subfamilia){
         alert(result.message);
     })
 }
-
-
-window.addEventListener('DOMContentLoaded', async () => {
-    const select = document.getElementById('selectEstatus');
-
-    try {
-        const response = await fetch('/estatus');
-        const estatusList = await response.json();
-
-        estatusList.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.nombre;
-            option.textContent = item.nombre;
-            select.appendChild(option);
-        });
-    } catch (error) {
-        console.error(' Error cargando estatus');
-    }
-});

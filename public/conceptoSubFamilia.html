@@ -9,31 +9,26 @@
 </head>
 
 <body>
-    <header>
-
-    </header>
-
+    <h2>Sub Familia Activos</h2>
     <button><a href="index.html">Regresar</a></button>
     <form id="ConSubFamilia">
         <div>
-            <h2>Sub Familia Activos</h2>
-            <div>
-                <select>
-                    <option id="selectEstatus" name="estatus" disabled selected>Seleccione opcion</option>
-                    <option name="alta">Alta</option>
-                    <option name="baja">Baja</option>
+            <select name="estatus" required>
+                <option name="" disabled selected>Seleccione opcion</option>
+                <option name="alta">Alta</option>
+                <option name="baja">Baja</option>
 
-                </select>
-            </div>
-
-            <div>
-                <textarea placeholder="Escribe la subfamilia"></textarea>
-            </div>
-            <button type="submit"><a>Enviar</a></button>
-
+            </select>
         </div>
+        <div>
+            <textarea id="concepto" name="concepto" placeholder="Escribe la subfamilia" required></textarea>
+        </div>
+        <button type="submit">Enviar</button>
+
+
     </form>
+    <script src="script.js"></script>
 </body>
 <footer>&copy;Eperez AF. Todos los derechso resevardos Eperez.</footer>
-<script src="script.js"></script>
+
 </html>
