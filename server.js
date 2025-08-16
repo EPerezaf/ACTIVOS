@@ -18,6 +18,7 @@ const CounterSchema = new mongosee.Schema({
 const Counter = mongosee.model('IDConcepto', CounterSchema); //CONTADOR DE CONCEPTO DE ACTIVOS
 const Cuenta = mongosee.model('ContadorFA', CounterSchema); //CONTADOR DE CONCEPTO FAMILIA ACTIVOS
 const subFamiliaContador = mongosee.model('subFamiliaId', CounterSchema); //
+const conceptoComprascontador = mongosee.model('conceptoComprasId', CounterSchema); // CONTADOR DE CONCEPTO COMPRAS
 
 //DEFINIR ESQUEMA Y MODELO 
 const RegistroSchema = new mongosee.Schema({
@@ -101,6 +102,30 @@ app.post('/guardarSubFamilia', async (req,res) =>{
         const id = await getNextSequence(subFamiliaContador, 'subFamiliaId');
         console.log('Siguiente ID generado:', id);
         const nuevoRegistro = new conSubFamilia({id,estatus,concepto});
+        await nuevoRegistro.save();
+        res.json({ message: 'Datos guardados correctamente'});
+    }catch (error){
+        console.error(error);
+        res.status(500).json({ message: 'Error al guardar' })
+    }
+});
+
+const conceptoCompras = new mongosee.Schema({
+    id: {type: Number, unique: true},
+    estatus: String,
+    concepto: String
+});
+const conCompras = mongosee.model('conceptoCompras', conceptoCompras);
+
+//CONCEPTO COMPRAS
+app.post('/guardarConceptoCompras', async (req,res) =>{
+    console.log('PETICION POST CONCEPTO COMPRAS');
+    console.log('RECIBIENDO', req.body);
+    const {estatus, concepto} = req.body;
+    try{
+        const id = await getNextSequence(conceptoComprascontador, 'conceptoComprasId');
+        console.log('Siguiente ID generado', id);
+        const nuevoRegistro = new conCompras({id,estatus,concepto});
         await nuevoRegistro.save();
         res.json({ message: 'Datos guardados correctamente'});
     }catch (error){
