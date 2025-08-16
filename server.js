@@ -19,6 +19,7 @@ const Counter = mongosee.model('IDConcepto', CounterSchema); //CONTADOR DE CONCE
 const Cuenta = mongosee.model('ContadorFA', CounterSchema); //CONTADOR DE CONCEPTO FAMILIA ACTIVOS
 const subFamiliaContador = mongosee.model('subFamiliaId', CounterSchema); //
 const conceptoComprascontador = mongosee.model('conceptoComprasId', CounterSchema); // CONTADOR DE CONCEPTO COMPRAS
+const usuarioContador = mongosee.model('usuarioId', CounterSchema); // CONTADOR DE USUARIOS PERSONAL
 
 //DEFINIR ESQUEMA Y MODELO 
 const RegistroSchema = new mongosee.Schema({
@@ -131,6 +132,34 @@ app.post('/guardarConceptoCompras', async (req,res) =>{
     }catch (error){
         console.error(error);
         res.status(500).json({ message: 'Error al guardar' })
+    }
+});
+
+
+//REGISTRAR USUARIO 
+const registroUsuario = new mongosee.Schema({
+    id: {type: Number, unique: true},
+    estatus: String,
+    nombre: String,
+    aPaterno: String,
+    aMaterno: String,
+    fechaNacimiento: {type: Date, required: true }
+})
+const añadirUsuario = mongosee.model('regisUsuario',registroUsuario);
+
+app.post('/guardarUsuario', async (req,res) =>{
+    console.log('PETICION POST REGISTRO USUARIO');
+    console.log('RECIBIENDO', req.body);
+    const {estatus, nombre, aPaterno, aMaterno, fechaNacimiento} = req.body;
+    try{
+        const id = await getNextSequence(usuarioContador, 'usuarioId');
+        console.log('Siguiente ID generado', id);
+        const nuevoRegistro = new añadirUsuario({id,estatus,nombre,aPaterno,aMaterno,fechaNacimiento});
+        await nuevoRegistro.save();
+        res.json({ message: 'Datos guardados correctamente'});
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: 'Error al guardar'})
     }
 });
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EPerez</title>
+        <link rel="stylesheet" href="">
+    </head>
+
+    <body>
+        <header></header>
+        <div>
+            <h2>Registro de Personal</h2>
+        </div>
+        <form id="Rpersonal">
+            <div>
+                <select id="estatus" name="estatus">
+                    <option value="" disabled selected>Selecione una opcion</option>
+                    <option value="alta">Alta</option>
+                    <option value="baja">Baja</option>
+                </select>
+            </div>
+            <div>
+                <label>Nombre</label>
+                <br>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            <div>
+                <label>Apellido Paterno</label>
+                <br>
+                <input type="text" id="aPaterno" name="aPaterno" required>
+            </div>
+            <div>
+                <label>Apellido Materno</label>
+                <br>
+                <input type="text" id="aMaterno" name="aMaterno" required>
+            </div>
+            <div>
+                <label>Fecha de nacimiento</label>
+                <br>
+                <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+            </div>
+            <div>
+                <br>
+                <button type="submit">Registrar</button>
+            </div>
+        </form>
+
+        <script src="script.js"></script>
+    </body>
+</html>

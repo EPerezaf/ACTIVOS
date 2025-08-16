@@ -45,8 +45,8 @@ if (familiaConcepto) {
 
 //AGREGAR CONCEPTO SUB FAMILIA
 const Consubfamilia = document.getElementById('ConSubFamilia');
-if(Consubfamilia){
-    Consubfamilia.addEventListener('submit', async e =>{
+if (Consubfamilia) {
+    Consubfamilia.addEventListener('submit', async e => {
         e.preventDefault();
         const formData = new FormData(Consubfamilia);
         const data = {
@@ -64,22 +64,54 @@ if(Consubfamilia){
     })
 }
 
+//AGREGAR CONCEPTO COMPRAS
 const concepCompras = document.getElementById('concepCompras');
-if(concepCompras){
-    concepCompras.addEventListener('submit', async e =>{
+if (concepCompras) {
+    concepCompras.addEventListener('submit', async e => {
         e.preventDefault();
         const formData = new FormData(concepCompras);
         const data = {
             estatus: formData.get('estatus'),
             concepto: formData.get('concepto')
         };
-        const response = await fetch('/guardarConceptoCompras',{
+        const response = await fetch('/guardarConceptoCompras', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         const result = await response.json();
         alert(result.message);
         concepCompras.reset();
     })
+}
+
+
+//AGREGAR USUARIO A LA PLATAFORMA
+const Rpersonal = document.getElementById('Rpersonal');
+if (Rpersonal) {
+    Rpersonal.addEventListener('submit', async e => {
+        e.preventDefault();
+        const formData = new FormData(Rpersonal);
+        const data = {
+            estatus: formData.get('estatus'),
+            nombre: formData.get('nombre'),
+            aPaterno: formData.get('aPaterno'),
+            aMaterno: formData.get('aMaterno'),
+            fechaNacimiento: formData.get('fechaNacimiento')
+        };
+
+        try {
+            const response = await fetch('/guardarUsuario', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            alert(result.message);
+            Rpersonal.reset();
+        }catch(error){
+            console.error("Error al enviar",error);
+            alert("ocurrio un error al registrar al usuario.");
+        } 
+    });
 }
