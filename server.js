@@ -163,6 +163,16 @@ app.post('/guardarUsuario', async (req,res) =>{
     }
 });
 
+
+//TRAER DATOS A LA INTERFAZ
+app.get('/usuarios', async (req,res)=>{
+    try{
+        const usuarios = await añadirUsuario.find();
+        res.json(usuarios);
+    }catch(error){
+        res.status(500).json({ message: 'Error al obtener usuarios', error });
+    }
+});
 //INICIAR SERVIDOR 
 app.listen(PORT, () => {
     console.log(`SERVIDOR EN http://localhost:${PORT}`)

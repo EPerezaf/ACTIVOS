@@ -115,3 +115,44 @@ if (Rpersonal) {
         } 
     });
 }
+
+async function cargarUsuariosSelect() {
+    const response = await fetch('/usuarios');
+    const usuarios = await response.json();
+    
+    const lista = document.getElementById('listaUsuarios');
+    lista.innerHTML = '<option value="">Seleccione un usuario </option>';
+
+    usuarios.forEach(u => {
+        const option = document.createElement('option');
+        option.value = u.id;
+        option.textContent= `${u.nombre} ${u.aPaterno} ${u.aMaterno}`;
+        lista.appendChild(option);
+    });
+}
+document.addEventListener('DOMContentLoaded', cargarUsuariosSelect);
+
+async function cargarUsuariosTabla(){
+    const response = await fetch('/usuarios');
+    const usuarios = await response.json();
+
+    const tabla = document.getElementById('tablaUsuarios');
+    tabla.innerHTML = "";
+
+    usuarios.forEach(u => {
+        const fila = document.createElement('tr');
+
+        fila.innerHTML =  `
+        <td>${u.id}</td>
+        <td>${u.estatus}</td>
+        <td>${u.nombre}</td>
+        <td>${u.aPaterno}</td>
+        <td>${u.aMaterno}</td>
+        <td>${new Date(u.fechaNacimiento).toLocaleDateString()}</td>
+        `;
+
+        tabla.appendChild(fila);
+
+    });
+}
+document.addEventListener('DOMContentLoaded',cargarUsuariosTabla);
