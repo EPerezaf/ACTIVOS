@@ -109,30 +109,32 @@ if (Rpersonal) {
             const result = await response.json();
             alert(result.message);
             Rpersonal.reset();
-        }catch(error){
-            console.error("Error al enviar",error);
+        } catch (error) {
+            console.error("Error al enviar", error);
             alert("ocurrio un error al registrar al usuario.");
-        } 
+        }
     });
 }
 
+//CARGAR DATOS EN LOS SELECT 
 async function cargarUsuariosSelect() {
     const response = await fetch('/usuarios');
     const usuarios = await response.json();
-    
+
     const lista = document.getElementById('listaUsuarios');
     lista.innerHTML = '<option value="">Seleccione un usuario </option>';
 
     usuarios.forEach(u => {
         const option = document.createElement('option');
         option.value = u.id;
-        option.textContent= `${u.nombre} ${u.aPaterno} ${u.aMaterno}`;
+        option.textContent = `${u.nombre} ${u.aPaterno} ${u.aMaterno}`;
         lista.appendChild(option);
     });
 }
 document.addEventListener('DOMContentLoaded', cargarUsuariosSelect);
 
-async function cargarUsuariosTabla(){
+//CARGAR LOS DATOS EN UNA TABLA 
+async function cargarUsuariosTabla() {
     const response = await fetch('/usuarios');
     const usuarios = await response.json();
 
@@ -142,7 +144,7 @@ async function cargarUsuariosTabla(){
     usuarios.forEach(u => {
         const fila = document.createElement('tr');
 
-        fila.innerHTML =  `
+        fila.innerHTML = `
         <td>${u.id}</td>
         <td>${u.estatus}</td>
         <td>${u.nombre}</td>
@@ -155,4 +157,49 @@ async function cargarUsuariosTabla(){
 
     });
 }
-document.addEventListener('DOMContentLoaded',cargarUsuariosTabla);
+document.addEventListener('DOMContentLoaded', cargarUsuariosTabla);
+
+//CARGAR TABLA Y ELIMINAR DATOS DE USUARIOS
+async function cargarEliminarUsuario() {
+    const response = await fetch('/usuarios');
+    const usuarios = await response.json();
+
+    const tabla = document.getElementById('tablaUsuarios');
+    tabla.innerHTML = "";
+
+    usuarios.forEach(u => {
+        const fila = document.createElement('tr');
+
+        fila.innerHTML = `
+            <td>${u.id}</td>
+            <td>${u.nombre}</td>
+            <td>${u.aPaterno}</td>
+            <td>${u.aMaterno}</td>
+            <td>${u.estatus}</td>
+            <td><button>Eliminar</button></td>
+            `;
+
+            const btnEliminar = fila.querySelector('button');
+            btnEliminar.addEventListener('click', () => eliminarUsuario(u._id));
+
+            tabla.appendChild(fila);
+    });
+}
+
+async function eliminarUsuario(id){
+    if(!confirm('Seguro que quieres eliminar este usuario?')) return;
+
+    try{
+        const response = await fetch(`/usuarios/${id}`,{
+            method: 'DELETE'
+        });
+        const result = await response.json();
+        alert(result.message);
+        cargarEliminarUsuario(); 
+    }catch(error){
+        console.error('Error al eliminar:', error);
+        alert('Ocurrio un problema al intentar borrar un usuario');
+    }
+}
+
+document.addEventListener('DOMContentLoaded',cargarEliminarUsuario);

@@ -173,7 +173,28 @@ app.get('/usuarios', async (req,res)=>{
         res.status(500).json({ message: 'Error al obtener usuarios', error });
     }
 });
+
+//ELIMINAR INSERCIONES DEL PERSONAL 
+app.delete('/usuarios/:id', async (req,res) =>{
+    const { id } = req.params;
+    try{
+        //const eliminado = await añadirUsuario.findOneAndDelete(id);
+        //const eliminado = await añadirUsuario.findByIdAndDelete(id);
+        const eliminado = await añadirUsuario.findByIdAndDelete({_id: id});
+
+        if(!eliminado){
+            return res.status(404).json({ message: 'Usuario no encontrado'});
+        }
+        res.json({ message: 'Usuario eliminado correctamente' });
+    }catch (error){
+        console.error(error);
+        res.status(500).json({ message: 'Error al eliminar un usuario'});
+    }
+});
+
+
 //INICIAR SERVIDOR 
 app.listen(PORT, () => {
     console.log(`SERVIDOR EN http://localhost:${PORT}`)
 })
+
