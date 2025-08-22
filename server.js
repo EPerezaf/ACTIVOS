@@ -163,7 +163,7 @@ app.post('/guardarUsuario', async (req,res) =>{
     }
 });
 
-
+/*
 //TRAER DATOS A LA INTERFAZ
 app.get('/usuarios', async (req,res)=>{
     try{
@@ -172,7 +172,7 @@ app.get('/usuarios', async (req,res)=>{
     }catch(error){
         res.status(500).json({ message: 'Error al obtener usuarios', error });
     }
-});
+});*/
 
 //ELIMINAR INSERCIONES DEL PERSONAL 
 app.delete('/usuarios/:id', async (req,res) =>{
@@ -189,6 +189,29 @@ app.delete('/usuarios/:id', async (req,res) =>{
     }catch (error){
         console.error(error);
         res.status(500).json({ message: 'Error al eliminar un usuario'});
+    }
+});
+
+app.get('/usuarios', async (req, res) => {
+    try{
+        const { buscar } = req.query;
+        console.log("Valor recibido", buscar);
+
+        let query = {};
+        if (buscar) {
+            query = {
+                $or: [
+                    { nombre: { $regex: buscar, $options: 'i' } },
+                    { aPaterno: { $regex: buscar, $options: 'i' } },
+                    { aMaterno: { $regex: buscar, $options: 'i' } }
+                ]
+            };
+        }
+        const usuarios = await añadirUsuario.find(query).limit(20);
+        res.json(usuarios);
+    } catch(error){
+        console.error(error);
+        res.status(500).json({ message: 'Error al buscar usuarios'});
     }
 });
 

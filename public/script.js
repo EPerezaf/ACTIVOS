@@ -132,7 +132,7 @@ async function cargarUsuariosSelect() {
     });
 }
 document.addEventListener('DOMContentLoaded', cargarUsuariosSelect);
-
+/*
 //CARGAR LOS DATOS EN UNA TABLA 
 async function cargarUsuariosTabla() {
     const response = await fetch('/usuarios');
@@ -202,4 +202,75 @@ async function eliminarUsuario(id){
     }
 }
 
-document.addEventListener('DOMContentLoaded',cargarEliminarUsuario);
+document.addEventListener('DOMContentLoaded',cargarEliminarUsuario);*/
+
+//BARRA DE BUSQUEDA
+const tabla = document.getElementById("tablaUsuarios");
+const inputBuscar = document.getElementById("busquedaUsuarios");
+let timeout = null;
+
+
+//Funcion para renderizar usuaruis en la tabla
+function renderUsuarios(usuarios){
+    tabla.innerHTML= "";
+
+    if(usuarios.length == 0){
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+        <td colspan = "6" style="text-align:center; color: red;"> No se encontraron resultados </td>
+        `;
+
+        tabla.appendChild(fila);
+        return;
+    }
+    
+
+    usuarios.forEach(u => {
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+            <td>${u.id}</td>
+            <td>${u.nombre}</td>
+            <td>${u.aPaterno}</td>
+            <td>${u.aMaterno}</td>
+            <td>${u.estatus}</td>
+            <td><button>Eliminar</button></td>
+        `;
+
+        const btnEliminar = fila.querySelector("button");
+        btnEliminar.addEventListener("click", () => eliminarUsuario(u._id));
+        tabla.appendChild(fila);
+    });
+}
+
+//CARGAR USUARIOS DESDE EL SERVIDOR (CON O SIN BUSQUEDA)
+async function cargarUsuario(busqueda = "") {
+    console.log("buscando:", busqueda);
+    const response = await fetch(`/usuarios?buscar=${encodeURIComponent(busqueda)}`);
+    const usuarios = await response.json();
+    renderUsuarios(usuarios);
+}
+
+//ELIMINAR 
+async function eliminarUsuario(id) {
+    if (!confirm("Seguro que queires eliminar este usuario")) return;
+    try{
+        const response = await fetch(`/usuarios/${id}`, { method: "DELETE" });
+        const result = await response.json();
+        alert(result.message);
+        cargarUsuario(inputBuscar.value);
+    }catch(error){
+        console.error("Error al eliminar:",error);
+        alert("Ocurrio un problema al intentar borrar este usuario");
+    }
+}
+
+//BUSQUEDA EN TIEMPO REAL CON DEBUNCE
+inputBuscar.addEventListener("input", () =>{
+    console.log("Escribiendo:", inputBuscar.value);
+    clearTimeout(timeout);
+    timeout = setTimeout(() =>{
+        cargarUsuario(inputBuscar.value);
+    },400);
+});
+
+document.addEventListener("DOMContentLoaded",() => cargarUsuario());
