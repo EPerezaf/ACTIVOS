@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPerez</title>
+    <link rel="stylesheet" href="">
+</head>
+
+<body>
+    <h1>Eliminar Usuario</h1>
+    <input type="text" id="busquedaUsuarios" placeholder="Buscar por nombre o apellido..." />
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellido Paterno</th>
+                <th>Apellido Materno</th>
+                <th>Estatus</th>
+                <th>Accion</th>
+            </tr>
+        </thead>
+        <tbody id="tablaResultados"></tbody>
+    </table>
+
+    <h2>Seleccionado</h2>
+    <form id="formComentario">
+        <label>Nombre:</label>
+        <input type="text" id="nombre" readonly><br>
+
+        <label>Apellido Paterno:</label>
+        <input type="text" id="aPaterno" readonly><br>
+
+        <label>Apellido Materno</label>
+        <input type="text" id="aMaterno" readonly><br>
+
+        <label>Comentario</label>
+        <input type="text" id="comentario"><br>
+
+        <button type="submit">Guardar comentario</button>
+    </form>
+    <script src="script.js"></script>
+</body>
+
+</html>

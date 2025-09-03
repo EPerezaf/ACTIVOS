@@ -211,10 +211,10 @@ let timeout = null;
 
 
 //Funcion para renderizar usuaruis en la tabla
-function renderUsuarios(usuarios){
-    tabla.innerHTML= "";
+function renderUsuarios(usuarios) {
+    tabla.innerHTML = "";
 
-    if(usuarios.length == 0){
+    if (usuarios.length == 0) {
         const fila = document.createElement("tr");
         fila.innerHTML = `
         <td colspan = "6" style="text-align:center; color: red;"> No se encontraron resultados </td>
@@ -223,7 +223,7 @@ function renderUsuarios(usuarios){
         tabla.appendChild(fila);
         return;
     }
-    
+
 
     usuarios.forEach(u => {
         const fila = document.createElement("tr");
@@ -234,10 +234,14 @@ function renderUsuarios(usuarios){
             <td>${u.aMaterno}</td>
             <td>${u.estatus}</td>
             <td><button>Eliminar</button></td>
+            <td><button>Seleccionar </button></td>
         `;
 
-        const btnEliminar = fila.querySelector("button");
-        btnEliminar.addEventListener("click", () => eliminarUsuario(u._id));
+        //const btnEliminar = fila.querySelector("button");
+        //btnEliminar.addEventListener("click", () => eliminarUsuario(u._id));
+
+        const btnSeleccionar = fila.querySelector("button");
+        btnSeleccionar.addEventListener("click", () => seleccionarUsuario(u));
         tabla.appendChild(fila);
     });
 }
@@ -247,30 +251,109 @@ async function cargarUsuario(busqueda = "") {
     console.log("buscando:", busqueda);
     const response = await fetch(`/usuarios?buscar=${encodeURIComponent(busqueda)}`);
     const usuarios = await response.json();
-    renderUsuarios(usuarios);
+    //renderUsuarios(usuarios);
+    renderResultados(usuarios);
 }
 
 //ELIMINAR 
 async function eliminarUsuario(id) {
     if (!confirm("Seguro que queires eliminar este usuario")) return;
-    try{
+    try {
         const response = await fetch(`/usuarios/${id}`, { method: "DELETE" });
         const result = await response.json();
         alert(result.message);
         cargarUsuario(inputBuscar.value);
-    }catch(error){
-        console.error("Error al eliminar:",error);
+    } catch (error) {
+        console.error("Error al eliminar:", error);
         alert("Ocurrio un problema al intentar borrar este usuario");
     }
 }
 
 //BUSQUEDA EN TIEMPO REAL CON DEBUNCE
-inputBuscar.addEventListener("input", () =>{
+inputBuscar.addEventListener("input", () => {
     console.log("Escribiendo:", inputBuscar.value);
     clearTimeout(timeout);
-    timeout = setTimeout(() =>{
+    timeout = setTimeout(() => {
         cargarUsuario(inputBuscar.value);
-    },400);
+    }, 400);
 });
 
-document.addEventListener("DOMContentLoaded",() => cargarUsuario());
+//TABLA DE PRUEBADATOS.HTML 
+const tablaResultados = document.getElementById("tablaResultados");
+
+const inputNombre = document.getElementById("nombre");
+const inputAPaterno = document.getElementById("aPaterno");
+const inputAMaterno = document.getElementById("aMaterno");
+const inputComentario = document.getElementById("comentario");
+
+let usuarioSeleccionado = null;
+
+function renderResultados(usuarios) {
+    tablaResultados.innerHTML = "";
+
+    if (usuarios.length == 0) {
+        tablaResultados.innerHTML = `<tr><td colspan="4"> No se encuentra resultados </td></tr>`;
+        tablaResultados.appendChild(fila);
+        return;
+    }
+
+    usuarios.forEach(u => {
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+        <td>${u.id}</td>
+        <td>${u.nombre}</td>
+        <td>${u.aPaterno}</td>
+        <td>${u.aMaterno}</td>
+        <td>${u.estatus}</td>
+        <td><button>Seleccionar</button></td>
+        `;
+
+        const btnSeleccionar = fila.querySelector("button")
+        btnSeleccionar.addEventListener("click", () => seleccionarUsuario(u));
+
+        tablaResultados.appendChild(fila);
+    });
+}
+//PONERLOS EN LOS INPUTS DE PRUEBADATOS.HTML
+function seleccionarUsuario(usuario) {
+    usuarioSeleccionado = usuario;
+    inputNombre.value = usuario.nombre;
+    inputAPaterno.value = usuario.aPaterno;
+    inputAMaterno.value = usuario.aMaterno;
+}
+
+//GUARDAR COMENTARIO EN OTRA TABLA
+const traerComentario = document.getElementById("formComentario");
+if (traerComentario) {
+    traerComentario.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!usuarioSeleccionado) {
+        alert("Primero selecciona un usuario");
+        return;
+    }
+
+    const data = {
+        //usuarioId: usuarioSeleccionado._id,
+        //comentario: inputComentario.value
+        nombre: usuarioSeleccionado.nombre,
+        aPaterno: usuarioSeleccionado.aPaterno,
+        aMaterno: usuarioSeleccionado.aMaterno,
+        comentario: inputComentario.value
+    };
+
+    const response = await fetch("/comentarios", {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    alert(result.message);
+
+    inputComentario.value = "";
+    traerComentario.reset();
+
+});
+}
+
+document.addEventListener("DOMContentLoaded", () => cargarUsuario());

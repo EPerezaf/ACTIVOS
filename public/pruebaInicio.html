@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EPerez</title>
+        <style>
+            .fila{
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+                align-items: center;
+            }
+            .fila input[readonly]{
+                background: #f0f0f0;
+                border: 1px solid #ccc;
+            }
+            .btn-add, .btn-remove {
+                cursor: pointer;
+                padding: 4px 8px;
+                border: none;
+                border-radius: 4px;
+            }
+            .btn-add { background: green; color: white;}
+            .btn-remove { background: red; color: white;}
+        </style>
+    </head>
+    <body>
+        <h1>Asignar Salarios a personal</h1>
+        <input type="text" id="buscarPersonal" placeholder="Buscar por nombres o apellidos">
+        <div id="resultadosBusqueda"></div>
+
+        <h2>Seleccion de personal</h2>
+        <div id="contenedorPersonal"></div>
+
+        <button id="guardarBtn">Guardar</button>
+        
+        <script src="salarios.js"></script>
+    </body>
+</html>

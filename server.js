@@ -215,6 +215,66 @@ app.get('/usuarios', async (req, res) => {
     }
 });
 
+//GUARDAR COMENTARIO EN LA TABLA
+const comentarioContador = mongosee.model('comentarioId',CounterSchema);
+const Comentario = new mongosee.Schema({
+    id: { type: Number, unique: true},
+    nombre: String,
+    aPaterno: String,
+    aMaterno: String,
+    comentario: String,
+    fecha: { type: Date, default: Date.now }
+});
+const nuevoComentario = mongosee.model('comentarioAgregado',Comentario);
+
+/*app.post('/comentarios', async ( req,res ) =>{
+    console.log("Peticion Comentarios");
+    console.log("RECIBIENDO", req.body);
+    const { nombre, aPaterno, aMaterno, fecha, comentario} = req.body;
+
+    try {
+        const id = await getNextSequence(comentarioContador,'comentarioId');
+        console.log("Siguiente id generado: ", id);
+        const nuevoRegistro = new nuevoComentario ({ id,nombre,aPaterno,aMaterno,fecha,comentario });
+        await nuevoRegistro.save();
+        res.json({ message: "Comentario guardado correctamente "});
+    }catch(error){
+        res.status(500).json({ message: "Error al guardar comentario", error});
+    }
+});*/
+app.post('/comentarios', async (req,res) =>{
+    console.log("Peticion Comentarios");
+    console.log("Recibiendo", req.body);
+
+    try{
+        const datos = req.body;
+
+        if(Array.isArray(datos)){
+            for  (let item of datos){
+                const id = await getNextSequence(comentarioContador,'comentarioId');
+                const nuevoRegistro = new nuevoComentario({
+                    id, 
+                    nombre: item.nombre,
+                    aMaterno: item.aMaterno,
+                    aPaterno: item.aPaterno,
+                    comentario: item.comentario,
+                });
+                await nuevoRegistro.save();
+            }
+        }else {
+            const { nombre, aPaterno, aMaterno, comentario } = datos;
+            const id = await getNextSequence(comentarioContador,'comentarioId');
+            const nuevoRegistro = new nuevoComentario({ id, nombre, aPaterno, aMaterno, comentario});
+            await nuevoRegistro.save();
+
+        }
+        res.json({ message: "Comentarios Guardados"});
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "Error al guardar"});
+    }
+});
+
 
 //INICIAR SERVIDOR 
 app.listen(PORT, () => {
