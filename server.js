@@ -275,6 +275,16 @@ app.post('/comentarios', async (req,res) =>{
     }
 });
 
+app.get('/familiaActivos', async (req,res)=>{
+    try{
+        const familia = await añadirUsuario.find();
+        res.json(familia);
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener usuarios"});
+    }
+});
+
 
 //INICIAR SERVIDOR 
 app.listen(PORT, () => {
