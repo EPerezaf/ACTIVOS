@@ -1,6 +1,7 @@
 const e = require('express');
 const express = require('express');
 const mongosee = require('mongoose');
+const { type } = require('os');
 const path = require('path');
 
 const app = express();
@@ -105,6 +106,89 @@ app.get('/traerFamilia', async (req,res) =>{
         res.status(500).json({ message: "Error al obtener los datos"});
     }
 })
+
+//ESQUEMA Y MODELO DE CONCEPTO ACTIVOS
+const conceptoFamilia = new mongosee.Schema({
+    id: { type: Number, unique: true },//AUTOINCREMENTO
+    estatus: String,
+    conceptoFamilia: String,
+    conceptoSubFamilia: String,
+    conceptoActivos: String
+});
+const registroConceptoActivos = mongosee.model('conceptoActivos', conceptoFamilia, 'conceptoActivos');
+
+app.post('/conceptoActivos', async (req,res) =>{
+    console.log("PETICION POST DE CONCEPTO ACTIVOS");
+    console.log("RECIBIENDO", req.body);
+
+    try{
+        const { estatus, conceptoFamilia, conceptoSubFamilia, conceptoActivos} = req.body;
+        //BUSCAR DATOS SELECCIONADO
+        const familia = await registroFamilia.findOne({ id: conceptoFamilia});
+        if(!familia){
+            return res.status(404).json({ message: "Datos no encontrados"});
+        }
+
+        //BUSCAR DATOS SELECIONADO EN SUB FAMILIA 
+        const subFamilia = await registroSubFamilia.findOne({ id: conceptoSubFamilia});
+        if(!subFamilia){
+            return res.status(404).json({ message: "Datos no encontrados"});
+        }
+
+        //CREAR REGISTRO EN LA COLECCION DE CONCEPTO ACTIVOS
+        const id = await getNextSequence('conceptoActivoId');
+        const nuevoRegistro = new registroConceptoActivos({
+            id,
+            estatus,
+            conceptoFamilia: familia.concepto,
+            conceptoSubFamilia: subFamilia.conceptoSubFamilia,
+            conceptoActivos
+        });
+
+        await nuevoRegistro.save()
+        res.json({ message: 'Concepto guardado correctamente'});
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "Error al guardar"});
+    }
+});
+
+app.get('/traerSubFamilia', async (req,res) => {
+    try{
+        const conceptoSubFamilia = await registroSubFamilia.find();
+        res.json(conceptoSubFamilia);
+    }catch(error){
+        res.status(500).json({ message: "Error a obtener los datos"});
+    }
+})
+//ESQUEMA Y MODELO DE CONCEPTO GASTO
+const conceptoGasto = new mongosee.Schema({
+    id: { type: Number, unique: true }, //AUTOINCREMENTO
+    estatus: String, 
+    conceptoGasto: String
+});
+const registroConceptoGasto = mongosee.model('conceptoGasto', conceptoGasto, 'conceptoGasto');
+
+app.post('/conceptoGasto', async (req,res) => {
+    console.log("PETICION POST CONCEPTO GASTO");
+    console.log("RECIBIENDO", req.body);
+
+    try{
+        const { estatus, conceptoGasto } = req.body;
+
+        const id = await getNextSequence('conceptoGastoId');
+        const nuevoRegistro = new registroConceptoGasto({
+            id,
+            estatus,
+            conceptoGasto
+        });
+
+        await nuevoRegistro.save()
+        res.json({ message: 'Concepto guarado correctamente'});
+    }catch(error){
+        res.status(500).json({ meesage: "Error al guardar"});
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`SERVIDOR EN http://localhost:${PORT}`)

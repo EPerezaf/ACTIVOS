@@ -9,34 +9,46 @@
 </head>
 
 <body>
-    <header>
-
-    </header>
+    <header></header>
     <div>
         <h2>Concepto Activo</h2>
     </div>
-    
+
     <div>
-        <button><a href="index.html" >Regresar</a></button>
+        <button><a href="index.html">Regresar</a></button>
     </div>
-    <form id="formulario">
+    <!--<form id="formulario">-->
+    <form id="formConceptoActivos">
         <div>
-            <select name="estatus" required>
+            <select id="estatusConceptoActivos" name="estatusConceptoActivos" required>
                 <option value="" disabled selected>Seleccione un estatus</option>
-                <option value="alta" >Alta</option>
-                <option value="baja" >Baja</option>
+                <option value="alta">Alta</option>
+                <option value="baja">Baja</option>
             </select>
-            <div>
-                <textarea name="concepto" placeholder="Descripcion de concepto Activo" required></textarea>
-            </div>
-            <div>
-                <button type="submit">Agregar</button>
-            </div>
+        </div>
+        <div>
+            <h1 for="listaFamilia">Familia de activos</h1>
+            <br>
+            <select id="listaFamilia" name="listaFamilia" required>
+                <option value="" disabled selected>Seleccione un estatus</option>
+            </select>
+            <br>
+            <h2 for="listaSubFamilia">Sub Familia de Activos</h2>
+            <select id="listaSubFamilia" name="listaSubFamilia" required>
+                <option value="" disabled selected>Selecciona una Subfamilia</option>
+            </select>
+        </div>
+        <br>
+        <div>
+            <textarea id="conceptoActivos" name="conceptoActivos" placeholder="Descripcion de concepto Activo" required></textarea>
+        </div>
+        <div>
+            <button type="submit">Agregar</button>
         </div>
     </form>
 
 
-    <script src="script.js">
+    <script src="scriptForm.js">
     </script>
 </body>
 <footer>&copy; 2025 Eperez AF. Todos los derechos reservados a Eperez.</footer>
