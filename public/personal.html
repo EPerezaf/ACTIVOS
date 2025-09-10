@@ -12,9 +12,10 @@
         <div>
             <h2>Registro de Personal</h2>
         </div>
-        <form id="Rpersonal">
+        <!--<form id="Rpersonal">-->
+        <form id="formPersonal">
             <div>
-                <select id="estatus" name="estatus">
+                <select id="estatusPersonal" name="estatus">
                     <option value="" disabled selected>Selecione una opcion</option>
                     <option value="alta">Alta</option>
                     <option value="baja">Baja</option>
@@ -36,16 +37,16 @@
                 <input type="text" id="aMaterno" name="aMaterno" required>
             </div>
             <div>
-                <label>Fecha de nacimiento</label>
+                <label>Fecha de Nacimiento</label>
                 <br>
                 <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
             </div>
             <div>
                 <br>
-                <button type="submit">Registrar</button>
+                <button type="submit">Guardar</button>
             </div>
         </form>
 
-        <script src="script.js"></script>
+        <script src="scriptForm.js"></script>
     </body>
 </html>

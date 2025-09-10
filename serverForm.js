@@ -190,6 +190,40 @@ app.post('/conceptoGasto', async (req,res) => {
     }
 });
 
+//ESQUEMA Y MODELO DE PERSONAL
+const personal = new mongosee.Schema({
+    id: { type: Number, unique: true },
+    estatusPersonal: String,
+    nombre: String, 
+    aPaterno: String,
+    aMaterno: String,
+    fechaNacimiento: Date
+});
+const registroPersonal = mongosee.model('personal', personal, 'personal');
+
+app.post('/personal', async (req, res) =>{
+    console.log("PETICION POST DE PERSONAL");
+    console.log("RECIBIENDO", req.body);
+
+    try{
+        const { estatusPersonal, nombre, aPaterno, aMaterno, fechaNacimiento } = req.body;
+        const id = await getNextSequence('personalId');
+        const nuevoRegistro = new registroPersonal({
+            id,
+            estatusPersonal, 
+            nombre,
+            aPaterno,
+            aMaterno,
+            fechaNacimiento
+        });
+
+        await nuevoRegistro.save()
+        res.json({ message: 'Personal guardado Correctamente'});
+    }catch(error){
+        res.status(500).json({ message: "Error al guardar"});
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`SERVIDOR EN http://localhost:${PORT}`)
 })
