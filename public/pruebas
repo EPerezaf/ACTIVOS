@@ -1,0 +1,265 @@
+// ===== VARIABLES GLOBALES =====
+let timeout = null;
+
+// ===== VERIFICACIÓN DE ELEMENTOS DEL DOM =====
+function verificarElementos() {
+    const elementosRequeridos = [
+        'modalBusqueda', 'abrirBusqueda', 'cerrarModal', 
+        'buscarPersonalModal', 'resultadosBusquedaModal',
+        'buscarFamiliaModal', 'resultadosFamiliaModal',
+        'contenedorPersonal', 'contenedorFamilia', 'guardarBtn'
+    ];
+    
+    elementosRequeridos.forEach(id => {
+        const elemento = document.getElementById(id);
+        if (!elemento) {
+            console.error(`Elemento con ID '${id}' no encontrado`);
+        }
+    });
+}
+
+// ===== INICIALIZACIÓN =====
+document.addEventListener('DOMContentLoaded', function() {
+    verificarElementos();
+    inicializarAplicacion();
+});
+
+function inicializarAplicacion() {
+    // ===== FUNCIONALIDAD DEL MODAL =====
+    const modal = document.getElementById("modalBusqueda");
+    const abrirBtn = document.getElementById("abrirBusqueda");
+    const cerrarBtn = document.getElementById("cerrarModal");
+    const closeSpan = document.querySelector(".close");
+
+    if (!modal || !abrirBtn || !cerrarBtn || !closeSpan) {
+        console.error("Elementos del modal no encontrados");
+        return;
+    }
+
+    // Abrir modal
+    abrirBtn.addEventListener("click", () => {
+        modal.style.display = "block";
+        // Limpiar búsquedas al abrir
+        const buscarPersonal = document.getElementById("buscarPersonalModal");
+        const buscarFamilia = document.getElementById("buscarFamiliaModal");
+        const resultadosPersonal = document.getElementById("resultadosBusquedaModal");
+        const resultadosFamilia = document.getElementById("resultadosFamiliaModal");
+        
+        if (buscarPersonal) buscarPersonal.value = "";
+        if (buscarFamilia) buscarFamilia.value = "";
+        if (resultadosPersonal) resultadosPersonal.innerHTML = "";
+        if (resultadosFamilia) resultadosFamilia.innerHTML = "";
+    });
+
+    // Cerrar modal
+    cerrarBtn.addEventListener("click", cerrarModal);
+    closeSpan.addEventListener("click", cerrarModal);
+
+    function cerrarModal() {
+        modal.style.display = "none";
+    }
+
+    // Cerrar modal al hacer clic fuera del contenido
+    window.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            cerrarModal();
+        }
+    });
+
+    // ===== BÚSQUEDA DE PERSONAL =====
+    const inputBuscarPersonal = document.getElementById("buscarPersonalModal");
+    const resultadosPersonalDiv = document.getElementById("resultadosBusquedaModal");
+
+    if (inputBuscarPersonal && resultadosPersonalDiv) {
+        inputBuscarPersonal.addEventListener('input', (e) => {
+            console.log('Buscando personal:', e.target.value);
+        });
+
+        inputBuscarPersonal.addEventListener("input", () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(async () => {
+                const texto = inputBuscarPersonal.value.trim();
+                if (!texto) {
+                    resultadosPersonalDiv.innerHTML = "";
+                    return;
+                }
+                
+                try {
+                    const res = await fetch(`/traerPersonal?buscar=${encodeURIComponent(texto)}`);
+                    const usuarios = await res.json();
+
+                    if (usuarios.length === 0) {
+                        resultadosPersonalDiv.innerHTML = "<p>No se encontraron resultados</p>";
+                        return;
+                    }
+
+                    resultadosPersonalDiv.innerHTML = usuarios.map(u =>
+                        `<div>
+                        <button onclick='seleccionarPersonal(${JSON.stringify(u)})'>
+                        ${u.nombre} ${u.aPaterno} ${u.aMaterno}
+                        </button>
+                        </div>`
+                    ).join("");
+                } catch (error) {
+                    console.error("Error en búsqueda de personal:", error);
+                    resultadosPersonalDiv.innerHTML = "<p>Error en la búsqueda</p>";
+                }
+            }, 400);
+        });
+    }
+
+    // ===== BÚSQUEDA DE FAMILIA =====
+    const buscarFamiliaInput = document.getElementById("buscarFamiliaModal");
+    const resultadoFamiliaDiv = document.getElementById("resultadosFamiliaModal");
+
+    if (buscarFamiliaInput && resultadoFamiliaDiv) {
+        buscarFamiliaInput.addEventListener('input', (e) => {
+            console.log('Buscando familia:', e.target.value);
+        });
+
+        buscarFamiliaInput.addEventListener("input", () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(async () => {
+                const conceptoFamilia = buscarFamiliaInput.value.trim();
+                console.log("Buscando familia con:", conceptoFamilia);
+                
+                if (!conceptoFamilia) {
+                    resultadoFamiliaDiv.innerHTML = "";
+                    return;
+                }
+
+                try {
+                    console.log("Enviando búsqueda de familia:", conceptoFamilia);
+                    const res = await fetch(`/traerFamilia?buscar=${encodeURIComponent(conceptoFamilia)}`);
+                    const familias = await res.json();
+                    console.log("Resultados familia:", familias);
+
+                    if (familias.length === 0) {
+                        resultadoFamiliaDiv.innerHTML = "<p>No se encontraron resultados</p>";
+                        return;
+                    }
+                    
+                    resultadoFamiliaDiv.innerHTML = familias.map(f =>
+                        `<div>
+                        <button onclick='seleccionarFamilia(${JSON.stringify(f)})'>
+                        ${f.concepto}
+                        </button>
+                        </div>`
+                    ).join("");
+                } catch (error) {
+                    console.error("Error en búsqueda de familia:", error);
+                    resultadoFamiliaDiv.innerHTML = "<p>Error en la búsqueda</p>";
+                }
+            }, 400);
+        });
+    }
+
+    // ===== GUARDAR EN MODELO =====
+    const btnGuardar = document.getElementById("guardarBtn");
+    if (btnGuardar) {
+        btnGuardar.addEventListener("click", async () => {
+            const contenedorPersonal = document.getElementById("contenedorPersonal");
+            if (!contenedorPersonal) {
+                console.error("Contenedor personal no encontrado");
+                return;
+            }
+            
+            const filas = contenedorPersonal.querySelectorAll(".fila");
+            const data = [];
+
+            filas.forEach(fila => {
+                const inputs = fila.querySelectorAll("input");
+                if (inputs.length >= 4) {
+                    data.push({
+                        nombre: inputs[0].value,
+                        aPaterno: inputs[1].value,
+                        aMaterno: inputs[2].value,
+                        comentario: inputs[3].value,
+                    });
+                }
+            });
+
+            console.log("DATA A ENVIAR:", data);
+
+            try {
+                const res = await fetch("/solicitudCompra", {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                alert(result.message || "GUARDADO CORRECTAMENTE");
+            } catch (error) {
+                console.error("Error al guardar:", error);
+                alert("Error al guardar la solicitud");
+            }
+        });
+    }
+}
+
+// ===== FUNCIONES DE SELECCIÓN (deben ser globales) =====
+function seleccionarPersonal(usuario) {
+    console.log("Personal seleccionado:", usuario);
+    const contenedor = document.getElementById("contenedorPersonal");
+    if (!contenedor) {
+        console.error("Contenedor personal no encontrado");
+        return;
+    }
+    
+    const fila = document.createElement("div");
+    fila.classList.add("fila");
+
+    fila.innerHTML = `
+        <input type="text" value="${usuario.nombre}" readonly>
+        <input type="text" value="${usuario.aPaterno}" readonly>
+        <input type="text" value="${usuario.aMaterno}" readonly>
+        <input type="number" placeholder="Salario" class="salario">
+        <button class="btn-remove">X</button>
+    `;
+    
+    fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
+    contenedor.appendChild(fila);
+    
+    // Limpiar resultados de búsqueda
+    const resultadosPersonalDiv = document.getElementById("resultadosBusquedaModal");
+    const inputBuscarPersonal = document.getElementById("buscarPersonalModal");
+    const modal = document.getElementById("modalBusqueda");
+    
+    if (resultadosPersonalDiv) resultadosPersonalDiv.innerHTML = "";
+    if (inputBuscarPersonal) inputBuscarPersonal.value = "";
+    if (modal) modal.style.display = "none";
+}
+
+function seleccionarFamilia(familia) {
+    console.log("Familia seleccionada:", familia);
+    const contenedor = document.getElementById("contenedorFamilia");
+    if (!contenedor) {
+        console.error("Contenedor familia no encontrado");
+        return;
+    }
+    
+    const fila = document.createElement("div");
+    fila.classList.add("fila");
+
+    fila.innerHTML = `
+        <input type="text" value="${familia.concepto}" readonly>
+        <input type="text" placeholder="Comentario" class="comentario">
+        <button class="btn-remove">X</button>
+    `;
+    
+    fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
+    contenedor.appendChild(fila);
+    
+    // Limpiar resultados de búsqueda
+    const resultadoFamiliaDiv = document.getElementById("resultadosFamiliaModal");
+    const buscarFamiliaInput = document.getElementById("buscarFamiliaModal");
+    const modal = document.getElementById("modalBusqueda");
+    
+    if (resultadoFamiliaDiv) resultadoFamiliaDiv.innerHTML = "";
+    if (buscarFamiliaInput) buscarFamiliaInput.value = "";
+    if (modal) modal.style.display = "none";
+}
+
+
+

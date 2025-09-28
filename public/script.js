@@ -357,3 +357,157 @@ if (traerComentario) {
 }
 
 document.addEventListener("DOMContentLoaded", () => cargarUsuario());
+
+/*PRUEBA FUNCIONAL DE TRAER Y SELECCIONAR PERSONAL Y FAMILIA*/
+
+//---------------------------------
+/*const modal = document.getElementById("modalBusqueda");
+const abrirBtn = document.getElementById("abrirBusqueda");
+const cerrarBtn = document.getElementById("cerrarModal");
+const closeSpan = document.getElementById(".close");
+
+//ABRIR MODAL
+abrirBtn.addEventListener("click", () =>{
+    modal.style.display = "block";
+})
+
+//CERRAR MODAL
+cerrarBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+});
+
+closeSpan.addEventListener("click", () => {
+    modal.style.display = "none";
+});
+
+//CERRAR MODAL AL HACER CLICK FUERA DEL CONTENIDO
+window.addEventListener("click", (event) => {
+    if(event.target === modal){
+        modal.style.display = "none";
+    }
+});
+
+//------------------------------------
+
+
+
+const inputBuscar = document.getElementById("buscarPersonal");
+const resultadosDiv = document.getElementById("resultadosBusqueda");
+const contenedor = document.getElementById("contenedorPersonal");
+const btnGuardar = document.getElementById("guardarBtn");
+
+let timeout =null;
+
+//BUSCADOR EN TIEMPO REAL 
+inputBuscar.addEventListener("input", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(async () => {
+        const texto = inputBuscar.value.trim();
+        if(!texto){
+            resultadosDiv.innerHTML = "";
+            return;
+        }
+        
+        const res = await fetch(`/traerPersonal?buscar=${encodeURIComponent(texto)}`);
+        const usuarios = await res.json();
+
+        if(usuarios.length == 0){
+            resultadosDiv.innerHTML = "<p>No se encontraron resultados<p>";
+            return;
+        }
+
+        resultadosDiv.innerHTML =usuarios.map(u =>
+            `<div>
+            <button onclick='seleccionarPersonal(${JSON.stringify(u)})'>
+            ${u.nombre} ${u.aPaterno} ${u.aMaterno}
+            </button>
+            </div>`
+        ).join("");
+    }, 400);
+});
+
+//SELECCIONAR USUARIO Y AGREGARLO A INPUTS
+function seleccionarPersonal(usuario) {
+    const fila = document.createElement("div");
+    fila.classList.add("fila");
+
+    fila.innerHTML = `
+        <input type="text" value="${usuario.nombre}" readonly>
+        <input type="text" value="${usuario.aPaterno}" readonly>
+        <input type="text" value="${usuario.aMaterno}" readonly>
+        <input type="number" placeholder="Salario" class="salario">
+        <button class="btn-remove">X</button>
+        `;
+    //BOTON PARA ELIMINAR
+    fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
+    contenedor.appendChild(fila);
+    resultadosDiv.innerHTML = "";
+    inputBuscar.value ="";
+
+    //CERRAR MODAL DESPUES DE SELECCION
+    modal.style.display = "none";
+}
+
+//GUARDAR EN MODELO 
+btnGuardar.addEventListener("click", async () =>{
+    const filas = contenedor.querySelectorAll(".fila");
+    const data = [];
+
+    filas.forEach(fila => {
+        const inputs = fila.querySelectorAll("input");
+        if(inputs.length >= 4){
+            data.push({
+                nombre: inputs[0].value,
+                aPaterno: inputs[1].value,
+                aMaterno: inputs[2].value,
+                comentario: inputs[3].value,
+            });
+        }
+    });
+
+    console.log("DATA A ENVIAR, ", data);
+
+    const res = await fetch("/solicitudCompra",{
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const result= await res.json();
+    alert(result.message || "GUARDADO CORRECTAMENTE");
+    
+});
+
+const buscarFamilia = document.getElementById("buscarFamilia");
+const resultadoFamilia = document.getElementById("resultadosFamilia");
+
+buscarFamilia.addEventListener("input", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(async () => {
+        const conceptoFamilia = buscarFamilia.value.trim();
+        if(!conceptoFamilia){
+            resultadoFamilia.innerHTML = "";
+            return;
+        }
+
+        try{
+            const res = await fetch(`/traerFamilia?buscar=${encodeURIComponent(conceptoFamilia)}`);
+            const familias = await res.json();
+
+            if(familias.length == 0){
+                resultadoFamilia.innerHTML = "<p> No se encontraron resultados<p>";
+                return;
+            }
+            resultadoFamilia.innerHTML = familias.map(f =>
+                `<div>
+                <button onclick='seleccionarFamilia(${JSON.stringify(f)})'>
+                ${f.concepto}
+                </button>
+                </div>`
+            ).join("");
+        }catch(error){
+            console.error("Error en la busqueda", error);
+            resultadoFamilia.innerHTML = "<p>Errr en la busqueda<p>";
+        }
+    }, 400);
+});*/ 
