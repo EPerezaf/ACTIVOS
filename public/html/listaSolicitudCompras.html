@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width initial-scale=1.0">
-        <title>Lista de Solicitud de Compra</title>
-        <style>
-            /*
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Lista de Solicitud de Compra</title>
+    <style>
+        /*
             table{
                 width: 100%;
                 border-collapse: collapse;
@@ -19,11 +20,15 @@
             th {
                 background: #f4f4f4;
             }*/
-            body {
+        body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        h1 { text-align: center; }
+
+        h1 {
+            text-align: center;
+        }
+
         .solicitud {
             border: 1px solid #ccc;
             padding: 15px;
@@ -31,27 +36,32 @@
             border-radius: 8px;
             background-color: #f9f9f9;
         }
+
         .solicitud h2 {
             margin-top: 0;
         }
+
         .section {
             margin-bottom: 10px;
         }
+
         ul {
             padding-left: 20px;
         }
 
         /*ESTILO PARA EL MODAL*/
-        .fila{
+        .fila {
             display: flex;
             gap: 10px;
             margin-bottom: 10px;
             align-items: center;
         }
-        .fila input[readonly]{
+
+        .fila input[readonly] {
             background: #f0f0f0;
             border: 1px solid #ccc;
         }
+
         .btn-add,
         .btn-remove {
             cursor: pointer;
@@ -60,7 +70,7 @@
             border-radius: 4px;
         }
 
-        .btn-add{
+        .btn-add {
             background: green;
             color: white;
         }
@@ -79,7 +89,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgb(0, 0,0,0.5);
+            background-color: rgb(0, 0, 0, 0.5);
         }
 
         .modal-content {
@@ -105,7 +115,7 @@
             color: black;
         }
 
-        .search-section{
+        .search-section {
             margin-bottom: 15px;
         }
 
@@ -121,29 +131,48 @@
             overflow-y: auto;
             margin-bottom: 15px;
         }
-        </style>
-    </head>
-    <body>
-        <h1>Solicitudes Guardadas</h1>
-        <div id="contenedorSolicitudes">
-            <p>Cargando solicitudes...</p>
-        </div>
+    </style>
+</head>
 
-        <!--MODAL PARA EDITAR-->
-        <div id="modalEditar" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Editar Informacion</h2>
+<body>
+    <h1>Solicitudes Guardadas</h1>
+    <button id="abrirBusqueda">Buscar</button>
+    <div id="contenedorSolicitudes">
+        <p>Cargando solicitudes...</p>
+    </div>
 
-                <!--Editar solicitud-->
-                <div class="search-section">
-                    <h3>Editar Solicitud</h3>
-                    <div id="resultadoEditar" class="results-container"></div>
-                    <div id="contenedorEditar"></div>
-                </div>
-                <button id="cerrarModal">Cerrar</button>
+    <!--MODAL PARA EDITAR-->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Editar Informacion</h2>
+
+            <!--Editar solicitud-->
+            <div class="search-section">
+                <h3>Editar Solicitud</h3>
+                <div id="resultadoEditar" class="results-container"></div>
+                <div id="contenedorEditar"></div>
             </div>
+            <button id="cerrarModal">Cerrar</button>
         </div>
-        <script src="scriptForm.js"></script>
-    </body>
+    </div>
+
+    <div id="modalBusqueda" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Busqueda de Informacion</h2>
+
+            <div class="search-section">
+                <h3>Buscar personal</h3>
+                <input type="text" id="buscarPersonalModal" placeholder="Buscar por nombre o apellido">
+                <div id="resultadoBusquedaModal" class="results-container"></div>
+            </div>
+            <button id="cerrarModal">Cerrar</button>
+        </div>
+    </div>
+
+    <!--<script src="scriptForm.js"></script>-->
+    <script src="../scripts/scriptListSolicitudCompra.js"></script>
+</body>
+
 </html>

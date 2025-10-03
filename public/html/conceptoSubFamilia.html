@@ -16,9 +16,6 @@
     <form id="formSubFamilia">
         <label for="listaFamilia">Familia</label>
         <br>
-        <select id="listaFamilia" required>
-            <option value="" disabled selected>Selecciona una opcion</option>
-        </select>
         <div>
             <select id="estatus" name="estatus" required>
                 <option name="" disabled selected>Seleccione opcion</option>
@@ -27,6 +24,10 @@
 
             </select>
         </div>
+        <select id="listaFamilia" required>
+            <option value="" disabled selected>Selecciona una opcion</option>
+        </select>
+        
         <div>
             <textarea id="conceptoSubFamilia" name="conceptosubFamilia" placeholder="Escribe la subfamilia" required></textarea>
         </div>
@@ -34,7 +35,8 @@
 
 
     </form>
-    <script src="scriptForm.js"></script>
+    <!--<script src="scriptForm.js"></script>-->
+    <script src="../scripts/scriptSubFamilia.js"></script>
 </body>
 <footer>&copy;Eperez AF. Todos los derechso resevardos Eperez.</footer>
 

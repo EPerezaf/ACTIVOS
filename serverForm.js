@@ -318,6 +318,8 @@ app.post('/conceptoCompra', async (req,res)=> {
 const solicitudCompra = new mongosee.Schema({
     id: { type: Number, unique: true },
     fechaCreacion: {type: Date, default: Date.now},
+    estatusCompras: {type: String, default: "Pendiente"},
+    clasificacionCompras: String,
     descripcionConceptoCompra: String,
     personal: [
         {
@@ -333,8 +335,13 @@ const solicitudCompra = new mongosee.Schema({
             conceptoCompra: String,
             comentario: String
         }
+    ],
+    proveedores: [
+        {
+            razonSocial: String,
+            costo: String
+        }
     ]
-    
 });
 const registroSolicitudCompra = mongosee.model('solicitudCompra', solicitudCompra, 'solicitudCompra');
 
@@ -380,7 +387,13 @@ app.post('/solicitudCompra', async (req, res) => {
                 success: false
             });
         }
-        console.log(`Verifiacacion pasada: Personal: ${datos.personal.length}, Concepto Compras: ${datos.conceptoCompras.length}`);
+        if(!datos.proveedores || !Array.isArray(datos.proveedores)|| datos.proveedores.length == 0){
+            return res.status(400).json({
+                message: "ERROR: Debe seleccionar al menos un personal",
+                success: false
+            });
+        }
+        console.log(`Verifiacacion pasada: Personal: ${datos.personal.length}, Concepto Compras: ${datos.conceptoCompras.length}, Proveedores: ${datos.proveedores.length}`);
 
         //OBTENER UN SOLO ID PARA TODO EL DOCUMENTO
         const id = await getNextSequence('solicitudCompraId');
@@ -390,9 +403,11 @@ app.post('/solicitudCompra', async (req, res) => {
         const solicitudCompleta = {
             id: id,
             fechaCreacion: new Date(),
+            clasificacionCompras: datos.clasificacionCompras,
             descripcionConceptoCompra: datos.descripcion,
             personal: datos.personal,
-            conceptoCompras: datos.conceptoCompras
+            conceptoCompras: datos.conceptoCompras,
+            proveedores: datos.proveedores
         };
         
         console.log("Documento completo a guardar:", solicitudCompleta);
@@ -411,7 +426,8 @@ app.post('/solicitudCompra', async (req, res) => {
             success: true,
             id: resultado.id,
             personalGuardado: datos.personal.length,
-            conceptoComprasGuardadas: datos.conceptoCompras.length
+            conceptoComprasGuardadas: datos.conceptoCompras.length,
+            proveedores: datos.proveedores.length
         });
     }catch(error){
         console.error("ERROR EN EL SERVIDOR:", error);
@@ -440,16 +456,23 @@ app.get('/solicitudes', async (req, res) => {
 
         const resultado = solicitudes.map(u => ({
             id: u.id,
+            estatusCompras: u.estatusCompras,
             fechaCreacion: u.fechaCreacion,
+            clasificacionCompras: u.clasificacionCompras,
+            descripcionConceptoCompra: u.descripcionConceptoCompra,
             personal: u.personal.map(p => ({
                 nombre: p.nombre,
                 aPaterno: p.aPaterno,
                 aMaterno: p.aMaterno,
                 comentario: p.comentario
             })),
-            familias: u.familias.map(f => ({
-                concepto: f.concepto,
+            conceptoCompras: u.conceptoCompras.map(f => ({
+                conceptoCompra: f.conceptoCompra,
                 comentario: f.comentario
+            })),
+            proveedores: u.proveedores.map(j => ({
+                razonSocial: j.razonSocial,
+                costo: j.costo
             }))
         }));
 
@@ -502,6 +525,125 @@ app.get('/solicitudes/:id', async (req, res) => {
     } catch (error) {
         console.error("Error en GET /solicitudes/:id", error);
         res.status(500).json({ message: "Error del servidor" });
+    }
+});
+
+//ENDPOINT PARA EDITAR UNA SOLICITUD DE COMPRA
+app.put('/solicitudCompra/:id', async (req,res) => {
+    try{
+        const id = parseInt(req.params.id);
+        const datos = req.body;
+
+        console.log("EDITANDO SOLICITUD:", id);
+        console.log("Datos recibidos para actualizar:", datos);
+
+        //VERIFICAR QUE EXISTA LA SOLICITUD
+        const solicitud = await registroSolicitudCompra.findOne({ id: id});
+        if(!solicitud){
+            return res.status(404).json({ success: false, message:"Solicitud de compra no encontrada"});
+
+        }
+
+        //ACTUALIZAR CAMPOS
+        solicitud.clasificacionCompras = datos.clasificacionCompras || solicitud.clasificacionCompras;
+        solicitud.descripcionConceptoCompra = datos.descripcionConceptoCompra || solicitud.descripcionConceptoCompra;
+        solicitud.personal = datos.personal || solicitud.personal;
+        solicitud.conceptoCompras = datos.conceptoCompras || solicitud.conceptoCompras;
+        solicitud.proveedores = datos.proveedores || solicitud.proveedores;
+
+        const resultado = await solicitud.save();
+
+        res.json({
+            success: true,
+            message: `Solciitud id:${id} actualizada correctamente`,
+            solicitud: resultado
+        });
+    }catch(error){
+        console.error("Error en el PUT /solicitudCompra/:id", error);
+        res.status(500).json({ success: false, message:"Error al actualizar la solicitud"});
+    }
+})
+
+
+//=================================================================================================================
+//=====================altaProveedor.html=========================================================================
+//=====================ALTA DE PROVEEDORES================================================================
+const proveedores = new mongosee.Schema({
+    id: {type: Number, unique: true },
+    estatusProveedor: String,
+    nickName: String,
+    razonSocial: String,
+    rfc: String,
+    domicilioFiscal: String,
+    ciudad: String,
+    cp: String,
+    correo: String,
+    cuenta: String,
+    clabe: String
+});
+const registroProveedor = mongosee.model('proveedores', proveedores, 'proveedores');
+
+app.post('/altaProveedores', async (req, res) => {
+    console.log("PETICION POST ALTA PROVEEDORES");
+    console.log("RECIBIENDO: ", req.body);
+
+    try{
+        const { estatusProveedor,
+            nickName,
+            razonSocial,
+            rfc,
+            domicilioFiscal,
+            ciudad,
+            cp,
+            correo,
+            cuenta,
+            clabe
+        } = req.body;
+
+        const id = await getNextSequence('proveedorId');
+        const nuevoRegistro = new registroProveedor({
+            id,
+            estatusProveedor,
+            nickName,
+            razonSocial,
+            rfc,
+            domicilioFiscal,
+            ciudad,
+            cp,
+            correo,
+            cuenta,
+            clabe
+        });
+
+        await nuevoRegistro.save();
+        res.json({ message: 'Alta de proveedor EXITOSA!'});
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "ERROR AL GUARDAR"});
+    }
+});
+
+//BUSCAR PROVEEDORES 
+app.get('/buscarProveedores', async (req,res) => {
+    console.log("Se escribio: ", req.query);
+    try{
+        const { buscar } = req.query;
+        console.log("VALOR RECIBIDO", buscar);
+
+        let query = {};
+        if(buscar){
+            query = {
+                $or: [
+                    { nickName: { $regex: buscar, $options: 'i' } },
+                    { razonSocial: { $regex: buscar, $options: 'i' } }
+                ]
+            };
+        }
+        const proveedores = await registroProveedor.find(query).limit(20);
+        res.json(proveedores);
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "ERROR AL BUSCAR PROVEEDORES"});
     }
 });
 

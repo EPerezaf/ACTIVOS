@@ -94,7 +94,14 @@
 <body>
     <header></header>
     <h1>Solicitud De compras</h1>
-
+    <select name="clasificacionCompras" id="clasificacionCompras">
+        <option value="" disabled selected>Selecione una clasificacion</option>
+        <option value="Urgente">Urgente</option>
+        <option value="Importante">Importante</option>
+        <option value="Normal">Normal</option>
+    </select>
+    <br>
+    <br>
     <textarea placeholder="Descripcion de solicitud de Compra" id="descripcionConceptoCompras"></textarea>
 
     <h2>Selección de personal</h2>
@@ -106,6 +113,10 @@
     <h2>Selección de Concepto Gasto</h2>
     <button id="abrirConceptoCompra" class="btn-add">Abrir Busqueda</button>
     <div id="contenedorConceptoCompra"></div>
+
+    <h2>Seleccion de Proveedores</h2>
+    <div id="contenedorProveedores"></div>
+    <button id="abrirProveedores" class="btn-add">Abrir Busqueda de Proveedores</button>
     <BR></BR>
 
     <button id="guardarBtn">Guardar</button>
@@ -139,10 +150,25 @@
             <button id="cerrarModalConceptoCompra">Cerrar</button>
         </div>
     </div>
+    <div id="modalProveedores" class="modal">
+        <div class="modal-content">
+            <span class="clsoe">&times;</span>
+            <h2>Busqueda de Proveedores</h2>
+
+            <!--BUSQUEDA DE PROVEEDORES-->
+            <div class="search-section">
+                <h3>Buscar Concepto Compra</h3>
+                <input type="text" id="buscarProveedores" placeholder="Buscar Proveedores">
+                <div id="resultadoProveedoresModal" class="results-container"></div>
+            </div>
+            <button id="cerrarModalProveedores">Cerrar</button>
+        </div>
+    </div>
 
 
 
-    <script src="scriptForm.js"></script>
+    <!--<script src="scriptForm.js"></script>-->
+    <script src="../scripts/scriptSolicitudCompra.js"></script>
 
 
 </body>
