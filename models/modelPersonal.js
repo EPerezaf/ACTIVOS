@@ -8,6 +8,10 @@ const personal = new mongosee.Schema({
     nombre: String,
     aPaterno: String,
     aMaterno: String,
-    fechaNacimiento: Date
+    p_curp: String,
+    p_ciudad: String,
+    p_estado: String,
+    p_edad: Number
+    
 });
 module.exports = mongosee.model('personal', personal, 'personal');

@@ -10,13 +10,16 @@ if (formPersonal) {
         const nombre = document.getElementById('nombre').value;
         const aPaterno = document.getElementById('aPaterno').value;
         const aMaterno = document.getElementById('aMaterno').value;
-        const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+        const p_curp = document.getElementById('p_curp').value;
+        const p_ciudad = document.getElementById('p_ciudad').value;
+        const p_estado = document.getElementById('p_estado').value;
+        const p_edad = document.getElementById('p_edad').value;
 
         if (!estatusPersonal) {
             alert("Debes seleccionar un estatus");
             return;
         }
-        if (!nombre && !aPaterno && !aMaterno && !fechaNacimiento) {
+        if (!nombre && !aPaterno && !aMaterno && !p_curp && !p_ciudad && !p_estado && !p_edad) {
             alert("Debes rellenar el campo")
             return;
         }
@@ -24,7 +27,7 @@ if (formPersonal) {
         const res = await fetch('/api/routePersonal/personal', {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ estatusPersonal, nombre, aPaterno, aMaterno, fechaNacimiento })
+            body: JSON.stringify({ estatusPersonal, nombre, aPaterno, aMaterno, p_curp, p_ciudad, p_estado, p_edad })
         });
 
         const result = await res.json();

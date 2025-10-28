@@ -7,7 +7,6 @@ const conceptoFamilia = new mongosee.Schema({
     estatus: String,
     conceptoFamilia: String,
     conceptoSubFamilia: String,
-    listaMedida: String,
     conceptoActivos: String
 });
 module.exports = mongosee.model('conceptoActivos', conceptoFamilia, 'conceptoActivos');

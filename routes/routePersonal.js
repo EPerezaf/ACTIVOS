@@ -10,7 +10,7 @@ router.post('/personal', async (req, res) => {
     console.log("RECIBIENDO", req.body);
 
     try {
-        const { estatusPersonal, nombre, aPaterno, aMaterno, fechaNacimiento } = req.body;
+        const { estatusPersonal, nombre, aPaterno, aMaterno, p_curp, p_ciudad, p_estado, p_edad } = req.body;
         const id = await getNextSequence('personalId');
         const nuevoRegistro = new registroPersonal({
             id,
@@ -18,7 +18,10 @@ router.post('/personal', async (req, res) => {
             nombre,
             aPaterno,
             aMaterno,
-            fechaNacimiento
+            p_curp,
+            p_ciudad,
+            p_estado,
+            p_edad
         });
 
         await nuevoRegistro.save()

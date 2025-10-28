@@ -20,7 +20,6 @@ router.post('/conceptoActivos', async (req, res) => {
             estatus,
             conceptoFamilia,
             conceptoSubFamilia,
-            listaMedida,
             conceptoActivos
         });
 

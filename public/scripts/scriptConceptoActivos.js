@@ -59,7 +59,6 @@ if (formConceptoActivos) {
         const conceptoSubFamilia = document.getElementById("listaSubFamilia").value;
         const estatus = document.getElementById("estatusConceptoActivos").value;
         const conceptoActivos = document.getElementById("conceptoActivos").value;
-        const listaMedida = document.getElementById("listaMedida").value;
 
         if (!conceptoFamilia) {
             alert("Debes seleccionar una familia de activos");
@@ -71,15 +70,10 @@ if (formConceptoActivos) {
             return;
         }
 
-        if(!listaMedida){
-            alert("DEBES SELECCIONAR UNA MEDIDA");
-            return;
-        }
-
         const res = await fetch('/api/routeConceptoActivos/conceptoActivos', {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({estatus, conceptoFamilia, conceptoSubFamilia, listaMedida, conceptoActivos})
+            body: JSON.stringify({estatus, conceptoFamilia, conceptoSubFamilia, conceptoActivos})
         });
 
         const result = await res.json();
