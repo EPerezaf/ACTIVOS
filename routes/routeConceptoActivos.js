@@ -66,4 +66,28 @@ router.get('/buscarSubFamilia', async (req,res) => {
     }
 });
 
+//BUSCAR CONCEPTOS DE COMPRA ACTIVOS
+//comprasActivos.html
+router.get('/buscarActivo', async (req, res) => {
+    console.log("Se escribio: ",req.query);
+    try{
+        const { buscar } = req.query;
+        console.log("Valor recibido: ", buscar);
+
+        let query = {};
+        if(buscar){
+            query = {
+                $or: [
+                    { conceptoActivos: {$regex: buscar, $options: 'i' } }                    
+                ]
+            }
+        }
+        const concepto = await registroConceptoActivos.find(query).limit(20);
+        res.json(concepto);
+    }catch(error){
+        console.error("Error: ", error);
+        res.status(500).json({ message: "Error al buscar el activo"});
+    }
+})
+
 module.exports = router;

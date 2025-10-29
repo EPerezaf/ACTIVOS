@@ -93,7 +93,7 @@
 
 <body>
     <header></header>
-    <h1>Solicitud De compras</h1>
+    <h1>Solicitud De Compras</h1>
     <select name="clasificacionCompras" id="clasificacionCompras">
         <option value="" disabled selected>Selecione una clasificacion</option>
         <option value="Urgente">Urgente</option>
@@ -104,19 +104,37 @@
     <br>
     <textarea placeholder="Descripcion de solicitud de Compra" id="descripcionConceptoCompras"></textarea>
 
-    <h2>Selección de personal</h2>
-    <div id="contenedorPersonal"></div>
-     <!-- Botón para abrir el modal de búsqueda -->
-    <button id="abrirBusqueda" class="btn-add">Abrir Búsqueda</button>
+    <div>
+        <h2>Selección de Concepto Compra</h2>
+        <button id="abrirBusquedaActivos" class="btn-add">Abrir Busqueda</button>
+        <div id="contenedorConceptoActivo"></div>
+    </div>
 
-    
-    <h2>Selección de Concepto Gasto</h2>
-    <button id="abrirConceptoCompra" class="btn-add">Abrir Busqueda</button>
-    <div id="contenedorConceptoCompra"></div>
+    <div>
+        <h2>Seleccion de Proveedores</h2>
+        <div id="contenedorProveedores"></div>
+        <button id="abrirProveedores" class="btn-add">Abrir Busqueda de Proveedores</button>
+    </div>
 
-    <h2>Seleccion de Proveedores</h2>
-    <div id="contenedorProveedores"></div>
-    <button id="abrirProveedores" class="btn-add">Abrir Busqueda de Proveedores</button>
+    <div>
+        <h2>Selección de personal</h2>
+        <div id="contenedorPersonal"></div>
+        <!-- Botón para abrir el modal de búsqueda -->
+        <button id="abrirBusqueda" class="btn-add">Abrir Búsqueda</button>
+    </div>
+
+    <div>
+        <h2>Clasificacion de compra</h2>
+        <select id="sc_seleccionCompra" name="sc_seleccionCompra">
+            <option value="" disabled selected>Seleccione una opcion</option>
+            <option value="consumible">Consumible</option>
+            <option value="activo">Activo</option>
+        </select>
+    </div>
+
+
+
+
     <BR></BR>
 
     <button id="guardarBtn">Guardar</button>
@@ -136,20 +154,24 @@
             <button id="cerrarModal">Cerrar</button>
         </div>
     </div>
-    <div id="modalConceptoCompra" class="modal">
+
+    <!--MODAL PARA CONCEPTO ACTIVOS-->
+    <div id="modalConceptoActivos" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Busqueda de Concepto Compra</h2>
 
-            <!--Busqueda de Familia-->
+            <!--Busqueda de Concepto ACTIVOS-->
             <div class="search-section">
                 <h3>Buscar Concepto Compra</h3>
-                <input type="text" id="buscarConceptoCompraModal" placeholder="Buscar Familia de activos">
-                <div id="resultadosConceptoCompraModal" class="results-container"></div>
+                <input type="text" id="buscarActivoModal" placeholder="Buscar concepto de activos">
+                <div id="resultadosActivoModal" class="results-container"></div>
             </div>
-            <button id="cerrarModalConceptoCompra">Cerrar</button>
+            <button id="cerrarModalActivos">Cerrar</button>
         </div>
     </div>
+
+    <!--MODAL PARA PROVEEDORES-->
     <div id="modalProveedores" class="modal">
         <div class="modal-content">
             <span class="clsoe">&times;</span>
@@ -157,7 +179,7 @@
 
             <!--BUSQUEDA DE PROVEEDORES-->
             <div class="search-section">
-                <h3>Buscar Concepto Compra</h3>
+                <h3>Buscar Proveedor</h3>
                 <input type="text" id="buscarProveedores" placeholder="Buscar Proveedores">
                 <div id="resultadoProveedoresModal" class="results-container"></div>
             </div>

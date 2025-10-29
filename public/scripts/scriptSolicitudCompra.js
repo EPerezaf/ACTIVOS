@@ -7,12 +7,12 @@ let timeout = null;
 //VERIFICAR DE ELEMNTOS EN EL DOM 
 function verificarElementos() {
     const elementosVerificados = [
-        'modalBusqueda', 'modalConceptoCompra', 'modalProveedores',
-        'abrirBusqueda', 'abrirConceptoCompra', 'abrirProveedores',
-        'cerrarModal', 'cerrarModalConceptoCompra', 'cerrarModalProveedores',
+        'modalBusqueda', 'modalConceptoActivos', 'modalProveedores',
+        'abrirBusqueda', 'abrirBusquedaActivos', 'abrirProveedores',
+        'cerrarModal', 'cerrarModalActivos', 'cerrarModalProveedores',
         'buscarPersonalModal', 'resultadosBusquedaModal', 'buscarProveedores',
-        'buscarConceptoCompraModal', 'resultadosConceptoCompraModal', 'resultadoProveedoresModal',
-        'contenedorPersonal', 'contenedorConceptoCompra', 'contenedorProveedores','guardarBtn'
+        'buscarActivoModal', 'resultadosActivoModal', 'resultadoProveedoresModal',
+        'contenedorPersonal', 'contenedorConceptoActivo', 'contenedorProveedores','guardarBtn'
     ];
 
     elementosVerificados.forEach(id => {
@@ -27,7 +27,7 @@ function verificarElementos() {
 document.addEventListener('DOMContentLoaded', function () {
     verificarElementos();
     inicializarAplicacion();
-    inicializarConceptoCompra();
+    inicializarConceptoActivo();
     inicializarGuardado();
     inicializarProveedores();
 });
@@ -118,7 +118,6 @@ function seleccionarPersonal(usuario) {
         <input type="text" value="${usuario.nombre}" readonly>
         <input type="text" value="${usuario.aPaterno}" readonly>
         <input type="text" value="${usuario.aMaterno}" readonly>
-        <input type="number" placeholder="Comentario" class="Comentario">
         <button class="btn-remove">X</button>
         `;
 
@@ -136,82 +135,80 @@ function seleccionarPersonal(usuario) {
 }
 
 //INICIALIZAR MODAL FAMILIA 
-function inicializarConceptoCompra() {
+function inicializarConceptoActivo() {
     //FUNCION DE MODAL CONCEPTO COMPRA
-    const modal = document.getElementById("modalConceptoCompra");
-    const abrirBtn = document.getElementById("abrirConceptoCompra");
-    const cerrarBtn = document.getElementById("cerrarModalConceptoCompra");
+    const modal = document.getElementById("modalConceptoActivos");
+    const abrirBtn = document.getElementById("abrirBusquedaActivos");
+    const cerrarBtn = document.getElementById("cerrarModalActivos");
     const closeSpan = document.querySelector(".close");
 
-    if (!modal || !abrirBtn || !cerrarBtn || !closeSpan) {
-        console.error("ELEMENTOS DEL MODAL NO ENCONTRADOS");
+    if(!modal || !abrirBtn || !cerrarBtn || !closeSpan){
+        console.error("Elementos del modal no encontrados");
         return;
     }
 
+    //ABRIR MODAL 
     abrirBtn.addEventListener("click", () => {
         modal.style.display = "block";
-        //LIMPIAR BUSQUEDA AL ABRIR
-        const buscarConceptoCompra = document.getElementById("buscarConceptoCompraModal");
-        const resultadosConceptoCompra = document.getElementById("resultadosConceptoCompraModal");
+        const buscarActivo = document.getElementById("buscarActivoModal");
+        const resultadoActivo = document.getElementById("resultadosActivoModal");
 
-        if (buscarConceptoCompra) buscarConceptoCompra.value = "";
-        if (resultadosConceptoCompra) resultadosConceptoCompra.innerHTML = "";
+        if(buscarActivo) buscarActivo.value = "";
+        if(resultadoActivo) resultadoActivo.innerHTML = "";
     });
 
     //CERRAR MODAL
     cerrarBtn.addEventListener("click", () => cerrarModal(modal));
     closeSpan.addEventListener("click", () => cerrarModal(modal));
 
-    //BUSQUEDA DE FAMILIA
-    const inputBuscarConceptoCompra = document.getElementById("buscarConceptoCompraModal");
-    const resultadoConceptoCompraDiv = document.getElementById("resultadosConceptoCompraModal");
+    //BUSQUEDA DE ACTIVOS
+    const inputActivo = document.getElementById("buscarActivoModal");
+    const resultadoActivoDiv = document.getElementById("resultadosActivoModal");
 
-    if (inputBuscarConceptoCompra && resultadoConceptoCompraDiv) {
-        inputBuscarConceptoCompra.addEventListener('input', (e) => {
-            console.log('Buscando FAMILIA:', e.target.value);
-        })
+    if(inputActivo && resultadoActivoDiv){
+        inputActivo.addEventListener("input", (e) => {
+            console.log("Buscando Activo: ", e.target.value);
+        });
 
-        inputBuscarConceptoCompra.addEventListener("input", () => {
+        inputActivo.addEventListener("input", () => {
             clearTimeout(timeout);
             timeout = setTimeout(async () => {
-                const texto = inputBuscarConceptoCompra.value.trim();
-                console.log("BUSCANDO FAMILIA CON:", texto);
-                if (!texto) {
-                    resultadoConceptoCompraDiv.innerHTML = "";
+                const texto = inputActivo.value.trim();
+                if(!texto){
+                    resultadoActivoDiv.innerHTML ="";
                     return;
                 }
-                try {
-                    console.log("ENVIANDO BUSQUEDA DE FAMILIA:", texto)
-                    const res = await fetch(`/api/routeConceptoCompra/traerConceptoCompra?buscar=${encodeURIComponent(texto)}`);
-                    const conceptoCompra = await res.json();
-                    console.log("RESULTADOS FAMILIA:",conceptoCompra);
+                try{
+                    const res = await fetch(`/api/routeConceptoActivos/buscarActivo?buscar=${encodeURIComponent(texto)}`);
+                    const activo = await res.json();
 
-                    if (conceptoCompra.length === 0) {
-                        resultadoConceptoCompraDiv.innerHTML = "<p>No se encontraron resultados<p>";
+                    if(activo.length === 0){
+                        resultadoActivoDiv.innerHTML = "<p> NO se encontraron activos</p>";
                         return;
                     }
 
-                    resultadoConceptoCompraDiv.innerHTML = conceptoCompra.map(f =>
+                    resultadoActivoDiv.innerHTML = activo.map(u => 
                         `<div>
-                        <button onclick='seleccionarConceptoCompra(${JSON.stringify(f)})'>
-                        ${f.conceptoCompra}
+                        <button onclick='seleccionarConceptoActivo(${JSON.stringify(u)})'>
+                        ${u.conceptoActivos} 
                         </button>
+                        
                         </div>`
                     ).join("");
-                } catch (error) {
-                    console.error("Error en la busqueda", error);
-                    resultadoConceptoCompraDiv.innerHTML = "<p>Error en la busqueda<p>";
+                }catch(error){
+                    console.error("Error en la busqueda de activos: ",error);
+                    resultadoActivoDiv.innerHTML = "<p>Error en la busqueda de activos</p>";
                 }
-            }, 400);
+            });
         });
     }
 }
 
-function seleccionarConceptoCompra(conceptoCompra) {
-    console.log("FAMILIA SELECCIONADA:", conceptoCompra);
-    const contenedorConceptoCompra = document.getElementById("contenedorConceptoCompra");
-    if(!contenedorConceptoCompra){
-        console.error("Contenedor familia no encontrado");
+function seleccionarConceptoActivo(conceptoActivo) {
+    console.log("Activo Seleccionado", conceptoActivo);
+    const contenedor = document.getElementById("contenedorConceptoActivo");
+    if(!contenedor){
+        console.error("Contenedor de activos no encontrado");
         return;
     }
 
@@ -219,23 +216,23 @@ function seleccionarConceptoCompra(conceptoCompra) {
     fila.classList.add("fila");
 
     fila.innerHTML= `
-        <input type="text" value="${conceptoCompra.conceptoCompra}" readonly>
-        <input type="text" placeholder="Comentario" class="comentario" value="">
+        <input type="text" value="${conceptoActivo.conceptoFamilia}" readonly>
+        <input type="text" value="${conceptoActivo.conceptoSubFamilia}" readonly>
+        <input type="text" value="${conceptoActivo.conceptoActivos}" readonly>
         <button class="btn-remove">X</button>
-        `;
-
+        `
+    
     fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
-    contenedorConceptoCompra.appendChild(fila);
+    contenedor.appendChild(fila);
 
     //LIMPIAR RESULTADOS DE BUSQUEDA
-    const resultadosConceptoCompraDiv = document.getElementById("resultadosConceptoCompraModal");
-    const inputBuscarConceptoCompra = document.getElementById("buscarConceptoCompraModal");
-    const modal = document.getElementById("modalConceptoCompra");
+    const resultadoActivoDiv = document.getElementById("resultadosActivoModal");
+    const inputActivo = document.getElementById("buscarActivoModal");
+    const modal = document.getElementById("modalConceptoActivos");
 
-    if(resultadosConceptoCompraDiv) resultadosConceptoCompraDiv.innerHTML = "";
-    if(inputBuscarConceptoCompra) inputBuscarConceptoCompra.value ="";
+    if(resultadoActivoDiv) resultadoActivoDiv.innerHTML ="";
+    if(inputActivo) inputActivo.value="";
     if(modal) modal.style.display = "none";
-
 }
 
 //INICIALIZAR PROVEEDORES
@@ -323,6 +320,7 @@ function seleccionarProveedor(proveedor){
 
     fila.innerHTML = `
         <input type="text" value="${proveedor.razonSocial}" readonly>
+        <input type="text" value="${proveedor.nickName}" readonly>
         <input type="text" placeholder="Ingresa el monto" class="costo">
         <button class="btn-remove">X</button>`;
 
@@ -358,10 +356,10 @@ function inicializarGuardado(){
     if(btnGuardar){
         btnGuardar.addEventListener("click", async () => {
             const contenedorPersonal = document.getElementById("contenedorPersonal");
-            const contenedorConceptoCompra = document.getElementById("contenedorConceptoCompra");
+            const contenedorConceptoActivo = document.getElementById("contenedorConceptoActivo");
             const conetenedorProveedores = document.getElementById("contenedorProveedores");
 
-            if(!contenedorPersonal || !contenedorConceptoCompra || !conetenedorProveedores){
+            if(!contenedorPersonal || !contenedorConceptoActivo || !conetenedorProveedores){
                 console.error("Contenedores no encontrados");
                 return;
             }
@@ -369,14 +367,16 @@ function inicializarGuardado(){
             //GUARDAR LA DESCRIPCION 
             const clasificacionCompras= document.getElementById("clasificacionCompras").value.trim();
             const descripcion = document.getElementById("descripcionConceptoCompras").value.trim();
+            const sc_seleccionCompra = document.getElementById('sc_seleccionCompra').value.trim();
 
 
             const data = {
                 clasificacionCompras,
                 descripcion,
                 personal : [],
-                conceptoCompras: [],
-                proveedores: []
+                conceptoActivo: [],
+                proveedores: [],
+                sc_seleccionCompra
             };
 
             console.log("INICIANDO PROCESO DE GUARDADO");
@@ -391,16 +391,15 @@ function inicializarGuardado(){
 
             filasPersonal.forEach((fila,index) => {
                 const inputs = fila.querySelectorAll("input");
-                if(inputs.length >= 4){
+                if(inputs.length >= 3){
                     const personalData = {
                         nombre: inputs[0].value.trim(),
                         aPaterno: inputs[1].value.trim(),
                         aMaterno: inputs[2].value.trim(),
-                        comentario: inputs[3].value.trim()
                     };
 
                     if(!personalData.nombre || !personalData.aPaterno || !personalData.aMaterno){
-                        alert(`ERROR: El perosnal${index + 1} tiene campos obligatorios vacios`);
+                        alert(`ERROR: El personal${index + 1} tiene campos obligatorios vacios`);
                         return;
                     }
                     console.log(`Personal ${index + 1}:`, personalData);
@@ -409,28 +408,29 @@ function inicializarGuardado(){
             });
 
             //VERIFICACION 2: OBTENER Y VALIDAR FAMILIAS
-            const filasConceptoCompra = contenedorConceptoCompra.querySelectorAll(".fila");
-            console.log("Filas de Cocepto Compras encontradas:", filasConceptoCompra.length);
+            const filasConceptoActivo = contenedorConceptoActivo.querySelectorAll(".fila");
+            console.log("Filas de Cocepto Compras encontradas:", filasConceptoActivo.length);
 
-            if(filasConceptoCompra.length == 0){
+            if(filasConceptoActivo.length == 0){
                 alert("ERROR: Debe seleccionar al menos con una familia");
                 return;
             }
 
-            filasConceptoCompra.forEach((fila,index) => {
+            filasConceptoActivo.forEach((fila,index) => {
                 const inputs = fila.querySelectorAll("input");
-                if(inputs.length >= 2){
-                    const conceptoCompraData = {
-                        conceptoCompra: inputs[0].value.trim(),
-                        comentario: inputs[1].value.trim()
+                if(inputs.length >= 3){
+                    const conceptoActivoData = {
+                        sc_cca_familia: inputs[0].value.trim(),
+                        sc_cca_subFamilia: inputs[1].value.trim(),
+                        sc_cca_descripcion: inputs[2].value.trim()
                     };
                     //VERIFICAR QUE EL CONCEPTO NO ESTE VACIO
-                    if(!conceptoCompraData.conceptoCompra){
+                    if(!conceptoActivoData.sc_cca_familia || !conceptoActivoData.sc_cca_subFamilia || !conceptoActivoData.sc_cca_descripcion){
                         alert(`ERROR: Concepto Compras  ${index + 1} no tiene concepto`);
                         return;
                     }
-                    console.log(`Concepto Compra ${index + 1}:`, conceptoCompraData);
-                    data.conceptoCompras.push(conceptoCompraData);
+                    console.log(`Concepto Compra ${index + 1}:`, conceptoActivoData);
+                    data.conceptoActivo.push(conceptoActivoData);
                 }
             });
 
@@ -445,10 +445,11 @@ function inicializarGuardado(){
 
             filasProveedores.forEach((fila, index) => {
                 const inputs = fila.querySelectorAll("input");
-                if(inputs.length >= 2){
+                if(inputs.length >= 3){
                     const ProveedorData = {
                         razonSocial: inputs[0].value.trim(),
-                        costo: inputs[1].value.trim()
+                        nickname: inputs[1].value.trim(),
+                        sc_monto: inputs[2].value.trim()
                     };
                     //VERIFICACION QUE EL CONCEPTO NO ESTE VACIO 
                     if(!ProveedorData.razonSocial){
@@ -463,12 +464,12 @@ function inicializarGuardado(){
             //VERIFICACION FINAL
             console.log("Resumen final:");
             console.log("- Personal a guardar:", data.personal.length);
-            console.log("- ConceptoCompras a guardar:", data.conceptoCompras.length);
+            console.log("- ConceptoActivo a guardar:", data.conceptoActivo.length);
             console.log("- Proveedores a guardar: ", data.proveedores.length);
             console.log("DATA COMPLETA", data);
 
             //VERIFICACION EXTRA POR SI ALGUN RETURN NO SE EJECUTO
-            if(data.personal.length == 0 || data.conceptoCompras.length == 0 || data.proveedores== 0){
+            if(data.personal.length == 0 || data.conceptoActivo.length == 0 || data.proveedores== 0){
                 alert("ERROR: Debe tener al menos un personal y una familia para guardar");
                 return;
             }
@@ -490,10 +491,10 @@ function inicializarGuardado(){
                 console.log("Respuesta del servidor: ", result);
 
                 if(result.success){
-                    alert(`${result.message}\nID: ${result.id}\nPersonal: ${result.personalGuardado}\nConcepto Compra: ${result.coceptoComprasGuardadas}\nProveedores: ${result.proveedoresGuardadas}`);
+                    alert(`${result.message}\nID: ${result.id}\nPersonal: ${result.personalGuardado}\nConcepto Activo: ${result.coceptoActivoGuardadas}\nProveedores: ${result.proveedoresGuardadas}`);
                     //OPCIONAL: LIMPIAR LOS CONTENEDORES DESPUES DE GUARDAR
                     contenedorPersonal.innerHTML = "";
-                    contenedorConceptoCompra.innerHTML = "";
+                    contenedorConceptoActivo.innerHTML = "";
                     conetenedorProveedores.innerHTML = "";
                 }else {
                     alert(`${result.message}`);

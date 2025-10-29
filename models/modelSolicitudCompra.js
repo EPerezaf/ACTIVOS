@@ -9,25 +9,28 @@ const solicitudCompra = new mongosee.Schema({
     estatusCompras: {type: String, default: "Pendiente"},
     clasificacionCompras: String,
     descripcionConceptoCompra: String,
+    sc_seleccionCompra: String,
+
     personal: [
         {
             nombre: String,
             aPaterno: String,
             aMaterno: String,
-            comentario: String
         }
         
     ],
-    conceptoCompras: [
+    conceptoActivo: [
         {
-            conceptoCompra: String,
-            comentario: String
+            sc_cca_familia: String,
+            sc_cca_subFamilia: String,
+            sc_cca_descripcion: String,
         }
     ],
     proveedores: [
         {
             razonSocial: String,
-            costo: String
+            nickname: String,
+            sc_monto: Number
         }
     ]
 });

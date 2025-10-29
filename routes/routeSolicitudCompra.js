@@ -18,19 +18,19 @@ router.post('/solicitudCompra', async (req, res) => {
                 success: false
             });
         }
-        if(!datos.conceptoCompras || !Array.isArray(datos.conceptoCompras) || datos.conceptoCompras.length == 0){
+        if(!datos.conceptoActivo || !Array.isArray(datos.conceptoActivo) || datos.conceptoActivo.length == 0){
             return res.status(400).json({
-                message: "ERRRO: Debe seleccionar al menos una familia",
+                message: "ERROR: Debe seleccionar al menos un Activo!!",
                 success: false
             });
         }
         if(!datos.proveedores || !Array.isArray(datos.proveedores)|| datos.proveedores.length == 0){
             return res.status(400).json({
-                message: "ERROR: Debe seleccionar al menos un personal",
+                message: "ERROR: Debe seleccionar al menos un proveedor",
                 success: false
             });
         }
-        console.log(`Verifiacacion pasada: Personal: ${datos.personal.length}, Concepto Compras: ${datos.conceptoCompras.length}, Proveedores: ${datos.proveedores.length}`);
+        console.log(`Verifiacacion pasada: Personal: ${datos.personal.length}, Concepto Activo: ${datos.conceptoActivo.length}, Proveedores: ${datos.proveedores.length}`);
 
         //OBTENER UN SOLO ID PARA TODO EL DOCUMENTO
         const id = await getNextSequence('solicitudCompraId');
@@ -40,10 +40,11 @@ router.post('/solicitudCompra', async (req, res) => {
         const solicitudCompleta = {
             id: id,
             fechaCreacion: new Date(),
+            sc_seleccionCompra: datos.sc_seleccionCompra,
             clasificacionCompras: datos.clasificacionCompras,
             descripcionConceptoCompra: datos.descripcion,
             personal: datos.personal,
-            conceptoCompras: datos.conceptoCompras,
+            conceptoActivo: datos.conceptoActivo,
             proveedores: datos.proveedores
         };
         
@@ -63,7 +64,7 @@ router.post('/solicitudCompra', async (req, res) => {
             success: true,
             id: resultado.id,
             personalGuardado: datos.personal.length,
-            conceptoComprasGuardadas: datos.conceptoCompras.length,
+            conceptoActivoGuardadas: datos.conceptoActivo.length,
             proveedores: datos.proveedores.length
         });
     }catch(error){
