@@ -21,6 +21,32 @@ window.onload = async () => {
 
         //MOSTRAR LISTAS
         const listaPersonal = document.getElementById("listaPersonal");
+        //VERIFICAR SI EXISTE Y ES UN ARRAY
+        if(solicitud.personal && Array.isArray(solicitud.personal)){
+            console.log("Personal encontrados: ", solicitud.personal);
+            listaPersonal.innerHTML ="";
+            solicitud.personal.forEach(f => {
+                const filaPersonal = document.createElement("div");
+                filaPersonal.classList.add("fila");
+                filaPersonal.innerHTML =`
+                    <input type="text" value="${f.nombre || ''}" readonly>
+                    <input type="text" value="${f.aPaterno || ''}" readonly>
+                    <input type="text" value="${f.aMaterno || ''}" readonly>
+                    <button type="button" class="btn-remove">X</button>
+                    <br>
+                    
+                `;
+
+                const btnRemove = filaPersonal.querySelector(".btn-remove");
+                btnRemove.addEventListener("click", function(){
+                    console.log("Eliminado personal: ", f.nombre);
+                    filaPersonal.remove();
+                });
+
+                listaPersonal.appendChild(filaPersonal);
+            })
+        }
+        /*const listaPersonal = document.getElementById("listaPersonal");
         const filaPersonal = document.createElement("div");
         filaPersonal.classList.add("fila");
         filaPersonal.innerHTML = solicitud.personal.map(f => 
@@ -34,32 +60,34 @@ window.onload = async () => {
 
         ).join('');
         filaPersonal.querySelector(".btn-remove").addEventListener("click", () => filaPersonal.remove());
-        listaPersonal.appendChild(filaPersonal);
+        listaPersonal.appendChild(filaPersonal);*/
 
 
         //APARTADO DE CONCEPTO ACTIVO
         const listaConceptos = document.getElementById("listaConcepto");
         //VERIFICAR SI EXISTE Y ES UN ARRAY
-        if(Array.isArray(solicitud.conceptoActivo) && solicitud.conceptoActivo.length > 0){
-            console.log("Concepto encontrados: ", solicitud.conceptoActivo);
-            const filaConcepto = document.createElement("div");
-            filaConcepto.classList.add("fila");
-            filaConcepto.innerHTML = solicitud.conceptoActivo.map(p => 
+        if(solicitud.conceptoActivo && Array.isArray(solicitud.conceptoActivo)){
+            console.log("Conceptos encontrados: ", solicitud.conceptoActivo);
+            listaConceptos.innerHTML = "";
+            solicitud.conceptoActivo.forEach(p => {
+                const filaConcepto = document.createElement("div");
+                filaConcepto.classList.add("fila");
                 filaConcepto.innerHTML = `
                     <input type="text" value="${p.sc_cca_familia || ''}" readonly>
                     <input type="text" value="${p.sc_cca_subFamilia || ''}" readonly>
                     <input type="text" value="${p.sc_cca_descripcion || ''}" readonly>
                     <button type="button" class="btn-remove">X</button>
                     <br>
-                `
-            ).join("");
+                `;
 
-            const btnRemove = filaConcepto.querySelector(".btn-remove");
-                btnRemove.addEventListener("click", function() {
-                    console.log("Eliminando Concepto: ", p.sc_cca_descripcion);
+                const btnRemove = filaConcepto.querySelector(".btn-remove");
+                btnRemove.addEventListener("click", function(){
+                    console.log("Eliminado el concepto: ", p.sc_cca_descripcion);
                     filaConcepto.remove();
-                });
-            listaConceptos.appendChild(filaConcepto);
+                })
+
+                listaConceptos.appendChild(filaConcepto);
+            })
         }
 
         const listaProveedores = document.getElementById("listaProveedores");

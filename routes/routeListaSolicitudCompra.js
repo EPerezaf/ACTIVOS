@@ -47,23 +47,13 @@ router.get('/solicitudes', async (req, res) => {
 //ENDPOINT PARA PODER ELIMINAR SOLICITUD DE COMPRA
 router.delete('/solicitudCompra/:id', async (req, res) => {
     try{
-        const id = req.params.id;
-        const result = await registroSolicitudCompra.deleteOne({ id: Number(id) });
+        const id = Number(req.params.id);
+        const result = await registroSolicitudCompra.deleteOne({ id });
 
         if(result.deletedCount == 0){
             return res.status(400).json({ success: false, message: "solicitud no encontrada"});
         }
         res.json({ message: true, message: `Solicitud #${id} eliminada correctamente`});
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ success: false, message: "Error al encontrar la solicitud"});
-    }try{
-        const id = req.params.id;
-        const solicitud = await registroSolicitudCompra.findOne({ id: Number(id)});
-        if(!solicitud){
-            return res.status(404).json({ success: false, message: "Solicitud no encontrada"});
-        }
-        res.json(solicitud);
     }catch(error){
         console.error(error);
         res.status(500).json({ success: false, message: "Error al encontrar la solicitud"});
@@ -95,7 +85,7 @@ router.put('/solicitudCompra/:id', async (req,res) => {
         const datos = req.body;
 
         console.log("EDITANDO SOLICITUD:", id);
-        console.log("Datos recibidos para actualizar:", datos);
+        //console.log("Datos recibidos para actualizar:", datos);
 
         //VERIFICAR QUE EXISTA LA SOLICITUD
         const solicitud = await registroSolicitudCompra.findOne({ id: id});
@@ -108,6 +98,11 @@ router.put('/solicitudCompra/:id', async (req,res) => {
         solicitud.clasificacionCompras = datos.clasificacionCompras || solicitud.clasificacionCompras;
         solicitud.descripcionConceptoCompra = datos.descripcionConceptoCompra || solicitud.descripcionConceptoCompra;
         solicitud.personal = datos.personal || solicitud.personal;
+        
+        const nuevoConcepto = datos.conceptoActivo;
+        console.log("Concepto recibido para actualizar: ", nuevoConcepto);
+        solicitud.conceptoActivo = nuevoConcepto;
+        console.log("concepto para guardar:", solicitud.conceptoActivo);
         solicitud.conceptoActivo = datos.conceptoActivo;
         //solicitud.proveedores = datos.proveedores || solicitud.proveedores;
 
@@ -144,5 +139,4 @@ router.put('/solicitudCompra/:id', async (req,res) => {
         res.status(500).json({ success: false, message:"Error al actualizar la solicitud"});
     }
 })
-
 module.exports = router;

@@ -79,6 +79,7 @@ async function eliminarSolicitud(id) {
             // Eliminar del DOM
             const elem = document.getElementById(`solicitud-${id}`);
             if(elem) elem.remove();
+            cargarSolicitudes();
         } else {
             alert(result.message);
         }
