@@ -23,15 +23,16 @@ router.get('/solicitudes', async (req, res) => {
                 nombre: p.nombre,
                 aPaterno: p.aPaterno,
                 aMaterno: p.aMaterno,
-                comentario: p.comentario
             })),
-            conceptoCompras: u.conceptoCompras.map(f => ({
-                conceptoCompra: f.conceptoCompra,
-                comentario: f.comentario
+            conceptoActivo: u.conceptoActivo.map(f => ({
+                sc_cca_familia: f.sc_cca_familia,
+                sc_cca_subFamilia: f.sc_cca_subFamilia,
+                sc_cca_descripcion: f.sc_cca_descripcion
             })),
             proveedores: u.proveedores.map(j => ({
                 razonSocial: j.razonSocial,
-                costo: j.costo
+                nickname: j.nickname,
+                sc_monto: j.sc_monto
             }))
         }));
 
@@ -107,10 +108,31 @@ router.put('/solicitudCompra/:id', async (req,res) => {
         solicitud.clasificacionCompras = datos.clasificacionCompras || solicitud.clasificacionCompras;
         solicitud.descripcionConceptoCompra = datos.descripcionConceptoCompra || solicitud.descripcionConceptoCompra;
         solicitud.personal = datos.personal || solicitud.personal;
-        solicitud.conceptoCompras = datos.conceptoCompras || solicitud.conceptoCompras;
-        solicitud.proveedores = datos.proveedores || solicitud.proveedores;
+        solicitud.conceptoActivo = datos.conceptoActivo;
+        //solicitud.proveedores = datos.proveedores || solicitud.proveedores;
 
+        /*if(Array.isArray(datos.proveedores) && datos.proveedores.length > 0){
+            const proveedoresExistentes = solicitud.proveedores || [];
+            const nuevosProveedores = datos.proveedores;
+            console.log("proveedores existentes ",proveedoresExistentes );
+            console.log("Proveedores nuevos: ", nuevosProveedores)
+            const proveedoresCombinados = [...proveedoresExistentes, ...nuevosProveedores];
+            console.log("proveedores combinados: ", proveedoresCombinados)
+            
+            const proveedorSinDuplicados = proveedoresCombinados.filter(
+                (prov,index, self) =>
+                    index === self.findIndex(p => p.nickname === prov.nickname)
+            );
+            console.log("proveedor sin duplicados: ", proveedorSinDuplicados);
+
+            solicitud.proveedores = proveedorSinDuplicados;
+        }*/
+       const nuevosProveedores = datos.proveedores;
+        solicitud.proveedores = nuevosProveedores;
+        console.log("Proveedores para guardar: ", solicitud.proveedores);
+        console.log("Concepto activos para guardar: ",solicitud.conceptoActivo);
         const resultado = await solicitud.save();
+        console.log("lo que se guarda alfinal: ",resultado);
 
         res.json({
             success: true,

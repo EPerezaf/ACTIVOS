@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Editar Solicitud</title>
+
+        <style>
+            .modal{
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgb(0,0,0, 0.5);
+            }
+
+            .modal-content {
+                background-color: white;
+                margin: 5% auto;
+                border-radius: 8px;
+                width: 80%;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            .close:hover {
+                color: black;
+            }
+
+            .search-section {
+                margin-bottom: 15px;
+            }
+
+            .search-section input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .results-container {
+                border: 1px solid #ddd;
+                max-height: 200px;
+                overflow-y: auto;
+                margin-bottom: 15px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Editar solicitud de compra</h1>
+        <form id="formEditarSolicitud">
+            <label>ID:</label>
+            <input type="text" id="id" name="id" readonly><br>
+
+            <label>Estatus:</label>
+            <input type="text" id="estatus" name="estatus" readonly><br>
+
+            <label>Clasificacion</label>
+            <input type="text" id="clasificacion" name="clasificacion" readonly><br>
+
+            <label for="">Descripcion</label>
+            <textarea id="descripcion" name="descripcion"></textarea><br>
+
+            <label for="">Personal</label>
+            <button type="button" id="abrirPersonal" class="btn-add">Abrir busqueda Personal</button>
+            <div id="listaPersonal"></div>
+
+            <label for="">Coceptos</label>
+            <button type="button" id="abrirConcepto" class="add-btn">
+                Abrir busqueda de Concepto Activo
+            </button>
+            <div id="listaConcepto"></div>
+
+            <label for="">Proveedores</label>
+            <div id="listaProveedores"></div>
+            <button type="button" id="abrirProveedores" class="btn-add">Abrir busqueda de Proveedores</button><br>
+
+            <button type="submit">Guardar Cambios</button>
+        </form>
+
+        <!--MODAL PARA PERSONAL-->
+        <div id="modalPersonal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Busqueda de Personal</h2>
+
+                <!--BUSQUEDA PARA PERSONAL-->
+                <div class="search-section">
+                    <h3>Buscar Personal</h3>
+                    <input type="text" id="buscarPersonal"
+                    placeholder="Buscar por nombre o apellidos">
+                    <div id="resultadoPersonalModal" class="results-container">
+                    </div>
+                </div>
+                <button id="cerrarPersonal">Cerrar</button>
+            </div>
+        </div>
+
+        <!--MODAL PARA CONCEPTOS-->
+        <div id="modalConcepto" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Busqueda de Informacion</h2>
+
+                <!--BUSQUEDA PARA CONCEPTOS-->
+                <div class="search-section">
+                    <h3>Buscar Conceptos</h3>
+                    <input type="text" id="buscarConcepto"
+                    placeholder="Buscar por nombre de Concepto">
+                    <div id="resultadoConceptoModal" class="results-container"></div>
+                </div>
+                <button id="cerrarConcepto">Cerrar</button>
+            </div>
+        </div>
+
+        <!--MODAL PARA PROVEEDORES-->
+            <div id="modalProveedores" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Busqueda de Informacion</h2>
+
+                    <!--BUSQUEDA DE PROVEEDORES-->
+                    <div class="search-section">
+                        <h3>Buscar Proveedores</h3>
+                        <input type="text" id="buscarProveedor" 
+                        placeholder="Buscar proveedor por nickName">
+                        <div id="resultadoProveedoresModal" class="results-container"></div>
+                    </div>
+                    <button id="cerrarProveedor">Cerrar</button>
+                </div>
+            </div>
+
+        <script src="../scripts/scriptEditarSolicitud.js"></script>
+    </body>
+</html>

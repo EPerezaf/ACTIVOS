@@ -5,7 +5,7 @@
 //FUNCION PARA PODER TRAER LAS SOLICITUDES DE COMPRAS
 async function cargarSolicitudes() {
     const contenedor = document.getElementById('contenedorSolicitudes'); // CORREGIDO
-    contenedor.innerHTML = "<p>Cargando Solicitudes...</p>";
+    contenedor.innerHTML = "<p>Cargando Solicitudesss...</p>";
 
     try {
         const res = await fetch('/api/routeListaSolicitudCompra/solicitudes');
@@ -18,13 +18,13 @@ async function cargarSolicitudes() {
 
         contenedor.innerHTML = solicitudes.map(s => {
             const personalHTML = s.personal.map(p =>
-                `<li>${p.nombre} ${p.aPaterno} ${p.aMaterno} - Comentario: ${p.comentario}</li>`
+                `<li>${p.nombre} ${p.aPaterno} ${p.aMaterno}</li>`
             ).join('');
-            const conceptoCompraHTML = s.conceptoCompras.map(f =>
-                `<li>${f.conceptoCompra} - Comentario: ${f.comentario}</li>`
+            const conceptoActivoHTML = s.conceptoActivo.map(f =>
+                `<li> Familia: ${f.sc_cca_familia} - Sub Familia: ${f.sc_cca_subFamilia} - Concepto: ${f.sc_cca_descripcion}</li>`
             ).join('');
             const proveedorHTML = s.proveedores.map(j =>
-                `<li>${j.razonSocial} - Monto: ${j.costo}</li>`
+                `<li>Razon Social:${j.razonSocial} - NickName: ${j.nickname} - Costo:${j.sc_monto}</li>`
             ).join('');
 
             return `
@@ -42,7 +42,7 @@ async function cargarSolicitudes() {
 
                 <div class="section">
                     <strong>Concepto Compra</strong>
-                    <ul>${conceptoCompraHTML}</ul>
+                    <ul>${conceptoActivoHTML}</ul>
                 </div>
 
                 <div class="section">
@@ -90,7 +90,11 @@ async function eliminarSolicitud(id) {
 
 
 //FUNCION PARA EDITAR 
+function editarSolicitud(id){
+    window.location.href = `/html/editarSolicitudes.html?id=${id}`;
+}
 
+/*
 async function editarSolicitud(id) {
     const modal = document.getElementById("modalEditar");
     modal.style.display = "block";
@@ -110,7 +114,7 @@ async function editarSolicitud(id) {
 
         const solicitudEditar = await res.json();
         const personal = solicitudEditar.personal[0] || {};
-        const conceptoCompra = solicitudEditar.conceptoCompras[0] || {};
+        const conceptoActivo = solicitudEditar.conceptoActivo[0] || {};
         const proveedor = solicitudEditar.proveedores[0] || {};
 
         contenedorEditar.innerHTML = `
@@ -147,18 +151,22 @@ async function editarSolicitud(id) {
                 <br><br>
 
                 <label>Concepto (familia):</label>
-                <input type="text" id="editConcepto" value="${conceptoCompra.conceptoCompra || ''}">
+                <input type="text" id="editConcepto" value="${conceptoActivo.sc_cca_familia || ''}">
                 <br>
 
                 <label>Comentario (familia):</label>
-                <input type="text" id="editComentarioFamilia" value="${conceptoCompra.comentario || ''}">
+                <input type="text" id="editComentarioFamilia" value="${conceptoActivo.sc_cca_subFamilia || ''}">
+                <br><br>
+
+                <label>Comentario (familia):</label>
+                <input type="text" id="editComentarioFamilia" value="${conceptoActivo.sc_cca_descripcion || ''}">
                 <br><br>
 
                 <label>Proveedor</label>
                 <input type="text" id="editProveedor" value="${proveedor.razonSocial || ''}">
                 <br><br>
                 <label>Monto</label>
-                <input type="text" id="editMonto" value="${proveedor.costo || ''}">
+                <input type="text" id="editMonto" value="${proveedor.sc_monto || ''}">
                 <br><br>
 
                 <button type="button" onclick="guardarCambios(${id})">Guardar cambios</button>
@@ -208,5 +216,8 @@ document.addEventListener("DOMContentLoaded", () => {
         cerrarBtn.addEventListener("click", () => cerrarModal(modal));
         closeSpan.addEventListener("click", () => cerrarModal(modal));
     })
+*/
+
+
 //CARGAR AL PRINCIPIO DE LA PAGINA
 document.addEventListener('DOMContentLoaded', cargarSolicitudes);
