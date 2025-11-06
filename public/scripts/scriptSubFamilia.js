@@ -1,6 +1,7 @@
 //REGISTRO SUBFAMILIAACTIVOS 
 const conceptoSubFamilia = document.getElementById('conceptoSubFamilia');
-//const btnGuardar = document.getElementById('btnGuardar');
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
 
 //CARGA LAS FAMILIA DE ACTIVOS EN EL SELECT
 async function cargarSelectFamilia() {
@@ -17,7 +18,49 @@ async function cargarSelectFamilia() {
         lista.appendChild(option);
     });
 }
-document.addEventListener('DOMContentLoaded', cargarSelectFamilia);
+
+window.onload = async () => {
+    await cargarSelectFamilia();
+
+    if(!id) return;
+
+    try{
+        const res = await fetch(`/api/routeListaSubFamilia/listaSubFamilia/${id}`);
+        const subfamilia = await res.json();
+
+        if(!subfamilia){
+            alert("Concepto de Sub Familia no encontrada");
+            return;
+        }
+
+        document.title = "Editar Sub Familia";
+
+        
+        //RELLENAR LOS CAMPOS DEL FORMULARIO
+        document.getElementById("estatus").value = subfamilia.estatus;
+        document.getElementById("conceptoSubFamilia").value = subfamilia.conceptoSubFamilia || '';
+
+        const lista = document.getElementById("listaFamilia");
+        const familiaNombre = subfamilia.conceptoFamilia;
+
+        for(const option of lista.options){
+            if(option.textContent.trim() === familiaNombre.trim()){
+                option.selected = true;
+                break;
+            }
+        }
+
+        console.log("Subfamilia: ",subfamilia);
+        console.log("Valor a seleccionar:", subfamilia.listaFamilia);
+        console.log("Valor a recibir: ", subfamilia.conceptoFamilia);
+
+        //CAMBIAR TEXTO DEL BOTON 
+        document.getElementById("btnGuardar").textContent = "Actualizar Sub Familia";
+    }catch(error) {
+        console.error("Error al cargar el concepto de Sub Familia",error);
+        alert("Error al cargar el concepto");
+    }
+}
 
 //FORMULARIO PARA GUARDAR SUB FAMILIA 
 //conceptoSubFamilia.html
@@ -26,7 +69,8 @@ if (formSubFamilia) {
     formSubFamilia.addEventListener('submit', async e => {
         e.preventDefault();
 
-        const conceptoFamilia = document.getElementById('listaFamilia').value;
+        const selectFamilia = document.getElementById('listaFamilia');
+        const conceptoFamilia = selectFamilia.options[selectFamilia.selectedIndex].text;
         const estatus = document.getElementById('estatus').value;
         const conceptoSubFamilia = document.getElementById('conceptoSubFamilia').value;
 
@@ -35,14 +79,44 @@ if (formSubFamilia) {
             return;
         }
 
-        const res = await fetch('/api/routeSubFamilia/subFamilia', {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ conceptoFamilia, estatus, conceptoSubFamilia })
-        });
+        data = {
+            estatus,
+            conceptoFamilia,
+            conceptoSubFamilia
+        }
+        try{
+            let url = '/api/routesubFamilia/subFamilia';
+            let method = 'POST';
 
-        const result = await res.json();
-        alert(result.message || "Guardado correctamente");
-        formSubFamilia.reset();
-    })
+            //SI ESTAMOS EDITANDO 
+            if(id){
+                url = `/api/routeListaSubFamilia/listaSubFamilia/${id}`;
+                method = 'PUT';
+            }
+            console.log("Metodo a ejecutar: ", method);
+
+            const response = await fetch(url, {
+                method,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if(result.success !== false){
+                alert(id ? "Sub Familia actualizada correctamente":
+                    "Alta de Sub Familia Correctamente"
+                );
+                window.location.href = "/html/listaSubFamilia.html";
+            }else {
+                alert("Error: "+result.message);
+            }
+
+            formSubFamilia.reset();
+        }catch(error){
+            console.error("Error al guardar o actualizar sub Familia", error);
+        }
+    });
 }
+
+//document.addEventListener('DOMContentLoaded', cargarSelectFamilia);
