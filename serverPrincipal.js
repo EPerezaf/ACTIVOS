@@ -47,6 +47,7 @@ const listaSolicitudCompraRoute = require('./routes/routeListaSolicitudCompra');
 const listaFamiliaRoute = require('./routes/routeListaFamilia');
 const listaSubFamiliaRoute = require('./routes/routeListaSubFamilia');
 const listaActivosRoute = require('./routes/routeListaActivos');
+const listaProveedorRoute = require('./routes/routeListaProveedor');
 const { json } = require('stream/consumers');
 
 //USAR RUTAS CON PREFIJOS
@@ -62,6 +63,7 @@ app.use('/api/routeListaSolicitudCompra',listaSolicitudCompraRoute);
 app.use('/api/routeListaFamilia', listaFamiliaRoute);
 app.use('/api/routeListaSubFamilia', listaSubFamiliaRoute);
 app.use('/api/routeListaActivos', listaActivosRoute);
+app.use('/api/routeListaProveedor', listaProveedorRoute);
 
 app.listen(PORT, () => {
     console.log(`Servidor en http://localhost:${PORT}`);

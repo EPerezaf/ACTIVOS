@@ -1,4 +1,43 @@
 
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+document.addEventListener("DOMContentLoaded", () => {
+    async function incializarProveedor() {
+            if(!id) return;
+        try{
+            const res = await fetch(`/api/routeListaProveedor/listaProveedor/${id}`);
+            const solicitud = await res.json();
+
+            if(!solicitud) {
+                alert("Proveedor no encontrado");
+                return;
+            }
+
+            document.title = "Editar Proveedor";
+
+            //RELLENAR CAMPOS
+            document.getElementById("estatusProveedor").value = solicitud.estatusProveedor;
+            document.getElementById("nickName").value = solicitud.nickName;
+            document.getElementById("razonSocial").value = solicitud.razonSocial;
+            document.getElementById("rfc").value = solicitud.rfc;
+            document.getElementById("domicilioFiscal").value = solicitud.domicilioFiscal;
+            document.getElementById("ciudad").value = solicitud.ciudad;
+            document.getElementById("cp").value = solicitud.cp;
+            document.getElementById("correo").value = solicitud.correo;
+            document.getElementById("cuenta").value = solicitud.cuenta;
+            document.getElementById("clabe").value = solicitud.clabe;
+
+            //CAMBIAR TEXTO DEL BOTON 
+            document.getElementById("btnGuardar").textContent = "Actualizar Proveedor";
+        }catch(e){
+            console.error("Hubo un error al cargar el proveedor: ", e);
+            alert("Error al cargar Proveedor");
+        }    
+    }
+    incializarProveedor(); 
+});
+
 //=================================================================================================================
 //========================altaProveedor.html======================================================================
 //========================ALTA DE PROVEEDORES===============================================================
@@ -31,8 +70,13 @@ if(formProveedores){
             return;
         }
         
-        const res = await fetch('/api/routeProveedor/altaProveedores', {
-            method: 'POST',
+        const method = id ? 'PUT' : 'POST';
+        const url = id
+            ? `/api/routeListaProveedor/listaProveedor/${id}`
+            : `/api/routeProveedor/altaProveedores`;
+
+        const res = await fetch(url, {
+            method,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 estatusProveedor, 
@@ -51,6 +95,9 @@ if(formProveedores){
         const result = await res.json();
         alert(result.message || "Guardado correctamente");
         formProveedores.reset();
+        if(result.success){
+            window.location.href = "/html/listaProveedores.html";
+        }
 
     })
 }
