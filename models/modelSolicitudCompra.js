@@ -32,6 +32,28 @@ const solicitudCompra = new mongosee.Schema({
             nickname: String,
             sc_monto: Number
         }
-    ]
+    ],
+
+    //NUEVOS CAMPOS PARA AUTORIZACION 
+    fechaAutorizacion: { type: Date},
+    autorizadoPor: {
+        userId: { type: String},
+        role: {type: String},
+        username: { type: String}
+    },
+
+    //CAMPO ADICIONAL PARA TRACKING DE MODIFICACIONES
+    ultimaModificacion: { type: Date, default: Date.now},
+    modificadoPor: {
+        userId: { type: String},
+        role: { type: String},
+        username: { type: String}
+    }
+});
+
+//MIDDLEWARE PARA ACTUALIZAR LA FECHA DE MODIFIACION ANTES DE GUARDAR
+solicitudCompra.pre('save', function(next){
+    this.ultimaModificacion = Date.now();
+    next();
 });
 module.exports = mongosee.model('solicitudCompra', solicitudCompra, 'solicitudCompra');

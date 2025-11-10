@@ -26,9 +26,9 @@ form.addEventListener("submit", async (e) => {
         if(data.role === "Administrador"){
             window.location.href = "/html/redirigir.html";    
         }else if(data.role === "Gerente General"){
-            window.location.href = "/html/comprasActivos.html";
+            window.location.href = "/html/listaSolicitudCompras.html";
         }else if (data.role === "Jefe de Activos"){
-            window.location.href = "/html/altaProveedor.html";
+            window.location.href = "/html/redirigir.html";
         }
         
     }else{

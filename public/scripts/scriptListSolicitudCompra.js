@@ -2,13 +2,38 @@
 //FUNCION PARA TRAER LAS SOLCIITUDES GUARDADAS
 //LISTASOLICITUDCOMPRA.HTML=========================================
 
+
 //FUNCION PARA PODER TRAER LAS SOLICITUDES DE COMPRAS
 async function cargarSolicitudes() {
     const contenedor = document.getElementById('contenedorSolicitudes'); // CORREGIDO
     contenedor.innerHTML = "<p>Cargando Solicitudesss...</p>";
 
+    //OBTENER EL ROL DEL USUARIO DESDE LOCALSTORAGE
+    const useRole = localStorage.getItem("role");
+
+    //VERIFICAR SI HAY UN USUARIO DESDE LOCALSTORAGE
+    const token = localStorage.getItem("token");
+    if(!token){
+        window.location.href = "/html/index.html";
+        return;
+    }
+
+
     try {
-        const res = await fetch('/api/routeListaSolicitudCompra/solicitudes');
+        const res = await fetch('/api/routeListaSolicitudCompra/solicitudes', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if(res.status === 401){
+            //TOKEN INVALIDO O EXPIRADO 
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            window.location.href = "/html/index.html";
+            return;
+        }
+
         const solicitudes = await res.json();
 
         if (solicitudes.length == 0) {
@@ -27,12 +52,35 @@ async function cargarSolicitudes() {
                 `<li>Razon Social:${j.razonSocial} - NickName: ${j.nickname} - Costo:${j.sc_monto}</li>`
             ).join('');
 
+
+            let botonesHTML = '';
+            if(useRole === "Administrador"){
+                botonesHTML = `
+                    <button class="btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>
+                    <button class="btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
+                    <button class="btn-eliminar" onclick="eliminarSolicitud(${s.id})">Eliminar</button>`
+            }else if(useRole === "Gerente General"){
+                    if(s.estatusCompras === "Proceso"){
+                        botonesHTML = `
+                        <button class="btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
+                        <button class="btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>`;
+                    }else{
+                        botonesHTML = `
+                        <button class="btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>`;
+                    }
+            }else if(useRole === "Jefe de Activos" && s.estatusCompras === "Pendiente"){
+                botonesHTML = `
+                    <button class="btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
+                    <button class="btn-eliminar" onclick="eliminarSolicitud(${s.id})">Eliminar</button>`;
+            }                
+
             return `
             <div class="solicitud">
                 <h2>Solicitud #${s.id}</h2>
                 <p>Estatus: ${s.estatusCompras}</p>
                 <p>Clasificacion: ${s.clasificacionCompras}</p>
-                <p>Fecha: ${new Date(s.fechaCreacion).toLocaleDateString()}</p>
+                <p>Fecha Creacion: ${new Date(s.fechaCreacion).toLocaleDateString()}</p>
+                ${s.fechaAutorizacion ? `<p>Fecha Autorización: ${new Date.UTC(s.fechaAutorizacion).toLocaleDateString()}</p>` : ''}
                 <p>Descripcion: ${s.descripcionConceptoCompra}</p>
 
                 <div class="section">
@@ -51,8 +99,7 @@ async function cargarSolicitudes() {
                 </div>
 
                 <div class="acciones">
-                    <button id="editarSolcitud" onclick="editarSolicitud(${s.id})">Editar</button>
-                    <button  onclick="eliminarSolicitud(${s.id})">Eliminar</button>
+                    ${botonesHTML}
                 </div>
             </div>
             `;
@@ -64,13 +111,43 @@ async function cargarSolicitudes() {
     }
 }
 
+async function autorizarSolicitud(id) {
+    if(!confirm(`¿Seguro que deseas autorizar la solicitud #${id}?`)) return;
+
+    try{
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudCompra/${id}/autorizar`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await res.json();
+        if(result.success){
+            alert(result.message);
+            cargarSolicitudes();
+        }else{
+            alert(result.message || "Error al autorizar la solicitud");
+        }
+    }catch(e){
+        console.error(e);
+        alert("Error al autorizar la solicitud");
+    }
+}
+
 //FUNCION PARA ELIMINAR 
 async function eliminarSolicitud(id) {
     if(!confirm(`¿Seguro que deseas eliminar la solicitud #${id}?`)) return;
 
     try {
+        const token = localStorage.getItem("token");
         const res = await fetch(`/api/routeListaSolicitudCompra/solicitudCompra/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'}
         });
 
         const result = await res.json();
@@ -95,130 +172,28 @@ function editarSolicitud(id){
     window.location.href = `/html/editarSolicitudes.html?id=${id}`;
 }
 
-/*
-async function editarSolicitud(id) {
-    const modal = document.getElementById("modalEditar");
-    modal.style.display = "block";
-
-    const resultadoEditar = document.getElementById("resultadoEditar");
-    resultadoEditar.innerHTML =`<p>Editando la solicitdud: #${id}</p>`;
-
-    const contenedorEditar = document.getElementById("contenedorEditar");
-
-    try{
-        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudes/${id}`);
-
-        if(!res.ok){
-            contenedorEditar.innerHTML ="<p>No se encontro la solicitud</p>";
-            return;
-        }
-
-        const solicitudEditar = await res.json();
-        const personal = solicitudEditar.personal[0] || {};
-        const conceptoActivo = solicitudEditar.conceptoActivo[0] || {};
-        const proveedor = solicitudEditar.proveedores[0] || {};
-
-        contenedorEditar.innerHTML = `
-            <form id="formEditar">
-                <label>Estatus:</label>
-                <label id="editEstatus">${solicitudEditar.estatusCompras}</label>
-                <br>
-                <br>
-
-                <button type="button" id="abrirBusqueda" class="btn-add" onclick="inicializarAplicacion()">Abrir Busqueda</button>
-
-                <label>Clasificacion:</label>
-                <input type="text" id="editClasificacion" value="${solicitudEditar.clasificacionCompras}">
-                <br>
-
-                <label>Descripcion:</label>
-                <textarea id="editDescripcion">${solicitudEditar.descripcionConceptoCompra}</textarea>
-                <br><br>
-
-                <label>Nombre:</label>
-                <input type="text" id="editNombre" value="${personal.nombre || ''}" readonly>
-                <br>
-
-                <label>Apellido Paterno:</label>
-                <input type="text" id="editAPaterno" value="${personal.aPaterno || ''}">
-                <br>
-
-                <label>Apellido Materno:</label>
-                <input type="text" id="editAMaterno" value="${personal.aMaterno || ''}">
-                <br>
-
-                <label>Comentario (personal):</label>
-                <input type="text" id="editComentarioPersonal" value="${personal.comentario || ''}">
-                <br><br>
-
-                <label>Concepto (familia):</label>
-                <input type="text" id="editConcepto" value="${conceptoActivo.sc_cca_familia || ''}">
-                <br>
-
-                <label>Comentario (familia):</label>
-                <input type="text" id="editComentarioFamilia" value="${conceptoActivo.sc_cca_subFamilia || ''}">
-                <br><br>
-
-                <label>Comentario (familia):</label>
-                <input type="text" id="editComentarioFamilia" value="${conceptoActivo.sc_cca_descripcion || ''}">
-                <br><br>
-
-                <label>Proveedor</label>
-                <input type="text" id="editProveedor" value="${proveedor.razonSocial || ''}">
-                <br><br>
-                <label>Monto</label>
-                <input type="text" id="editMonto" value="${proveedor.sc_monto || ''}">
-                <br><br>
-
-                <button type="button" onclick="guardarCambios(${id})">Guardar cambios</button>
-            </from>
-        `;
-    }catch(error){
-        console.error("ERROR: No se encontro la solicitud");
-    }
-}
-
-async function guardarCambios(id) {
-    const clasificacion = document.getElementById("editClasificacion").value.trim();
-    const descripcion = document.getElementById("editDescripcion").value.trim();
-    
-    const data ={
-        clasificacionCompras: clasificacion,
-        descripcionConceptoCompra: descripcion
-    };
-
-    try{
-        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudCompra/${id}`, {
-            method: 'PUT',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
-
-        const result = await res.json();
-        if(result.success) {
-            alert(result.success);
-            document.getElementById("modalEditar").style.display = "none";
-            cargarSolicitudes();
-        }else{
-            alert(result.message);
-        }
-
-    }catch(error){
-        console.error("Error al guardar los cambios:", error);
-        alert("Error al cambiar el cambio");
-    }
-}
- //CERRAR MODAL 
-document.addEventListener("DOMContentLoaded", () => {
-        const modal = document.getElementById("modalEditar");
-        const cerrarBtn = document.getElementById("cerrarModal");
-        const closeSpan = document.querySelector(".close");
-
-        cerrarBtn.addEventListener("click", () => cerrarModal(modal));
-        closeSpan.addEventListener("click", () => cerrarModal(modal));
-    })
-*/
-
-
 //CARGAR AL PRINCIPIO DE LA PAGINA
-document.addEventListener('DOMContentLoaded', cargarSolicitudes);
+document.addEventListener('DOMContentLoaded', function(){
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || !role){
+        window.location.href = "/html/index.html";
+        return;
+    }
+
+    //VERIFICAR QUE EL ROL SI TENGA ACCESO A ESTA PAGINA
+    const rolesPermitidos = ["Administrador", "Gerente General", "Jefe de Activos"];
+    if(!rolesPermitidos.includes(role)){
+        alert("No tienes permiso para acceder a esta pagina");
+        window.location.href = "/html/index.html";
+        return;
+    }
+
+    cargarSolicitudes();
+});
+
+function verSolicitud(id){
+    window.location.href = `/html/editarSolicitudes.html?id=${id}`;
+}
+

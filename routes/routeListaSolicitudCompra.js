@@ -9,7 +9,12 @@ const router = express.Router();
 const registroSolicitudCompra = require('../models/modelSolicitudCompra');
 const { getNextSequence }  = require('../middleware/counter');
 
-router.get('/solicitudes', async (req, res) => {
+//VALIDACION DE ROLES CON INICIO DE SESION
+const authMiddleware = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
+
+//CARGAR LAS SOLICITUDES DE COMPRAS (ACCESIBLE PARA TODOS LOS ROLES AUTENTICADOS)
+router.get('/solicitudes', authMiddleware, async (req, res) => {
     try {
         const solicitudes = await registroSolicitudCompra.find();
 
@@ -43,9 +48,50 @@ router.get('/solicitudes', async (req, res) => {
     }
 });
 
+//ENDPOINT PARA AUTORIZAR SOLICITUD (SOLO GERENTE GENERAL Y ADMINISTRADOR)
+router.put('/solicitudCompra/:id/autorizar', authMiddleware, roleMiddleware(["Gerente General", "Administrador"]), async (req, res) => {
+    try{
+        const id = Number(req.params.id);
 
-//ENDPOINT PARA PODER ELIMINAR SOLICITUD DE COMPRA
-router.delete('/solicitudCompra/:id', async (req, res) => {
+        console.log("AUTORIZANDO SOLICITUD:", id);
+        console.log("Usuario que autoriza:", req.user);
+
+        //BUSCAR Y ACTUALIAZR LA SOLICITUD 
+        const solicitud = await registroSolicitudCompra.findOne({id: id});
+        if(!solicitud){
+            return res.status(404).json({ success: false, message: "Solicitud no encontrada"});
+        }
+
+        if(solicitud.estatusCompras === 'Autorizada'){
+            return res.status(400).json({ success: false, message: "La solciitud ya esta autorizada"});
+        }
+
+        //ACTUALIZAR ESTATUS E INFORMACION DE AUTORIZACION 
+        solicitud.estatusCompras = "Autorizada";
+        solicitud.fechaAutorizacion = new Date();
+        solicitud.autorizadoPor = {
+            userId: req.user.id,
+            role: req.user.role,
+            username: req.user.username || "Sistema"
+        };
+
+        const resultado = await solicitud.save();
+        console.log("Solicitud autorizada:", resultado);
+
+        res.json({
+            success: true,
+            message: `Solicitud #${id} autorizada correctamente`,
+            solicitud: resultado
+        });
+    }catch(error){
+        console.error("Error en PUT /solicitudCompra/:id/autorizar", error);
+        res.status(500).json({ success: false, message: "Error al autorizar la solicitud"});
+    }
+});
+
+
+//ENDPOINT PARA PODER ELIMINAR SOLICITUD DE COMPRA (SOLO GERENTE GENERAL Y ADMINISTRADOR)
+router.delete('/solicitudCompra/:id', authMiddleware, roleMiddleware(["Jefe de Activos", "Administrador"]),async (req, res) => {
     try{
         const id = Number(req.params.id);
         const result = await registroSolicitudCompra.deleteOne({ id });
@@ -62,7 +108,7 @@ router.delete('/solicitudCompra/:id', async (req, res) => {
 
 //END POINT PARA EDITAR LA SOLICITUD DE COMPRA
 // Obtener UNA solicitud por id
-router.get('/solicitudes/:id', async (req, res) => {
+router.get('/solicitudes/:id', authMiddleware,async (req, res) => {
     try {
         const id = parseInt(req.params.id); // porque tu campo "id" en el schema es Number
         const solicitud = await registroSolicitudCompra.findOne({ id: id });
@@ -79,7 +125,7 @@ router.get('/solicitudes/:id', async (req, res) => {
 });
 
 //ENDPOINT PARA EDITAR UNA SOLICITUD DE COMPRA
-router.put('/solicitudCompra/:id', async (req,res) => {
+router.put('/solicitudCompra/:id', authMiddleware,roleMiddleware(["Jefe de Activos", "Administrador"]), async (req,res) => {
     try{
         const id = parseInt(req.params.id);
         const datos = req.body;
@@ -91,7 +137,6 @@ router.put('/solicitudCompra/:id', async (req,res) => {
         const solicitud = await registroSolicitudCompra.findOne({ id: id});
         if(!solicitud){
             return res.status(404).json({ success: false, message:"Solicitud de compra no encontrada"});
-
         }
 
         //ACTUALIZAR CAMPOS
@@ -106,22 +151,6 @@ router.put('/solicitudCompra/:id', async (req,res) => {
         solicitud.conceptoActivo = datos.conceptoActivo;
         //solicitud.proveedores = datos.proveedores || solicitud.proveedores;
 
-        /*if(Array.isArray(datos.proveedores) && datos.proveedores.length > 0){
-            const proveedoresExistentes = solicitud.proveedores || [];
-            const nuevosProveedores = datos.proveedores;
-            console.log("proveedores existentes ",proveedoresExistentes );
-            console.log("Proveedores nuevos: ", nuevosProveedores)
-            const proveedoresCombinados = [...proveedoresExistentes, ...nuevosProveedores];
-            console.log("proveedores combinados: ", proveedoresCombinados)
-            
-            const proveedorSinDuplicados = proveedoresCombinados.filter(
-                (prov,index, self) =>
-                    index === self.findIndex(p => p.nickname === prov.nickname)
-            );
-            console.log("proveedor sin duplicados: ", proveedorSinDuplicados);
-
-            solicitud.proveedores = proveedorSinDuplicados;
-        }*/
        const nuevosProveedores = datos.proveedores;
         solicitud.proveedores = nuevosProveedores;
         console.log("Proveedores para guardar: ", solicitud.proveedores);
@@ -137,6 +166,31 @@ router.put('/solicitudCompra/:id', async (req,res) => {
     }catch(error){
         console.error("Error en el PUT /solicitudCompra/:id", error);
         res.status(500).json({ success: false, message:"Error al actualizar la solicitud"});
+    }
+});
+
+router.put("/solicitudCompra/:id/proceso", authMiddleware,roleMiddleware(["Jefe de Activos", "Administrador"]), async (req,res) => {
+    try{
+        const id = parseInt(req.params.id);
+        const datos = req.body;
+        console.log("Mandando a proceso solicitud id: ", id);
+
+        const solicitud = await registroSolicitudCompra.findOne({ id: id});
+        if(!solicitud){
+            return res.status(404).json({ success: false, message: "Solicitud no encontrada"});
+        }
+        solicitud.estatusCompras = "Proceso";
+        const resultado = await solicitud.save();
+        console.log("Como se mando a gaurdar: ", resultado);
+
+        res.json({
+            success: true,
+            message: `Solicitud id:${id} actualizada correctamente`,
+            solicitud: resultado
+        });
+    }catch(error){
+        console.error("Error en el PUT /solicitudCompra/:id/proceso", error);
+        res.status(500).json({ success: false, message: "Error al actualizar solicitud"});
     }
 })
 module.exports = router;

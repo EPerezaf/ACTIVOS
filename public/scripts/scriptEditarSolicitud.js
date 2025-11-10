@@ -2,10 +2,61 @@
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
+//FUNCION PARA OBTENER EL TOKEN 
+function getAuthHeaders(){
+    const token = localStorage.getItem("token");
+    if(!token){
+        //REDIRIGIR AL LOGIN SI NO HAY TOKEN
+        window.location.href = "/html/index.html";
+        return {};
+    }
+    return{
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || !role){
+        window.location.href = "/html/index.html";
+        return;
+    }
+
+    //VERIFICAR QUE EL ROL TENGA ACCESO A ESTA PAGINA 
+    const rolesPermitidos = ["Administrador", "Jefe de Activos"];
+    if(!rolesPermitidos.includes(role)){
+        alert("No tienes permisos para acceder a esta pagina");
+        window.location.href = "/html/index.html";
+        return;
+    }
+});
+
 //CARGAR LA SOLICITUD AL CARGAR LA PAGINA
 window.onload = async () => {
     try{
-        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudes/${id}`);
+        const headers= getAuthHeaders();
+        if(!headers.Authorization){
+            return; 
+        }
+
+        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudes/${id}`, {
+            headers: headers
+        });
+
+        //VERIFICAR SI LA RESPUESTA ES 401 (UNAUTHORIZED)
+        if(res.status === 401){
+            localStorage.removeItem("token")
+            localStorage.removeItem("role");
+            window.location.href ="/htlm/index.html";
+            return;
+        }
+
+        if(!res.ok){
+            throw new Error(`Error ${res.status}: ${res.statusText}`);
+        }
         const solicitud = await res.json();
 
         if(!solicitud){
@@ -18,6 +69,7 @@ window.onload = async () => {
         document.getElementById("estatus").value = solicitud.estatusCompras;
         document.getElementById("clasificacion").value = solicitud.clasificacionCompras;
         document.getElementById("descripcion").value = solicitud.descripcionConceptoCompra;
+        
 
         //MOSTRAR LISTAS
         const listaPersonal = document.getElementById("listaPersonal");
@@ -46,23 +98,6 @@ window.onload = async () => {
                 listaPersonal.appendChild(filaPersonal);
             })
         }
-        /*const listaPersonal = document.getElementById("listaPersonal");
-        const filaPersonal = document.createElement("div");
-        filaPersonal.classList.add("fila");
-        filaPersonal.innerHTML = solicitud.personal.map(f => 
-            `
-            <input type="text" value="${f.nombre}" readonly>
-            <input type="text" value="${f.aPaterno}" readonly>
-            <input type="text" value="${f.aMaterno}" readonly>
-            <button type="button" class="btn-remove">X</button>
-            <br>`
-            
-
-        ).join('');
-        filaPersonal.querySelector(".btn-remove").addEventListener("click", () => filaPersonal.remove());
-        listaPersonal.appendChild(filaPersonal);*/
-
-
         //APARTADO DE CONCEPTO ACTIVO
         const listaConceptos = document.getElementById("listaConcepto");
         //VERIFICAR SI EXISTE Y ES UN ARRAY
@@ -114,6 +149,7 @@ window.onload = async () => {
 
                 listaProveedores.appendChild(fila);
             });
+            document.getElementById("btnProceso").addEventListener("click", actualizarProceso);
         }else{
             console.log("No hay proveedores o el campo esta vacio");
             listaProveedores.innerHTML= '<p>NO hay proveedores agregados</p>';
@@ -125,6 +161,50 @@ window.onload = async () => {
         alert("Error al cargar la solciitud seleccionada");
     }
 };
+
+//FUNCION PARA ACTUALIZAR SOLO EL ESTATUS A PROCESO
+async function actualizarProceso() {
+    if(!confirm("¿Estas Seguro de cambiar el estatus a 'Proceso'?")){
+        return;
+    }
+
+    try{
+        const data = {
+            estatusCompras: 'Proceso'
+        };
+
+        const headers = getAuthHeaders();
+        if(!headers.Authorization){
+            return;
+        }
+
+        const url = `/api/routeListaSolicitudCompra/solicitudCompra/${id}/proceso`;
+        const res = await fetch(url,{
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+
+        //VERIFICAR SI LA RESPUESTA ES 401 (UNAUTHORIZED)
+        if(res.status === 401){
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            window.location.href = "/html/index.html";
+            return;
+        }
+
+        const result = await res.json();
+        if(result.success){
+            alert("Solciitud actualizada correctamente a Proceso");
+            window.location.href = "/html/listaSolicitudCompras.html";
+        }else {
+            alert("Error al actualizar la solicitud: "+ (result.message || "Error desconocido"));
+        }
+    }catch(error){
+        console.error("Error al cambiar a proceso:", error);
+        alert("Error al conectar con el servidor");
+    }
+}
 
 document.getElementById("formEditarSolicitud").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -239,11 +319,26 @@ document.getElementById("formEditarSolicitud").addEventListener("submit", async 
     });
     try{
         console.log("Enviando datos al servidor...");
-        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudCompra/${id}`, {
+
+        const headers = getAuthHeaders();
+        if(!headers.Authorization){
+            return;
+        }
+
+        const url =`/api/routeListaSolicitudCompra/solicitudCompra/${id}`;
+        const res = await fetch(url, {
             method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
+            headers: headers,
             body: JSON.stringify(data)
         });
+
+        //VERIFICAR SI LA RESPUESTA ES 401 (UNAUTHORIZED)
+        if(res.status === 401){
+            localStorage.removeItem("token")
+            localStorage.removeItem("role");
+            window.location.href = "/html/index.html";
+            return;
+        }
 
         const result = await res.json();
 
@@ -329,7 +424,9 @@ function inicializarPersonal(){
                     return;
                 }
                 try{
-                    const res = await fetch(`/api/routePersonal/traerPersonal?buscar=${encodeURIComponent(texto)}`);
+                    const res = await fetch(`/api/routePersonal/traerPersonal?buscar=${encodeURIComponent(texto)}`,{
+                        headers: getAuthHeaders()
+                    });
                     const usuarios = await res.json();
 
                     if(usuarios.length === 0 ) {
@@ -427,7 +524,9 @@ function inicializarConceptoActivo(){
                     return;
                 }
                 try{
-                    const res = await fetch(`/api/routeConceptoActivos/buscarActivo?buscar=${encodeURIComponent(texto)}`);
+                    const res = await fetch(`/api/routeConceptoActivos/buscarActivo?buscar=${encodeURIComponent(texto)}`, {
+                        headers: getAuthHeaders()
+                    });
                     const activo = await res.json();
 
                     if(activo.length === 0) {
@@ -525,7 +624,9 @@ function inicializarProveedor() {
                     return;
                 }
                 try{
-                    const res = await fetch(`/api/routeProveedor/buscarProveedores?buscar=${encodeURIComponent(texto)}`);
+                    const res = await fetch(`/api/routeProveedor/buscarProveedores?buscar=${encodeURIComponent(texto)}`,{
+                        headers: getAuthHeaders()
+                    });
                     const proveedor = await res.json();
 
                     if(proveedor.length === 0) {
