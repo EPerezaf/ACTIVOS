@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs');
 const app = express();
 const PORT = 3000;
+//PARA EL INICIO DE SESION
+const bodyParser = require("body-parser");
 
 //CONEXION A MONGODB
 mongosee.connect('mongodb://127.0.0.1:27017/ActivosForm')
@@ -12,6 +14,7 @@ mongosee.connect('mongodb://127.0.0.1:27017/ActivosForm')
 
 
 //MIDDLEAWERS
+app.use(bodyParser.json());//PARA INICIO DE SESION
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -49,6 +52,9 @@ const listaSubFamiliaRoute = require('./routes/routeListaSubFamilia');
 const listaActivosRoute = require('./routes/routeListaActivos');
 const listaProveedorRoute = require('./routes/routeListaProveedor');
 const listaPersonalRoute = require('./routes/routeListaPersonal');
+//INICIO DE SESION
+const authRoutes = require("./routes/routeAuth");
+const solicitudesRoutes = require("./routes/solicitudesRoutes");
 const { json } = require('stream/consumers');
 
 //USAR RUTAS CON PREFIJOS
@@ -66,6 +72,9 @@ app.use('/api/routeListaSubFamilia', listaSubFamiliaRoute);
 app.use('/api/routeListaActivos', listaActivosRoute);
 app.use('/api/routeListaProveedor', listaProveedorRoute);
 app.use('/api/routeListaPersonal', listaPersonalRoute);
+//RUTA PARA AUTH
+app.use("/api/routeAuth", authRoutes);
+app.use("/api", solicitudesRoutes);
 
 app.listen(PORT, () => {
     console.log(`Servidor en http://localhost:${PORT}`);

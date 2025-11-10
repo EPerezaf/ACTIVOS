@@ -7,18 +7,17 @@
         <link rel="stylesheet" href="">
     </head>
     <body>
-        <header>
-
-        </header>
-        <h2>Inicio de sesion</h2>
-        <div id="formulario">
-            <textarea placeholder="Usuario"></textarea>
-            <div>
-                <textarea placeholder="Contraseña"></textarea>
-            </div>
-            <button type="submit"><a href="conceptoActivos.html">Iniciar Sesion</a></button>
+        <header></header>
+        <div class="login-container">
+            <h2>Inicio de sesion</h2>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="Usuario" required>
+                <input type="text" id="password" placeholder="Contraseña" required>        
+                <button type="submit">Iniciar Sesion</button>
+            </form>
+            <p id="msg"></p>
         </div>
-        
+        <script src="../scripts/login.js"></script>
     </body>
     <footer>
         <p>&copy; 2025 Eperez AF. Todos los derechos reservados a EPerez</p>
