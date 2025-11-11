@@ -2,6 +2,8 @@
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
+let solicitudActual = null; //VARIABLE GLOBAL PARA ALMACENAR LA SOLICITUD
+
 //FUNCION PARA OBTENER EL TOKEN 
 function getAuthHeaders(){
     const token = localStorage.getItem("token");
@@ -26,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     //VERIFICAR QUE EL ROL TENGA ACCESO A ESTA PAGINA 
-    const rolesPermitidos = ["Administrador", "Jefe de Activos"];
+    const rolesPermitidos = ["Administrador", "Jefe de Activos",];
     if(!rolesPermitidos.includes(role)){
         alert("No tienes permisos para acceder a esta pagina");
         window.location.href = "/html/index.html";
@@ -58,10 +60,19 @@ window.onload = async () => {
             throw new Error(`Error ${res.status}: ${res.statusText}`);
         }
         const solicitud = await res.json();
+        solicitudActual = solicitud;//GUARDAR LA SOLICITUD
 
         if(!solicitud){
             alert("Solicitud no encontrada");
             return;
+        }
+
+        //VERIFICAR SI LA SOLICITUD ESTA AUTORIZADA
+        const estaAutorizada = solicitud.estatusCompras === "Autorizada";
+
+        if(estaAutorizada){
+            deshabilitarEdicion();
+            mostrarMensajeSoloLectura();
         }
 
         //RELLENAR LOS CAMPOS DEL FORMULARIO
@@ -70,6 +81,12 @@ window.onload = async () => {
         document.getElementById("clasificacion").value = solicitud.clasificacionCompras;
         document.getElementById("descripcion").value = solicitud.descripcionConceptoCompra;
         
+
+        //HACER CAMPOS DE SOLO LECTURA SI ESTA AUTORIZADA
+        if(estaAutorizada){
+            document.getElementById("clasificacion").readOnly = true;
+            document.getElementById("descripcion").readOnly = true;
+        }
 
         //MOSTRAR LISTAS
         const listaPersonal = document.getElementById("listaPersonal");
@@ -88,12 +105,13 @@ window.onload = async () => {
                     <br>
                     
                 `;
-
-                const btnRemove = filaPersonal.querySelector(".btn-remove");
-                btnRemove.addEventListener("click", function(){
-                    console.log("Eliminado personal: ", f.nombre);
-                    filaPersonal.remove();
-                });
+                if(!estaAutorizada){
+                    const btnRemove = filaPersonal.querySelector(".btn-remove");
+                    btnRemove.addEventListener("click", function(){
+                        console.log("Eliminado personal: ", f.nombre);
+                        filaPersonal.remove();
+                    });
+                }
 
                 listaPersonal.appendChild(filaPersonal);
             })
@@ -114,12 +132,14 @@ window.onload = async () => {
                     <button type="button" class="btn-remove">X</button>
                     <br>
                 `;
-
-                const btnRemove = filaConcepto.querySelector(".btn-remove");
-                btnRemove.addEventListener("click", function(){
-                    console.log("Eliminado el concepto: ", p.sc_cca_descripcion);
-                    filaConcepto.remove();
-                })
+                
+                if(!estaAutorizada){
+                    const btnRemove = filaConcepto.querySelector(".btn-remove");
+                    btnRemove.addEventListener("click", function(){
+                        console.log("Eliminado el concepto: ", p.sc_cca_descripcion);
+                        filaConcepto.remove();
+                    })
+                }
 
                 listaConceptos.appendChild(filaConcepto);
             })
@@ -141,26 +161,401 @@ window.onload = async () => {
                     <button type="button" class="btn-remove">x</button>
                 `;
 
-                const btnRemove = fila.querySelector(".btn-remove");
-                btnRemove.addEventListener("click", function() {
-                    console.log("Eliminando proveedor:", j.nickname);
-                    fila.remove();
-                });
+                if(!estaAutorizada){
+                    const btnRemove = fila.querySelector(".btn-remove");
+                    btnRemove.addEventListener("click", function() {
+                        console.log("Eliminando proveedor:", j.nickname);
+                        fila.remove();
+                    });
+                }
 
                 listaProveedores.appendChild(fila);
             });
-            document.getElementById("btnProceso").addEventListener("click", actualizarProceso);
         }else{
             console.log("No hay proveedores o el campo esta vacio");
             listaProveedores.innerHTML= '<p>NO hay proveedores agregados</p>';
         }
-
+        if(!estaAutorizada){
+            document.getElementById("btnProceso").addEventListener("click", actualizarProceso);
+        }else{
+            //OCULTAR BOTON DE ACCION SI ESTA AUTORIAZADA
+            document.getElementById("btnProceso").style.display = "none";
+        }
 
     }catch(error){
         console.error("Error al cargar solicitud:", error);
         alert("Error al cargar la solciitud seleccionada");
     }
 };
+
+// FUNCIÓN PARA DESHABILITAR TODA LA EDICIÓN Y MOSTRAR BOTÓN DE REGISTRAR ACTIVO
+function deshabilitarEdicion() {
+    console.log("Deshabilitando edición - Solicitud autorizada");
+    
+    // 1. Ocultar todos los botones existentes
+    ocultarTodosLosBotones();
+    
+    // 2. Crear y mostrar el botón de "Registrar Activo"
+    crearBotonRegistrarActivo();
+    
+    // 3. Cambiar título
+    const titulos = document.querySelectorAll('h1, h2');
+    if (titulos) {
+        Array.from(titulos).forEach(titulo => {
+            if (titulo.textContent.includes('Editar') || titulo.textContent.includes('Modificar')) {
+                titulo.textContent = 'Visualizar Solicitud (Autorizada)';
+                titulo.style.color = '#28a745';
+            }
+        });
+    }
+    
+    // 4. Hacer inputs editables de solo lectura
+    const inputsEditables = document.querySelectorAll('input:not([readonly]), textarea:not([readonly]), select:not([readonly])');
+    if (inputsEditables) {
+        Array.from(inputsEditables).forEach(input => {
+            input.readOnly = true;
+            input.disabled = true;
+            input.style.backgroundColor = '#f8f9fa';
+            input.style.cursor = 'not-allowed';
+        });
+    }
+    
+    // 5. Deshabilitar formulario completo (pero permitir el nuevo botón)
+    const form = document.getElementById("formEditarSolicitud");
+    if (form) {
+        form.style.opacity = '0.9';
+    }
+    
+    console.log("Edición deshabilitada - Botón Registrar Activo mostrado");
+}
+
+// FUNCIÓN PARA OCULTAR TODOS LOS BOTONES EXISTENTES
+function ocultarTodosLosBotones() {
+    // Ocultar elementos por ID
+    const idsOcultar = [
+        "abrirPersonal", "abrirConcepto", "abrirProveedores",
+        "btnProceso", "btnGuardar", "abrirBusqueda", "btn-Guardar"
+    ];
+    
+    idsOcultar.forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.style.display = 'none';
+            elemento.disabled = true;
+        }
+    });
+    
+    // Ocultar botones por clase
+    /*const clasesOcultar = ['.btn-remove', '.btn-eliminar', '.btn-editar', '.btn-proceso'];
+    
+    clasesOcultar.forEach(clase => {
+        const elementos = document.querySelectorAll(clase);
+        Array.from(elementos).forEach(elemento => {
+            elemento.style.display = 'none';
+            elemento.disabled = true;
+        });
+    });*/
+    const botonesEliminar = document.querySelector(".btn-remove");
+    if(botonesEliminar){
+        Array.from(botonesEliminar).forEach(boton => {
+            boton.style.display = 'none';
+            boton.disabled = true;
+        });
+    }
+    
+    // Ocultar cualquier botón en secciones de acciones
+    const seccionesAcciones = document.querySelectorAll('.acciones, .action-buttons, .form-actions');
+    Array.from(seccionesAcciones).forEach(seccion => {
+        const botones = seccion.querySelectorAll('button, input[type="button"], input[type="submit"]');
+        Array.from(botones).forEach(boton => {
+            boton.style.display = 'none';
+            boton.disabled = true;
+        });
+    });
+}
+
+// FUNCIÓN PARA CREAR EL BOTÓN DE REGISTRAR ACTIVO
+function crearBotonRegistrarActivo() {
+    // Verificar si ya existe el botón
+    if (document.getElementById('btnRegistrarActivo')) {
+        return;
+    }
+    
+    // Crear contenedor para el botón
+    const contenedorBotones = document.createElement('div');
+    contenedorBotones.className = 'acciones-autorizadas';
+    contenedorBotones.style.cssText = `
+        text-align: center;
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 2px dashed #28a745;
+    `;
+    
+    // Crear el botón
+    const btnRegistrar = document.createElement('button');
+    btnRegistrar.id = 'btnRegistrarActivo';
+    btnRegistrar.textContent = '📦 Registrar Activo';
+    btnRegistrar.style.cssText = `
+        padding: 12px 24px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    `;
+    
+    // Agregar efectos hover
+    btnRegistrar.onmouseover = function() {
+        this.style.backgroundColor = '#218838';
+        this.style.transform = 'scale(1.05)';
+    };
+    
+    btnRegistrar.onmouseout = function() {
+        this.style.backgroundColor = '#28a745';
+        this.style.transform = 'scale(1)';
+    };
+    
+    // Agregar funcionalidad al botón
+    btnRegistrar.onclick = function() {
+        registrarActivo();
+    };
+    
+    // Agregar mensaje informativo
+    const mensajeInfo = document.createElement('p');
+    mensajeInfo.textContent = 'Esta solicitud está autorizada. Puede proceder a registrar el activo.';
+    mensajeInfo.style.cssText = `
+        color: #155724;
+        margin-bottom: 10px;
+        font-style: italic;
+    `;
+    
+    // Construir el contenedor
+    contenedorBotones.appendChild(mensajeInfo);
+    contenedorBotones.appendChild(btnRegistrar);
+    
+    // Insertar en la página (buscar el mejor lugar)
+    const posiblesContenedores = [
+        document.querySelector('.acciones'),
+        document.querySelector('.form-actions'),
+        document.getElementById('formEditarSolicitud'),
+        document.querySelector('form')
+    ];
+    
+    let contenedorEncontrado = null;
+    for (const contenedor of posiblesContenedores) {
+        if (contenedor) {
+            contenedorEncontrado = contenedor;
+            break;
+        }
+    }
+    
+    if (contenedorEncontrado) {
+        contenedorEncontrado.appendChild(contenedorBotones);
+    } else {
+        // Si no encuentra contenedor, agregar al final del body
+        document.body.appendChild(contenedorBotones);
+    }
+    
+    console.log("Botón Registrar Activo creado");
+}
+
+// FUNCIÓN PARA REGISTRAR EL ACTIVO (debes implementar según tus necesidades)
+function registrarActivo() {
+    console.log("Iniciando proceso de registro de activo...");
+    
+    // Aquí va tu lógica para registrar el activo
+    // Por ejemplo:
+    
+    // 1. Obtener datos de la solicitud actual
+    const datosSolicitud = {
+        id: solicitudActual.id,
+        conceptoActivo: solicitudActual.conceptoActivo,
+        proveedores: solicitudActual.proveedores,
+        // ... otros datos que necesites
+    };
+    
+    console.log("Datos para registrar activo:", datosSolicitud);
+    
+    // 2. Mostrar confirmación
+    if (confirm('¿Está seguro de que desea registrar este activo en el sistema de inventario?')) {
+        // 3. Redirigir a la página de registro de activos
+        // window.location.href = `/html/registroActivo.html?id=${solicitudActual.id}`;
+        
+        // O mostrar un mensaje temporal
+        alert('Redirigiendo al sistema de registro de activos...');
+        
+        // 4. Aquí puedes hacer una petición a tu API para registrar el activo
+        // registrarActivoEnSistema(datosSolicitud);
+        
+    }
+}
+
+// FUNCIÓN AUXILIAR PARA OCULTAR ELEMENTOS
+function ocultarElemento(id) {
+    const elemento = document.getElementById(id);
+    if (elemento) {
+        elemento.style.display = 'none';
+        elemento.disabled = true;
+    }
+}
+
+// FUNCIÓN PARA MOSTRAR MENSAJE DE SOLO LECTURA (ACTUALIZADA)
+function mostrarMensajeSoloLectura() {
+    try {
+        if (document.getElementById('mensajeSoloLectura')) {
+            return;
+        }
+        
+        const mensaje = document.createElement('div');
+        mensaje.id = 'mensajeSoloLectura';
+        mensaje.style.cssText = `
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid #c3e6cb;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        `;
+        
+        let infoAutorizacion = '';
+        if (solicitudActual && solicitudActual.fechaAutorizacion) {
+            const fechaAuth = new Date(solicitudActual.fechaAutorizacion).toLocaleDateString();
+            infoAutorizacion = `<br><small>Autorizada el: ${fechaAuth}</small>`;
+        }
+        
+        mensaje.innerHTML = `
+            <span style="font-size: 18px;">✓ SOLICITUD AUTORIZADA</span><br>
+            Esta solicitud está autorizada y no puede ser modificada.
+            Proceda a registrar el activo en el sistema de inventario.
+            ${infoAutorizacion}
+        `;
+        
+        const contenedorPrincipal = document.querySelector('.container, main, body');
+        if (contenedorPrincipal) {
+            contenedorPrincipal.insertBefore(mensaje, contenedorPrincipal.firstChild);
+        }
+        
+    } catch (error) {
+        console.error("Error al mostrar mensaje de solo lectura:", error);
+    }
+}
+
+/*// FUNCIÓN PARA DESHABILITAR TODA LA EDICIÓN (VERSIÓN CORREGIDA)
+function deshabilitarEdicion() {
+    console.log("Deshabilitando edición - Solicitud autorizada");
+    const btnRegistro = document.createElement("div");
+
+    btnRegistro.innerHTML = "<button>Entrada Activo</button>";
+    
+    // 1. Deshabilitar elementos por ID (forma segura)
+    const idsDeshabilitar = [
+        "abrirPersonal", "abrirConcepto", "abrirProveedores",
+        "btnProceso", "btn-Guardar", "abrirBusqueda", ".btn-remove", 
+    ];
+    
+    idsDeshabilitar.forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.style.display = 'none';
+            elemento.disabled = true;
+        }
+    });
+    
+    // 2. Deshabilitar botones de eliminar (forma segura con NodeList)
+    const botonesEliminar = document.querySelectorAll('.btn-remove');
+    if (botonesEliminar) {
+        // Convertir NodeList a Array para usar forEach de forma segura
+        Array.from(botonesEliminar).forEach(boton => {
+            boton.style.display = 'none';
+            boton.disabled = true;
+        });
+    }
+    
+    // 3. Cambiar título (forma segura)
+    const titulos = document.querySelectorAll('h1, h2');
+    if (titulos) {
+        // Usar Array.from para convertir NodeList a Array
+        Array.from(titulos).forEach(titulo => {
+            if (titulo.textContent.includes('Editar') || titulo.textContent.includes('Modificar')) {
+                titulo.textContent = 'Visualizar Solicitud (Autorizada)';
+                titulo.style.color = '#28a745';
+            }
+        });
+    }
+    
+    // 4. Hacer inputs editables de solo lectura (forma segura)
+    const inputsEditables = document.querySelectorAll('input:not([readonly]), textarea:not([readonly])');
+    if (inputsEditables) {
+        Array.from(inputsEditables).forEach(input => {
+            input.readOnly = true;
+            input.style.backgroundColor = '#f8f9fa';
+            input.style.cursor = 'not-allowed';
+        });
+    }
+    
+    // 5. Deshabilitar formulario completo
+    const form = document.getElementById("formEditarSolicitud");
+    if (form) {
+        form.style.pointerEvents = 'none';
+        form.style.opacity = '0.8';
+    }
+    
+    console.log("Edición deshabilitada completamente");
+}
+
+// FUNCIÓN PARA MOSTRAR MENSAJE DE SOLO LECTURA (CORREGIDA)
+function mostrarMensajeSoloLectura() {
+    try {
+        // Verificar si ya existe un mensaje
+        if (document.getElementById('mensajeSoloLectura')) {
+            return;
+        }
+        
+        const mensaje = document.createElement('div');
+        mensaje.id = 'mensajeSoloLectura';
+        mensaje.style.cssText = `
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid #c3e6cb;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        `;
+        
+        // Agregar información de autorización si está disponible
+        let infoAutorizacion = '';
+        if (solicitudActual && solicitudActual.fechaAutorizacion) {
+            const fechaAuth = new Date(solicitudActual.fechaAutorizacion).toLocaleDateString();
+            infoAutorizacion = `<br><small>Autorizada el: ${fechaAuth}</small>`;
+        }
+        
+        mensaje.innerHTML = `
+            <span style="font-size: 18px;">✓ SOLO LECTURA</span><br>
+            Esta solicitud está autorizada y no puede ser modificada
+            ${infoAutorizacion}
+        `;
+        
+        // Insertar el mensaje
+        const contenedorPrincipal = document.querySelector('.container, main, body');
+        if (contenedorPrincipal) {
+            contenedorPrincipal.insertBefore(mensaje, contenedorPrincipal.firstChild);
+        }
+        
+    } catch (error) {
+        console.error("Error al mostrar mensaje de solo lectura:", error);
+    }
+}*/
 
 //FUNCION PARA ACTUALIZAR SOLO EL ESTATUS A PROCESO
 async function actualizarProceso() {

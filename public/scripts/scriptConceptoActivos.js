@@ -3,6 +3,24 @@ const id = params.get("id");
 
 // AL CARGAR EL DOM
 document.addEventListener("DOMContentLoaded", () => {
+    //AUTENTICACION DE ROL DE USUARIO
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || !role){
+        window.location.href = "/html/index.html";
+        return;
+    }
+
+    //VERIFICACION QUE EL ROL TENGA ACCESO A ESTA PAGINA
+    const rolesPermitidos = ["Administrador", "Jefe de Activos"];
+    if(!rolesPermitidos.includes(role)){
+        alert("No tienes acceso para acceder a esta pagina");
+        window.location.href = "/html/index.html";
+        return;
+    }
+
+
     const selectFamilia = document.getElementById("listaFamilia");
     const selectSubFamilia = document.getElementById("listaSubFamilia");
     const conceptoActivos = document.getElementById("conceptoActivos");
