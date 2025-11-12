@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solicitud de Compras</title>
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/footer.css">
     <style>
         .fila {
             display: flex;
@@ -88,58 +90,80 @@
             overflow-y: auto;
             margin-bottom: 15px;
         }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <header></header>
-    <h1>Solicitud De Compras</h1>
-    <select name="clasificacionCompras" id="clasificacionCompras">
-        <option value="" disabled selected>Selecione una clasificacion</option>
-        <option value="Urgente">Urgente</option>
-        <option value="Importante">Importante</option>
-        <option value="Normal">Normal</option>
-    </select>
-    <br>
-    <br>
-    <textarea placeholder="Descripcion de solicitud de Compra" id="descripcionConceptoCompras"></textarea>
 
-    <div>
-        <h2>Selección de Concepto Compra</h2>
-        <button id="abrirBusquedaActivos" class="btn-add">Abrir Busqueda</button>
-        <div id="contenedorConceptoActivo"></div>
-    </div>
-
-    <div>
-        <h2>Seleccion de Proveedores</h2>
-        <div id="contenedorProveedores"></div>
-        <button id="abrirProveedores" class="btn-add">Abrir Busqueda de Proveedores</button>
-    </div>
-
-    <div>
-        <h2>Selección de personal</h2>
-        <div id="contenedorPersonal"></div>
-        <!-- Botón para abrir el modal de búsqueda -->
-        <button id="abrirBusqueda" class="btn-add">Abrir Búsqueda</button>
-    </div>
-
-    <div>
-        <h2>Clasificacion de compra</h2>
-        <select id="sc_seleccionCompra" name="sc_seleccionCompra">
-            <option value="" disabled selected>Seleccione una opcion</option>
-            <option value="consumible">Consumible</option>
-            <option value="activo">Activo</option>
-        </select>
-    </div>
-
-
-
-
-    <BR></BR>
-
-    <button id="guardarBtn">Guardar</button>
-
-    <!-- Modal para búsquedas -->
+    <div class="container">
+        <h1>Solicitud de Compras</h1>
+        <div class="select-flotante">
+            <div class="select-wrapper">
+                <select name="clasificacionCompras" id="clasificacionCompras">
+                    <option value="" disabled selected>Seleccione una clasificacion</option>
+                    <option value="Urgente">Urgente</option>
+                    <option value="Importante">Importante</option>
+                    <option value="Normal">Normal</option>
+                </select>
+                <label for="">Clasificacion</label>
+            </div>
+        </div>
+        <div class="textarea-flotante">
+            <div class="textarea-wrapper">
+                <textarea name="descripcionConceptoCompras" id="descripcionConceptoCompras"></textarea>
+                <label for="">Descripcion de Compras</label>
+            </div>
+        </div>
+        <div class="container">
+            <h2>Seleccion de Concepto Compras</h2>
+            <button id="abrirBusquedaActivos" class="btn-add">Abrir Busqueda</button>
+            <div id="contenedorConceptoActivo"></div>
+        </div>
+        <div class="container">
+            <h2>Seleccion de Proveedores</h2>
+            <div id="contenedorProveedores"></div>
+            <button id="abrirProveedores" class="btn-add">Abrir busqueda de proveedores</button>
+        </div>
+        <div class="container">
+            <h2>Seleccion de Personal</h2>
+            <div id="contenedorPersonal"></div>
+            <button id="abrirBusqueda" class="btn-add">Abrir busqueda de Personal</button>
+        </div>
+        <div class="container">
+            <div class="select-flotante">
+                <div class="select-wrapper">
+                    <select name="sc_seleccionCompra" id="sc_seleccionCompra">
+                        <option value="" disabled selected>Seleccione una Opcion</option>
+                        <option value="Consumible">Consumible</option>
+                        <option value="Activo">Activo</option>
+                    </select>
+                    <label for="">Seleccion de Compra</label>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btnGuardar" id="guardarBtn">Guardar</button>
+        <!-- Modal para búsquedas -->
     <div id="modalBusqueda" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -186,11 +210,109 @@
             <button id="cerrarModalProveedores">Cerrar</button>
         </div>
     </div>
+    </div>
+
+    <!--<header></header>
+    <h1>Solicitud De Compras</h1>
+    <select name="clasificacionCompras" id="clasificacionCompras">
+        <option value="" disabled selected>Selecione una clasificacion</option>
+        <option value="Urgente">Urgente</option>
+        <option value="Importante">Importante</option>
+        <option value="Normal">Normal</option>
+    </select>
+    <br>
+    <br>
+    <textarea placeholder="Descripcion de solicitud de Compra" id="descripcionConceptoCompras"></textarea>
+
+    <div>
+        <h2>Selección de Concepto Compra</h2>
+        <button id="abrirBusquedaActivos" class="btn-add">Abrir Busqueda</button>
+        <div id="contenedorConceptoActivo"></div>
+    </div>
+
+    <div>
+        <h2>Seleccion de Proveedores</h2>
+        <div id="contenedorProveedores"></div>
+        <button id="abrirProveedores" class="btn-add">Abrir Busqueda de Proveedores</button>
+    </div>
+
+    <div>
+        <h2>Selección de personal</h2>
+        <div id="contenedorPersonal"></div>
+        <!-- Botón para abrir el modal de búsqueda --
+        <button id="abrirBusqueda" class="btn-add">Abrir Búsqueda</button>
+    </div>
+
+    <div>
+        <h2>Clasificacion de compra</h2>
+        <select id="sc_seleccionCompra" name="sc_seleccionCompra">
+            <option value="" disabled selected>Seleccione una opcion</option>
+            <option value="consumible">Consumible</option>
+            <option value="activo">Activo</option>
+        </select>
+    </div>
+
+
+
+
+    <BR></BR>
+
+    <button id="guardarBtn">Guardar</button>
+
+    <!-- Modal para búsquedas --
+    <div id="modalBusqueda" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Búsqueda de Información</h2>
+
+            <!-- Búsqueda de Personal --
+            <div class="search-section">
+                <h3>Buscar Personal</h3>
+                <input type="text" id="buscarPersonalModal" placeholder="Buscar por nombre o apellidos">
+                <div id="resultadosBusquedaModal" class="results-container"></div>
+            </div>
+            <button id="cerrarModal">Cerrar</button>
+        </div>
+    </div>
+
+    <!--MODAL PARA CONCEPTO ACTIVOS--
+    <div id="modalConceptoActivos" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Busqueda de Concepto Compra</h2>
+
+            <!--Busqueda de Concepto ACTIVOS--
+            <div class="search-section">
+                <h3>Buscar Concepto Compra</h3>
+                <input type="text" id="buscarActivoModal" placeholder="Buscar concepto de activos">
+                <div id="resultadosActivoModal" class="results-container"></div>
+            </div>
+            <button id="cerrarModalActivos">Cerrar</button>
+        </div>
+    </div>
+
+    <!--MODAL PARA PROVEEDORES--
+    <div id="modalProveedores" class="modal">
+        <div class="modal-content">
+            <span class="clsoe">&times;</span>
+            <h2>Busqueda de Proveedores</h2>
+
+            <!--BUSQUEDA DE PROVEEDORES--
+            <div class="search-section">
+                <h3>Buscar Proveedor</h3>
+                <input type="text" id="buscarProveedores" placeholder="Buscar Proveedores">
+                <div id="resultadoProveedoresModal" class="results-container"></div>
+            </div>
+            <button id="cerrarModalProveedores">Cerrar</button>
+        </div>
+    </div>-->
 
 
 
     <!--<script src="scriptForm.js"></script>-->
     <script src="../scripts/scriptSolicitudCompra.js"></script>
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts/footer.js"></script>
 
 
 </body>

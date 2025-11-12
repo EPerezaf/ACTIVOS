@@ -5,10 +5,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Concepto Activos</title>
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/footer.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
+
+    <div class="container">
+        <h1>Alta Concepto Activos</h1>
+        <form id="formConceptoActivos">
+            <div class="select-flotante">
+                <div class="select-wrapper">
+                    <select name="estatusConceptoActivos" id="estatusConceptoActivos">
+                        <option value="" disabled selected>Seleccione un estatus</option>
+                        <option value="alta">Alta</option>
+                        <option value="baja">Baja</option>
+                    </select>
+                </div>
+            </div>
+            <h1>Familia Activos</h1>
+            <div class="select-flotante">
+                <div class="select-wrapper">
+                    <select name="listaFamilia" id="listaFamilia">
+                        <option value="" disabled selected>Seleccione una Familia</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-flotante">
+                <div class="select-wrapper">
+                    <select name="listaSubFamilia" id="listaSubFamilia">
+                        <option value="" disabled selected>Seleccione una Sub Familia</option>
+                    </select>
+                </div>
+            </div>
+            <div class="textarea-flotante">
+                <div class="textarea-wrapper">
+                    <textarea name="conceptoActivos" id="conceptoActivos" rows="4" required></textarea>
+                    <label for="observaciones">Concepto de Activo</label>
+                </div>
+            </div>
+            <button type="submit" class="btnGuardar" id="btnGuardar">Guardar</button>
+        </form>
+    </div>
+
     <header></header>
     <div>
         <h2>Concepto Activo</h2>
@@ -51,9 +113,8 @@
 
     <!--<script src="scriptForm.js">-->
     <script src="../scripts/scriptConceptoActivos.js"></script>
-    </script>
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts/footer.js"></script>
 </body>
-<footer>&copy; 2025 Eperez AF. Todos los derechos reservados a Eperez.</footer>
-
-
+<!--<footer>&copy; 2025 Eperez AF. Todos los derechos reservados a Eperez.</footer>-->
 </html>

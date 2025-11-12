@@ -10,7 +10,16 @@ router.post('/personal', async (req, res) => {
     console.log("RECIBIENDO", req.body);
 
     try {
+        console.log("Entrando al try")
         const { estatusPersonal, nombre, aPaterno, aMaterno, p_curp, p_ciudad, p_estado, p_edad } = req.body;
+
+        //VALIDAR CAMPOS REQUERIDOS 
+        if (!nombre || !aPaterno || !aMaterno || !p_curp) {
+            return res.status(400).json({
+                success: false,
+                message: "Nombre, apellidos y CURP son requeridos"
+            });
+        }
         const id = await getNextSequence('personalId');
         const nuevoRegistro = new registroPersonal({
             id,
@@ -24,10 +33,13 @@ router.post('/personal', async (req, res) => {
             p_edad
         });
 
+        console.log("Datos a guardar:", nuevoRegistro);
+
         await nuevoRegistro.save()
-        res.json({ message: 'Personal guardado Correctamente' });
+        res.json({ message: 'Personal guardado Correctamente', data: nuevoRegistro});
     } catch (error) {
-        res.status(500).json({ message: "Error al guardar" });
+        res.status(500).json({ message: "Error al guardar", error: error.message });
+        console.log("error", error);
     }
 });
 

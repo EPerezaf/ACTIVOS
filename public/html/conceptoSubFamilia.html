@@ -5,10 +5,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alta Sub Familia</title>
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/footer.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
+
+    <div class="container">
+        <h1>Alta Sub Familia</h1>
+        <h2>Sub Familia Concepto</h2>
+        <form id="formSubFamilia">
+            <div class="select-flotante">
+                <div class="select-wrapper">
+                    <select name="estatus" id="estatus">
+                        <option name="" disabeld selected>Seleccione un opcion</option>
+                        <option value="alta">Alta</option>
+                        <option value="baja">Baja</option>
+                    </select>
+                    <label for="estatus">Estatus del Concepto</label>
+                </div>
+            </div>
+            <div class="select-flotante">
+                <div class="select-wrapper">
+                    <select name="listaFamilia" id="listaFamilia" required>
+                        <option name="" disabled selected>Seleccione una Familia</option>
+                    </select>
+                    <label for="listaFamilia">Concepto Familia</label>
+                </div>
+            </div>
+            <div class="textarea-flotante">
+                <div class="textarea-flotante">
+                    <textarea name="conceptoSubFamilia" id="conceptoSubFamilia"></textarea>
+                    <label for="observaciones">Nombre de la Sub Familia</label>
+                </div>
+            </div>
+            <button id="btnGuardar" type="submit" class="btnGuardar">Guardar</button>
+        </form>
+    </div>
+
     <h2>Sub Familia Activos</h2>
     <button><a href="index.html">Regresar</a></button>
     <br>
@@ -37,6 +94,8 @@
     </form>
     <!--<script src="scriptForm.js"></script>-->
     <script src="../scripts/scriptSubFamilia.js"></script>
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts//footer.js"></script>
 </body>
 <footer>&copy;Eperez AF. Todos los derechso resevardos Eperez.</footer>
 

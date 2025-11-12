@@ -5,14 +5,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width initial-scale=1.0">
     <title>Alta de Proveedores</title>
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/footer.css">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
 
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
 
-    <form id="formProveedores">
+    <div class="container">
+        <form id="formProveedores">
+            <h1>Alta de Proveedores</h1>
+            <div class="select-flotante">
+                <div class="select-wrapper">
+                    <select name="estatusProveedor" id="estatusProveedor">
+                        <option value="" disabled selected>Seleccione un Estatus</option>
+                        <option value="alta">Alta</option>
+                        <option value="baja">Baja</option>
+                    </select>
+                    <label for="">Estatus de Proveedor</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="nickName" name="nickName">
+                    <label for="">NickName</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="razonSocial" name="razonSocial">
+                    <label for="">Razon Social</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="rfc" name="rfc">
+                    <label for="">RFC</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="domicilioFiscal" name="domicilioFiscal">
+                    <label for="">Domicio Fiscal</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="ciudad" name="ciudad">
+                    <label for="">Ciudad</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="cp" name="cp">
+                    <label for="">Codigo Postal</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="correo" name="correo">
+                    <label for="">Correo</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="cuenta" name="cuenta">
+                    <label for="">Cuenta</label>
+                </div>
+            </div>
+            <div class="input-flotante">
+                <div class="input-wrapper">
+                    <input type="text" id="clabe" name="clabe">
+                    <label for="">Clabe</label>
+                </div>
+            </div>
+            <button type="submit" class="btnGuardar" id="btnGuardar">Guardar</button>
+        </form>
+    </div>
+
+    <!--<form id="formProveedores">
         <h1>Alta de Proveedores</h1>
         <p>Estatus</p>
         <select name="estatusProveedor" id="estatusProveedor">
@@ -41,9 +134,11 @@
         <br>
 
         <button id="btnGuardar">Guardar</button>
-    </form>
+    </form>-->
     <!--<script src="scriptForm.js"></script>-->
     <script src="../scripts/scriptProveedor.js"></script>
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts/footer.js"></script>
 </body>
 
 </html>

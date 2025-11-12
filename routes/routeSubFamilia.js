@@ -12,7 +12,7 @@ router.post('/subFamilia', async (req, res) => {
     try {
         const { conceptoFamilia, estatus, conceptoSubFamilia } = req.body;
         //BUSCAR DATOS DEL SELECCIONADO
-        const familia = await registroFamilia.findOne({ id: conceptoFamilia });
+        const familia = await registroFamilia.findOne({ concepto: conceptoFamilia });
         if (!familia) {
             return res.status(404).json({ message: "Datos no encontrados" });
         }

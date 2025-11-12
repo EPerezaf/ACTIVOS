@@ -1,36 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Alta Familia</title>
-    <link rel="stylesheet" href="../styles/navbar.css">
-    <link rel="stylesheet" href="../styles/footer.css">
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f6fa;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-        }
-
-        /* styles/selects.css */
+/* styles/selects.css */
 
         /* Select con Label Flotante */
         .select-flotante {
@@ -169,7 +137,7 @@
 /* Input Flotante Básico */
 .input-flotante {
     position: relative;
-    width: 100%;
+    width: 770px;
     margin-bottom: 30px;
 }
 
@@ -247,84 +215,3 @@
 .input-flotante.error .mensaje-error {
     display: block;
 }
-
-
-    </style>
-</head>
-
-<header>
-
-</header>
-
-<body>
-    <div class="container">
-        <h1>📋 Alta De Familias</h1>
-        <h2>Familia Concepto</h2>
-        <!--<form id="familiaConcepto">-->
-        <form id="formFamilia">
-            <div>
-                <div class="select-flotante">
-                    <div class="select-wrapper">
-                        <select name="estatus" id="estatus">
-                            <option name="" disabled selected>Seleccione opcion</option>
-                            <option value="alta">Alta</option>
-                            <option value="baja">Baja</option>
-                        </select>
-                        <label for="estatus">Estatus del Concepto</label>
-                    </div>
-                </div>
-                <div class="textarea-flotante">
-                    <div class="textarea-wrapper">
-                        <textarea id="concepto" name="concepto" placeholder="" rows="4" required></textarea>
-                        <label for="observaciones">Nombre de Familia(Activos)</label>
-                    </div>
-                </div>
-                <button type="submit" id="btnGuardar" class="btnGuardar">Guardar</button>
-            </div>
-        </form>
-    </div>
-    <br>
-    <br><br>
-    <br><br>
-    <br><br>
-    <br><br>
-<div class="input-flotante">
-    <div class="input-wrapper">
-        <input 
-            type="text" 
-            id="nombre" 
-            name="nombre" 
-            placeholder=" "
-            required
-        >
-        <label for="nombre">Nombre Completo</label>
-    </div>
-</div>
-
-
-
-<div class="input-flotante input-flotante-password">
-    <div class="input-wrapper">
-        <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            placeholder=" "
-            required
-        >
-        <label for="password">Contraseña</label>
-        <button type="button" class="toggle-password" onclick="togglePassword()">
-            👁️
-        </button>
-    </div>
-</div>
-
-    <!--<script src="scriptForm.js"></script>-->
-    <script src="../scripts/scriptFamilia.js"></script>
-    <script src="../scripts/navbar.js"></script>
-    <script src="../scripts/footer.js"></script>
-</body>
-<!--<footer>&copy; Eperez AF. Todos los derechos reversados a Eperez</footer>-->
-
-
-</html>
