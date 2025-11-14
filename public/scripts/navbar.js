@@ -39,7 +39,8 @@ const rutasPorRol = {
                 { nombre: "Lista de Sub Familia", url: "/html/listaSubFamilia.html", icon: "" },
                 { nombre: "Lista de Concepto Activos", url: "/html/listaConceptoActivo.html", icon: ""},
                 { nombre: "Lista de Personal", url: "/html/listaPersonal.html", icon: ""},
-                { nombre: "Lista de Proveedores", url: "/html/listaProveedores.html", icon: ""}
+                { nombre: "Lista de Proveedores", url: "/html/listaProveedores.html", icon: ""},
+                { nombre: "Lista Solicitud Compra", url: "/html/listaSolicitudCompras.html", icon: ""}
             ]
         },
     ],
@@ -97,7 +98,8 @@ const rutasPorRol = {
                 { nombre: "Lista de Sub Familia", url: "/html/listaSubFamilia.html", icon: "" },
                 { nombre: "Lista de Concepto Activos", url: "/html/listaConceptoActivo.html", icon: ""},
                 { nombre: "Lista de Personal", url: "/html/listaPersonal.html", icon: ""},
-                { nombre: "Lista de Proveedores", url: "/html/listaProveedores.html", icon: ""}
+                { nombre: "Lista de Proveedores", url: "/html/listaProveedores.html", icon: ""},
+                { nombre: "Lista de Solicitudes de Compras", url: "/html/listaSolicitudCompras.html", icon: ""}
             ]
         },
     ]

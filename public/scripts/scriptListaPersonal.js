@@ -15,25 +15,40 @@ async function cargarPersonal() {
             const botones = esCancelado
             ? ""
             :
-            `<button type="button" onclick="editarPersonal(${u.id})">Editar</button>
-            <button type="button" onclick="eliminarPersonal(${u.id})">Eliminar</button>`;
+            `<button type="button" onclick="editarPersonal(${u.id})" class="btn-accion btn-editar">Editar</button>
+            <button type="button" onclick="eliminarPersonal(${u.id})" class="btn-accion btn-eliminar">Eliminar</button>`;
 
             const claseCancelado = esCancelado ? "cancelado" : "";
             return(
                 `
                 <div classname="solicitud ${claseCancelado}">
-                    <h2>Personal #${u.id}</h2>
-                    <p><strong>Estatus: </strong>${u.estatusPersonal}</p>
-                    <p><strong>Nombre: </strong>${u.nombre}</p>
-                    <p><strong>Apellido Paterno: </strong>${u.aPaterno}</p>
-                    <p><strong>Apellido Materno: </strong>${u.aMaterno}</p>
-                    <p><strong>Curp: </strong>${u.p_curp}</p>
-                    <p><strong>Ciudad: </strong>${u.p_ciudad}</p>
-                    <p><strong>Estado: </strong>${u.p_estado}</p>
-                    <p><strong>Edad: </strong>${u.p_edad}</p>
+                    <div class="concepto-card">
+                        <div class="concepto-header">
+                            <h3 class="concepto-titulo">Personal #${u.id}</h3>
+                            <span class="concepto-estatus estatus-${u.estatusPersonal}">${u.estatusPersonal}</span>
+                        </div>
+                        <div class="concepto-body">
+                            <p><strong>Estatus: </strong>${u.estatusPersonal}</p>
+                            <p><strong>Nombre: </strong>${u.nombre}</p>
+                            <p><strong>Apellido Paterno: </strong>${u.aPaterno}</p>
+                            <p><strong>Apellido Materno: </strong>${u.aMaterno}</p>
+                            <p><strong>Curp: </strong>${u.p_curp}</p>
+                            <p><strong>Ciudad: </strong>${u.p_ciudad}</p>
+                            <p><strong>Estado: </strong>${u.p_estado}</p>
+                            <p><strong>Edad: </strong>${u.p_edad}</p>
+                        </div>
+                        <div class="concepto-meta">
+                            <div class="concepto-fecha">
+                                <span>📅</span>
+                                <span>12/11/25</span>
+                            </div>
+                            <div class="concepto-acciones">
+                                <div>${botones}</div>
+                            </div>
+                        </div>
                     </div>
-                    <div>${botones}</div>
-                    `
+                </div>
+                <br>`
             )
         }).join("");
     }catch(e){

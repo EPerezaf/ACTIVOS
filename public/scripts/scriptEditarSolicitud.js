@@ -98,15 +98,26 @@ window.onload = async () => {
                 const filaPersonal = document.createElement("div");
                 filaPersonal.classList.add("fila");
                 filaPersonal.innerHTML =`
-                    <input type="text" value="${f.nombre || ''}" readonly>
-                    <input type="text" value="${f.aPaterno || ''}" readonly>
-                    <input type="text" value="${f.aMaterno || ''}" readonly>
-                    <button type="button" class="btn-remove">X</button>
                     <br>
-                    
+                    <div class="grupo-inputs-contenedor">
+                        <div class="input-flotante-contenedor">
+                           <input type="text" value="${f.nombre || ''}" readonly> 
+                           <label>Nombre</label>
+                        </div>
+                        <div class="input-flotante-contenedor">
+                            <input type="text" value="${f.aPaterno || ''}" readonly>
+                            <label>Apellido Paterno</label>
+                        </div>
+                        <div class="input-flotante-contenedor">
+                            <input type="text" value="${f.aMaterno || ''}" readonly>
+                            <label>Apellido Materno</label>        
+                        </div>
+                        <button type="button" class="btn-remove-grupo">X</button>    
+                    </div>
+                   <br>                    
                 `;
                 if(!estaAutorizada){
-                    const btnRemove = filaPersonal.querySelector(".btn-remove");
+                    const btnRemove = filaPersonal.querySelector(".btn-remove-grupo");
                     btnRemove.addEventListener("click", function(){
                         console.log("Eliminado personal: ", f.nombre);
                         filaPersonal.remove();
@@ -126,15 +137,26 @@ window.onload = async () => {
                 const filaConcepto = document.createElement("div");
                 filaConcepto.classList.add("fila");
                 filaConcepto.innerHTML = `
-                    <input type="text" value="${p.sc_cca_familia || ''}" readonly>
-                    <input type="text" value="${p.sc_cca_subFamilia || ''}" readonly>
-                    <input type="text" value="${p.sc_cca_descripcion || ''}" readonly>
-                    <button type="button" class="btn-remove">X</button>
+                    <div class="grupo-inputs-contenedor">
+                        <div class="input-flotante-contenedor">
+                            <input type="text" value="${p.sc_cca_familia || ''}" readonly>
+                            <label>Familia</label>
+                        </div>
+                        <div class="input-flotante-contenedor">
+                            <input type="text" value="${p.sc_cca_subFamilia || ''}" readonly>
+                            <label>Sub Familia</label>
+                        </div>
+                        <div class="input-flotante-contenedor">
+                            <input type="text" value="${p.sc_cca_descripcion || ''}" readonly>
+                            <label>Descripcion</label>
+                        </div>
+                        <button type="button" class="btn-remove-grupo">X</button>
+                    </div>
                     <br>
                 `;
                 
                 if(!estaAutorizada){
-                    const btnRemove = filaConcepto.querySelector(".btn-remove");
+                    const btnRemove = filaConcepto.querySelector(".btn-remove-grupo");
                     btnRemove.addEventListener("click", function(){
                         console.log("Eliminado el concepto: ", p.sc_cca_descripcion);
                         filaConcepto.remove();
@@ -154,15 +176,27 @@ window.onload = async () => {
                 const fila = document.createElement("div");
                 fila.classList.add("fila");
                 fila.innerHTML = `
-                    <input type="text" value="${j.razonSocial || ''}" readonly>
-                    <input type="text" value="${j.nickname || ''}" readonly>
-                    <label>Costo: $</label>
-                    <input type="text" value="${j.sc_monto || ''}" readonly>
-                    <button type="button" class="btn-remove">x</button>
+                    <br>
+                    <div class="grupo-inputs-contenedor">
+                        <div class="input-flotante-contenedor">
+                            <input type="text" value="${j.razonSocial || ''}" readonly>
+                            <label>Razon Social</label>        
+                        </div>
+                        <div class="input-flotante-contenedor">
+                            <input type="text" value="${j.nickname || ''}" readonly>        
+                            <label>Nick Name</label>
+                        </div>
+                        <div class="input-flotante-contenedor">
+                            <input type="text" value="${j.sc_monto || ''}" readonly>
+                            <label>Costo</label>    
+                        </div>
+                        <button type="button" class="btn-remove-grupo">x</button>
+                    </div>
+                    
                 `;
 
                 if(!estaAutorizada){
-                    const btnRemove = fila.querySelector(".btn-remove");
+                    const btnRemove = fila.querySelector(".btn-remove-grupo");
                     btnRemove.addEventListener("click", function() {
                         console.log("Eliminando proveedor:", j.nickname);
                         fila.remove();
@@ -857,13 +891,24 @@ function seleccionarPersonal(usuario){
     fila.classList.add("fila");
 
     fila.innerHTML=`
-        <input type="text" value="${usuario.nombre}" readonly>
-        <input type="text" value="${usuario.aPaterno}" readonly>
-        <input type="text" value="${usuario.aMaterno}" readonly>
-        <button class="btn-remove">X</button>
+        <div class="grupo-inputs-contenedor">
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${usuario.nombre}" readonly>
+                <label>Nombre</label>        
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${usuario.aPaterno}" readonly>        
+                <label>Apellido Paterno</label>
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${usuario.aMaterno}" readonly>        
+                <label>Apellido Materno</label>
+            </div>
+            <button class="btn-remove-grupo">X</button>
+        </div>
         `;
 
-    fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
+    fila.querySelector(".btn-remove-grupo").addEventListener("click", () => fila.remove());
     contenedor.appendChild(fila);
 
     //LIMPIAR RESULTADOS DE BUSQUEDA
@@ -956,13 +1001,24 @@ function seleccionarConcepto(activo){
     filaConcepto.classList.add("fila");
 
     filaConcepto.innerHTML = `
-        <input type="text" value="${activo.conceptoFamilia}" readonly>
-        <input type="text" value="${activo.conceptoSubFamilia}" readonly>
-        <input type="text" value="${activo.conceptoActivos}" readonly>
-        <button class="btn-remove">X</button>
+        <div class="grupo-inputs-contenedor">
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${activo.conceptoFamilia}" readonly>
+                <label>Familia</label>        
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${activo.conceptoSubFamilia}" readonly>
+                <label>Sub Familia</label>        
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${activo.conceptoActivos}" readonly>
+                <label>Concepto Activo</label>        
+            </div>
+            <button class="btn-remove-grupo">X</button>    
+        </div>
     `;
 
-    filaConcepto.querySelector(".btn-remove").addEventListener("clik", () => filaConcepto.remove());
+    filaConcepto.querySelector(".btn-remove-grupo").addEventListener("clik", () => filaConcepto.remove());
     contenedor.appendChild(filaConcepto);
 
     //LIMPIAR RESULTADOS DE BUSQUEAD
@@ -1056,13 +1112,24 @@ function seleccionarProveedor(proveedor) {
     fila.classList.add("fila");
 
     fila.innerHTML = `
-        <input type="text" value="${proveedor.razonSocial}" readonly>
-        <input type="text" value="${proveedor.nickName}" readonly>
-        <input type="text" value="">
-        <button class="btn-remove">X</button>
+        <div class="grupo-inputs-contenedor">
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${proveedor.razonSocial}" readonly>
+                <label>Razon Social</label>        
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${proveedor.nickName}" readonly>
+                <label>Nick Name</label>        
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="">
+                <label>Costo</label>        
+            </div>
+            <button class="btn-remove-grupo">X</button>
+        </div>
     `;
 
-    fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
+    fila.querySelector(".btn-remove-grupo").addEventListener("click", () => fila.remove());
     contenedor.appendChild(fila);
 
     //LIMPIAR RESULTADOS DE BUSQUEDA

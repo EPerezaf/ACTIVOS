@@ -56,52 +56,62 @@ async function cargarSolicitudes() {
             let botonesHTML = '';
             if(useRole === "Administrador"){
                 botonesHTML = `
-                    <button class="btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>
-                    <button class="btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
-                    <button class="btn-eliminar" onclick="eliminarSolicitud(${s.id})">Eliminar</button>`
+                    <button class=" btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>
+                    <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
+                    <button onclick="eliminarSolicitud(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`
             }else if(useRole === "Gerente General"){
                     if(s.estatusCompras === "Proceso"){
                         botonesHTML = `
-                        <button class="btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
-                        <button class="btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>`;
+                        <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
+                        <button class="btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})" class="btn-accion btn-eliminar">Autorizar</button>`;
                     }else{
                         botonesHTML = `
-                        <button class="btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>`;
+                        <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>`;
                     }
             }else if(useRole === "Jefe de Activos" && s.estatusCompras === "Pendiente"){
                 botonesHTML = `
-                    <button class="btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
-                    <button class="btn-eliminar" onclick="eliminarSolicitud(${s.id})">Eliminar</button>`;
+                    <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
+                    <button onclick="eliminarSolicitud(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`;
             }                
 
             return `
-            <div class="solicitud">
-                <h2>Solicitud #${s.id}</h2>
-                <p>Estatus: ${s.estatusCompras}</p>
-                <p>Clasificacion: ${s.clasificacionCompras}</p>
-                <p>Fecha Creacion: ${new Date(s.fechaCreacion).toLocaleDateString()}</p>
-                ${s.fechaAutorizacion ? `<p>Fecha Autorización: ${new Date.UTC(s.fechaAutorizacion).toLocaleDateString()}</p>` : ''}
-                <p>Descripcion: ${s.descripcionConceptoCompra}</p>
 
-                <div class="section">
-                    <strong>Personal</strong>
-                    <ul>${personalHTML}</ul>
+            <div class="concepto-card">
+                <div class="concepto-header">
+                    <h3 class="concepto-titulo">Solicitud Compra #${s.id}</h3>
+                    <span class="concepto-estatus estatus-${s.estatusCompras}">${s.estatusCompras}</span>
                 </div>
-
-                <div class="section">
-                    <strong>Concepto Compra</strong>
-                    <ul>${conceptoActivoHTML}</ul>
+                <div class="concepto-body">
+                    <p><strong>Clasificacion:</strong> ${s.clasificacionCompras}<p>
+                    <p><strong>Fecha de Creacion:</strong>${new Date(s.fechaCreacion).toLocaleDateString()}</p>
+                    ${s.fechaAutorizacion ? `<p>Fecha Autorizacion: ${new Date.UTC(s.fechaAutorizacion).toLocaleDateString()}</p>`: ''}
+                    <p><strong>Descripcion:</strong>${s.descripcionConceptoCompra}</p>
+                    <div>
+                        <strong>Personal</strong>
+                        <ul>${personalHTML}</ul>
+                    </div>
+                    <div>
+                        <strong>Concepto Activo</strong>
+                        <ul>${conceptoActivoHTML}</ul>
+                    </div>
+                    <div>
+                        <strong>Proveedores</strong>
+                        <ul>${proveedorHTML}</ul>
+                    </div>
                 </div>
-
-                <div class="section">
-                    <strong>Proveedores</strong>
-                    <ul>${proveedorHTML}</ul>
-                </div>
-
-                <div class="acciones">
-                    ${botonesHTML}
+                <div class="concepto-meta">
+                    <div class="concepto-fecha">
+                        <span>📅</span>
+                        <p>${new Date(s.fechaCreacion).toLocaleDateString()}</p>
+                        ${s.fechaAutorizacion ? `<p>Fecha Autorizacion: ${new Date.UTC(s.fechaAutorizacion).toLocaleDateString()}</p>`: ''}
+                    </div>
+                    <div class="concepto-acciones">
+                        <div>${botonesHTML}</div>
+                    </div>
                 </div>
             </div>
+            <br>
+            <br>
             `;
         }).join('');
 

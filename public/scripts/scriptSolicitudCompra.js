@@ -115,13 +115,27 @@ function seleccionarPersonal(usuario) {
     fila.classList.add("fila");
 
     fila.innerHTML = `
-        <input type="text" value="${usuario.nombre}" readonly>
-        <input type="text" value="${usuario.aPaterno}" readonly>
-        <input type="text" value="${usuario.aMaterno}" readonly>
-        <button class="btn-remove">X</button>
-        `;
 
-    fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
+        <div class="grupo-inputs">
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${usuario.nombre}" readonly placeholder=" ">
+                <label>Nombre</label>
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${usuario.aPaterno}" readonly placeholder=" ">
+                <label>Apellido Paterno</label>
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${usuario.aMaterno}" readonly placeholder=" ">
+                <label>Apellido Materno</label>
+            </div>
+            <button class="btn-remove-grupo" onclick="eliminarFila(this)">X</button>
+        </div>
+    
+        
+        `;
+    
+    fila.querySelector(".btn-remove-grupo").addEventListener("click", () => fila.remove());
     contenedor.appendChild(fila);
 
     //LIMPIAR RESULTADOS DE BUSQUEDA 
@@ -216,13 +230,24 @@ function seleccionarConceptoActivo(conceptoActivo) {
     fila.classList.add("fila");
 
     fila.innerHTML= `
-        <input type="text" value="${conceptoActivo.conceptoFamilia}" readonly>
-        <input type="text" value="${conceptoActivo.conceptoSubFamilia}" readonly>
-        <input type="text" value="${conceptoActivo.conceptoActivos}" readonly>
-        <button class="btn-remove">X</button>
-        `
+        <div class="grupo-inputs">
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${conceptoActivo.conceptoSubFamilia}" readonly>
+                <label>Familia</label>
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${conceptoActivo.conceptoSubFamilia}" readonly>
+                <label>Sub Familia</label>
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${conceptoActivo.conceptoActivos}" readonly>
+                <label>Concepto Activo</label>
+            </div>
+            <button class="btn-remove-grupo">X</button>
+        </div>
+        `;
     
-    fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
+    fila.querySelector(".btn-remove-grupo").addEventListener("click", () => fila.remove());
     contenedor.appendChild(fila);
 
     //LIMPIAR RESULTADOS DE BUSQUEDA
@@ -319,12 +344,24 @@ function seleccionarProveedor(proveedor){
     fila.classList.add("fila");
 
     fila.innerHTML = `
-        <input type="text" value="${proveedor.razonSocial}" readonly>
-        <input type="text" value="${proveedor.nickName}" readonly>
-        <input type="text" placeholder="Ingresa el monto" class="costo">
-        <button class="btn-remove">X</button>`;
 
-    fila.querySelector(".btn-remove").addEventListener("click", () => fila.remove());
+        <div class="grupo-inputs">
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${proveedor.razonSocial}" readonly>
+                <label>Razon Social</label>
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" value="${proveedor.nickName}" readonly>
+                <label>Nickname</label>
+            </div>
+            <div class="input-flotante-contenedor">
+                <input type="text" placeholder="">
+                <label>Monto</label>
+            </div>
+            <button class="btn-remove-grupo">X</button>
+        </div>`;
+
+    fila.querySelector(".btn-remove-grupo").addEventListener("click", () => fila.remove());
     conetendor.appendChild(fila);
 
     //LIMPIAR RESULTADOS DE BUSQUEDA

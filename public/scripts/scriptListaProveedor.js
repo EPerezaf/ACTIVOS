@@ -14,26 +14,40 @@ async function cargarProveedores() {
             const botones = esCancelado
             ? ""
             :
-            `<button type="button" onclick="editarProveedor(${u.id})">Editar</button>
-            <button type="button" onclick="eliminarProveedor(${u.id})">Eliminar</button>`;
+            `<button type="button" onclick="editarProveedor(${u.id})" class="btn-accion btn-editar">Editar</button>
+            <button type="button" onclick="eliminarProveedor(${u.id})" class="btn-accion btn-eliminar">Eliminar</button>`;
             
             const claseCancelado = esCancelado ? "cancelado" : "";
 
             return(
                 `
-                <div classname="solicitud ${claseCancelado}">
-                    <h2>Proveedor #${u.id}</h2>
-                    <p><strong>Estatus: </strong>${u.estatusProveedor}</p>
-                    <p><strong>NickName: </strong>${u.nickName}</p>
-                    <p><strong>Razon Social: </strong>${u.razonSocial}</p>
-                    <p><strong>RFC: </strong>${u.rfc}</p>
-                    <p><strong>Domicilio Fiscal: </strong>${u.domicilioFiscal}</p>
-                    <p><strong>Ciudad: </strong>${u.ciudad}</p>
-                    <p><strong>Codigo Postal: </strong>${u.cp}</p>
-                    <p><strong>Correo: </strong>${u.correo}</p>
-                    <p><strong>Cuenta: </strong>${u.cuenta}</p>
-                    <p><strong>Clabe: </strong>${u.clabe}</p>
-                    <div>${botones}</div>
+                <div classname= "${claseCancelado}">
+                    <div class="concepto-card">
+                        <div class="concepto-header">
+                            <h3 class="concepto-titulo">Proveedor #${u.id}</h3>
+                            <span class="concepto-estatus estatus-${u.estatusProveedor}">${u.estatusProveedor}</span>
+                        </div>
+                        <div class="concepto-body">
+                            <p><strong>NickName: </strong>${u.nickName}</p>
+                            <p><strong>Razon Social: </strong>${u.razonSocial}</p>
+                            <p><strong>RFC: </strong>${u.rfc}</p>
+                            <p><strong>Domicilio Fiscal: </strong>${u.domicilioFiscal}</p>
+                            <p><strong>Ciudad: </strong>${u.ciudad}</p>
+                            <p><strong>Codigo Postal: </strong>${u.cp}</p>
+                            <p><strong>Correo: </strong>${u.correo}</p>
+                            <p><strong>Cuenta: </strong>${u.cuenta}</p>
+                            <p><strong>Clabe: </strong>${u.clabe}</p>
+                        </div>
+                        <div class="concepto-meta">
+                            <div class="concepto-fecha">
+                                <span>📅</span>
+                                <span>12/11/25</span>
+                            </div>
+                            <div class="concepto-acciones">
+                                <div>${botones}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>`
             )
         }).join("");

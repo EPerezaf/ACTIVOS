@@ -22,21 +22,35 @@ async function cargarActivos(){
             const botones = esCancelado
             ? ""
             :
-            `<button type="button" onclick="editarActivos(${u.id})">Editar</button>
-            <button type="button" onclick="eliminarActivos(${u.id})">Eliminar</button>`;
+            `<button type="button" onclick="editarActivos(${u.id})" class="btn-accion btn-editar">Editar</button>
+            <button type="button" onclick="eliminarActivos(${u.id})" class="btn-accion btn-eliminar">Eliminar</button>`;
 
             const claseCancelado = esCancelado ? "cancelado" : "";
 
             return(
                 `
                 <div classname="solicitud ${claseCancelado}">
-                    <h2>Concepto Activo #${u.id}</h2>
-                    <p><strong>Estatus: </strong>${u.estatus}</p>
-                    <p><strong>Familia: </strong>${u.conceptoFamilia}</p>
-                    <p><strong>Sub Familia: </strong>${u.conceptoSubFamilia}</p>
-                    <p><strong>Cocepto: </strong>${u.conceptoActivos}</p>
-                </div>
-                <div>${botones}</div>`
+                    <div class="concepto-card">
+                        <div class="concepto-header">
+                            <h3 class="concepto-titulo">Concepto Activos #${u.id}</h3>
+                            <span class="concepto-estatus estatus-${u.estatus}">${u.estatus}</span>
+                        </div>
+                        <div class="concepto-body">
+                            <p><strong>Familia:</strong>${u.conceptoFamilia}</p>
+                            <p><strong>Sub Familia:</strong>${u.conceptoSubFamilia}</p>
+                            <p><strong>Concepto:</strong>${u.conceptoActivos}</p>
+                        </div>
+                        <di class="concepto-meta">
+                            <div class="concepto-fecha">
+                                <span>📅</span>
+                                <span>12-11-25</span>
+                            </div>
+                            <div class="concepto-acciones">
+                                <div">${botones}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`
             )
             
             

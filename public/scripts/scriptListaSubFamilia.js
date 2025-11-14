@@ -20,21 +20,38 @@ async function cargarSubFamilia() {
             const botones = esCancelado
             ? ""
             :`
-                <button typeof="button" onClick="editarSubFamilia(${u.id})">Editar</button>
-                <button typeof="button" onClick="eliminarSubFamilia(${u.id})">Eliminar</button>
+                <button typeof="button" onClick="editarSubFamilia(${u.id})" class="btn-accion btn-editar">Editar</button>
+                <button typeof="button" onClick="eliminarSubFamilia(${u.id})" class="btn-accion btn-eliminar">Eliminar</button>
             `;
 
             const claseCancelado = esCancelado ? "cancelado" : "";
 
 
             return(
-            `<div className="solicitud ${claseCancelado}">
-                <h2>Sub Familia #${u.id}</h2>
-                <p><strong>Estatus: </strong>${u.estatus}</p>
-                <p><strong>Familia: </strong>${u.conceptoFamilia}</p>
-                <p><strong>Sub Familia: </strong>${u.conceptoSubFamilia}</p>
-                <div className="acciones">${botones}</div>
-            </div>`
+            `
+            <div className="solicitud ${claseCancelado}">
+            <div class="concepto-card">
+                <div class="concepto-header">
+                    <h3 class="concepto-titulo">Sub Familia #${u.id}</h3>
+                    <span class="concepto-estatus estatus-${u.estatus}">${u.estatus}</span>
+                </div>
+                <div class="concepto-body">
+                    <p><strong>Familia:</strong> ${u.conceptoFamilia}</p>
+                    <p><strong>Sub Familia:</strong> ${u.conceptoSubFamilia}</p>
+                </div>
+                <div class="concepto-meta">
+                    <div class="concepto-fecha">
+                        <span>📅</span>
+                        <span>12/11/25</span>
+                    </div>
+                    <div class="concepto-acciones">
+                        <div className="acciones">${botones}</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <br>
+            `
             )
         }).join("");
     }catch(error){

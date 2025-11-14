@@ -1,143 +1,184 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta>
-        <title>Lista de Sub Familias</title>
 
-        <style>
-            body {
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta>
+    <title>Lista de Sub Familias</title>
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/footer.css">
+
+    <style>
+        body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
+            color: #2c3e50;
             text-align: center;
         }
+    </style>
+</head>
 
-        .solicitud {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-
-        .solicitud h2 {
-            margin-top: 0;
-        }
-
-        .section {
-            margin-bottom: 10px;
-        }
-
-        ul {
-            padding-left: 20px;
-        }
-
-        /*ESTILO PARA EL MODAL*/
-        .fila {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-
-        .fila input[readonly] {
-            background: #f0f0f0;
-            border: 1px solid #ccc;
-        }
-
-        .btn-add,
-        .btn-remove {
-            cursor: pointer;
-            padding: 4px 8px;
-            border: none;
-            border-radius: 4px;
-        }
-
-        .btn-add {
-            background: green;
-            color: white;
-        }
-
-        .btn-remove {
-            background: red;
-            color: white;
-        }
-
-        /*MODAL O VENTANA EMERGENTE*/
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgb(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: black;
-        }
-
-        .search-section {
-            margin-bottom: 15px;
-        }
-
-        .search-section input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .results-container {
-            border: 1px solid #ddd;
-            max-height: 200px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
-
-        .cancelado {
-  opacity: 0.6;
-  background-color: #f8d7da;
-  border: 1px solid #f5c2c7;
-}
-
-.cancelado h2, 
-.cancelado p {
-  color: #842029;
-}
-
-        </style>
-    </head>
-    <body>
-        <h1>Lista de Sub Familias</h1>
+<body>
+    <h1>Lista de Sub Familias</h1>
+    <div class="contenedor-lista">
+        <div class="lista-header">
+            <div class="barra-busqueda">
+                <input type="text" class="busqueda-input" placeholder="Buscar conceptos...">
+                <button class="btn-accion btn-editar">Buscar</button>
+            </div>
+            <div class="filtros">
+                <select name="" id="" class="filtro-select">
+                    <option value="">Todos los estatus</option>
+                </select>
+                <select name="" id="" class="filtro-select">
+                    <option value="">Todas las categorías</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="lista-conceptos">
         <div id="contenedorSubFamilia">
             <p>Cargando Listado...</p>
         </div>
+    </div>
+    
+    <script src="../scripts/scriptListaSubFamilia.js"></script>
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts/footer.js"></script>
+</body>
 
-        <script src="../scripts/scriptListaSubFamilia.js"></script>
-    </body>
+<div class="lista-conceptos">
+    <div class="concepto-card">
+        <div class="concepto-header">
+            <h3 class="concepto-titulo">Vehículos</h3>
+            <span class="concepto-estatus estatus-alta">Alta</span>
+        </div>
+        <div class="concepto-body">
+            <p>Concepto para gestión de vehículos de la empresa</p>
+        </div>
+        <div class="concepto-meta">
+            <div class="concepto-fecha">
+                <span>📅</span>
+                <span>15/12/2024</span>
+            </div>
+            <div class="concepto-acciones">
+                <button class="btn-accion btn-editar">Editar</button>
+                <button class="btn-accion btn-eliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="concepto-card">
+        <div class="concepto-header">
+            <h3 class="concepto-titulo">Equipo de Computo</h3>
+            <span class="concepto-estatus estatus-pendiente">Pendiente</span>
+        </div>
+        <div class="concepto-body">
+            <p>Computadoras, laptops y equipos relacionados</p>
+        </div>
+        <div class="concepto-meta">
+            <div class="concepto-fecha">
+                <span>📅</span>
+                <span>10/12/2024</span>
+            </div>
+            <div class="concepto-acciones">
+                <button class="btn-accion btn-editar">Editar</button>
+                <button class="btn-accion btn-eliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="contenedor-lista">
+    <div class="lista-header">
+        <div class="barra-busqueda">
+            <input type="text" class="busqueda-input" placeholder="Buscar conceptos...">
+            <button class="btn-accion btn-editar">🔍 Buscar</button>
+        </div>
+        <div class="filtros">
+            <select class="filtro-select">
+                <option value="">Todos los estatus</option>
+                <option value="alta">Alta</option>
+                <option value="baja">Baja</option>
+                <option value="pendiente">Pendiente</option>
+            </select>
+            <select class="filtro-select">
+                <option value="">Todas las categorías</option>
+                <option value="transporte">Transporte</option>
+                <option value="tecnologia">Tecnología</option>
+                <option value="mobiliario">Mobiliario</option>
+            </select>
+        </div>
+    </div>
+    <div class="lista-contenido">
+        <div class="item-detallado">
+            <div class="item-info">
+                <div class="item-titulo">Vehículos</div>
+                <div class="item-subtitulo">Gestión de transporte empresarial</div>
+                <div class="item-tags">
+                    <span class="tag">Transporte</span>
+                    <span class="tag">Alta</span>
+                </div>
+            </div>
+            <div class="item-acciones">
+                <button class="btn-accion btn-editar">Editar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="contenedor-lista">
+    <div class="lista-header">
+        <div class="barra-busqueda">
+            <input type="text" class="busqueda-input" placeholder="Buscar conceptos...">
+            <button class="btn-accion btn-editar">Buscar</button>
+        </div>
+        <div class="filtros">
+            <select name="" id="" class="filtro-select">
+                <option value="">Todos los estatus</option>
+            </select>
+            <select name="" id="" class="filtro-select">
+                <option value="">Todas las categorías</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div class="lista-conceptos">
+    <div class="concepto-card">
+        <div class="concepto-header">
+            <h3 class="concepto-titulo">Prueba</h3>
+            <span class="concepto-estatus estatus-pendiente">Pendiente</span>
+        </div>
+        <div class="concepto-body">
+            <p>Pruebas pruebas</p>
+        </div>
+        <div class="concepto-meta">
+            <div class="concepto-fecha">
+                <span>📅</span>
+                <span>12/11/2025</span>
+            </div>
+            <div class="concepto-acciones">
+                <button class="btn-accion btn-editar">Editar</button>
+                <button class="btn-accion btn-eliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </html>

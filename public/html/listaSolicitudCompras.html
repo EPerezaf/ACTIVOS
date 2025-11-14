@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width initial-scale=1.0">
     <title>Lista de Solicitud de Compra</title>
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/footer.css">
     <style>
         /*
             table{
@@ -20,14 +23,14 @@
             th {
                 background: #f4f4f4;
             }*/
-        body {
+        /*body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
 
         h1 {
             text-align: center;
-        }
+        }*/
 
         .solicitud {
             border: 1px solid #ccc;
@@ -131,22 +134,68 @@
             overflow-y: auto;
             margin-bottom: 15px;
         }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <button><a href="redirigir.html">Regresar</a></button>
-    <button><a href="comprasActivos.html">NUEVO</a></button>
-    <button id="btnLogout">Cerrar Sesion</button>
     <h1>Solicitudes Compras</h1>
-    <div id="contenedorSolicitudes">
-        <p>Cargando...</p>
+    <div class="contenedor-lista">
+        <div class="lista-header">
+            <div class="barra-busqueda">
+                <input type="text" class="busqueda-input" placeholder="Buscar Solicitud..">
+                <button class="btn-accion btn-editar">Buscar</button>
+            </div>
+            <div class="filtros">
+                <select name="" id="" class="filtro-select">
+                    <option value="">Todos los estatus</option>
+                </select>
+                <select name="" id="" class="filtro-select">
+                    <option value="">Todas las proveedores</option>
+                </select>
+                <select name="" id="" class="filtro-select">
+                    <option value="">Todo el personal</option>
+                </select>
+            </div>
+        </div>
     </div>
+
+    <div class="container">
+        <div class="lista-conceptos">
+            <div id="contenedorSolicitudes">
+                <p>Cargando...</p>
+            </div>
+        </div>
+    </div>
+    
+    
 
 
     <!--<script src="scriptForm.js"></script>-->
     <script src="../scripts/scriptListSolicitudCompra.js"></script>
     <script src="../scripts/logout.js"></script>
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts/footer.js"></script>
 </body>
 
 </html>
