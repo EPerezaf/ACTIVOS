@@ -7,6 +7,7 @@
 const express = require('express');
 const router = express.Router();
 const registroSolicitudCompra = require('../models/modelSolicitudCompra');
+const registroActivo = require('../models/modelRegistroActivo');
 const { getNextSequence }  = require('../middleware/counter');
 
 //VALIDACION DE ROLES CON INICIO DE SESION
@@ -193,4 +194,165 @@ router.put("/solicitudCompra/:id/proceso", authMiddleware,roleMiddleware(["Jefe 
         res.status(500).json({ success: false, message: "Error al actualizar solicitud"});
     }
 })
+
+
+router.post("/registroActivo", authMiddleware,roleMiddleware(["Jefe de Activos", "Administrador"]), async (req,res) => {
+    try{
+        const conceptosArray = req.body;
+        console.log("Datos recibidos: ",conceptosArray);
+
+        //VERIFICAR QUE ES UN ARRAY Y TIENE ELEMENTOS   
+        if(!Array.isArray(conceptosArray) || conceptosArray.length === 0){
+            return res.status(400).json({
+                message: "Se esperaba un array de activos",
+                success: false
+            });
+        }
+
+        const resultados = [];
+        const errores = [];
+
+        // ✅ CORREGIDO: Manejar ambos nombres del campo
+        const primerConcepto = conceptosArray[0];
+        const idSolicitud = primerConcepto.solicitudCompraId || primerConcepto.solcitudCompraId;
+        
+        console.log("ID de solicitud encontrado:", idSolicitud);
+        if(!idSolicitud){
+            return res.status(400).json({
+                message: "No se encontro el ID de la solicitud",
+                success: false,
+                camposDisponibles: Object.keys(primerConcepto)
+            });
+        }
+
+        //VERIFICAR SI YA EXISTEN ACTIVOS REGISTRADOS PARA ESTA SOLICITUD
+        const activosExistentes = await registroActivo.find({ idSolicitud: parseInt(idSolicitud)});
+        if(activosExistentes.length > 0){
+            return res.status(400).json({
+                message: "Esta solicitud ya tiene activos registrados. No se pueden registrar mas activos",
+                success: false,
+                activosExistentes: activosExistentes.length
+            });
+        }
+
+        for(const [index, concepto] of conceptosArray.entries()){
+            try{
+                console.log(`Procesando concepto ${index + 1}:`, concepto);
+                const id = await getNextSequence('registroActivoId');
+                console.log("ID unico generado: ",id);
+
+                const registroActivoData = {
+                    id: id,
+                    familia: concepto.familia,
+                    subFamilia: concepto.subFamilia,
+                    conceptoActivo: concepto.conceptoActivo,
+                    nomenclatura: concepto.nomenclatura,
+                    marca: concepto.marca,
+                    modelo: concepto.modelo,
+                    descripcionAdicional: concepto.descripcionAdicional,
+                    costo: parseFloat(concepto.costo) || 0,
+                    numSerie: concepto.numSerie,
+                    idSolicitud: parseInt(idSolicitud),
+                    responsable: concepto.responsable || ""
+                };
+                console.log(`Activo ${index + 1} a guardar:`, registroActivoData);
+
+                 // Validar campos obligatorios
+                if (!registroActivoData.numSerie) {
+                    throw new Error(`Concepto ${index + 1}: Número de serie es requerido`);
+                }
+
+                if (!registroActivoData.nomenclatura) {
+                    throw new Error(`Concepto ${index + 1}: Nomenclatura es requerida`);
+                }
+
+                //GUARDAR CADA ACTIVO INDIVIDUALMENTE
+                const nuevoRegistro = new registroActivo(registroActivoData);
+                const resultado = await nuevoRegistro.save();
+               
+                resultados.push({
+                    concepto: index + 1,
+                    id: resultado.id,
+                    numSerie: resultado.numSerie,
+                    nomenclatura: resultado.nomenclatura,
+                    success: true
+                });
+
+                console.log(`Concepto ${index + 1} guardado correctamente`);
+                
+            }catch(error){
+                console.error(`Error en concepto ${index + 1}:`, error.message);
+                errores.push({
+                    concepto: index + 1,
+                    error: error.message,
+                    success: false
+                });
+            }
+        }
+
+        //ACTUALIZAR EL ESTATUS DE LA SOLICITUD A "ACTIVOS REGISTRADOS"
+        if(resultados.length > 0){
+            try{
+                const SolicitudCompra = require("../models/modelSolicitudCompra");
+                
+                await SolicitudCompra.findOneAndUpdate(
+                    { id: parseInt(idSolicitud)},
+                    {
+                        //estatusCompras: 'Activos Registrados',
+                        fechaRegistroActivos: new Date()
+                    }
+                );
+                console.log(`Fecha de registro de activos actualizada para solicitud ${idSolicitud}`);
+            }catch(error){
+                console.error("Error al actualizar estatus de la solicitud: ", error);
+            }
+        }
+
+        // Preparar respuesta
+        const response = {
+            message: `Procesamiento completado: ${resultados.length} exitosos, ${errores.length} con errores`,
+            success: true,
+            resultados: resultados,
+            errores: errores,
+            resumen: {
+                totalConceptos: conceptosArray.length,
+                guardados: resultados.length,
+                conError: errores.length
+            }
+        };
+
+        console.log("RESUMEN DEL PROCESO:", response.resumen);
+        res.json(response);
+    }catch(error){
+        console.error("ERROR EN EL SERVIDOR: ", error);
+        res.status(500).json({
+            message: "ERROR AL GUARDAR",
+            error: error.message,
+            success: false
+        });
+    }
+});
+
+router.get("/solicitud/:idSolicitud/tieneActivos", authMiddleware, async ( req,res) => {
+    try{
+        const { idSolicitud } = req.params;
+
+        const activosCount = await registroActivo.countDocuments({
+            idSolicitud: parseInt(idSolicitud)
+        });
+
+        res.json({
+            success: true,
+            tieneActivos: activosCount > 0,
+            cantidadActivos: activosCount
+        });
+
+    }catch(error){
+        console.error("Error al verificar activos: ", error);
+        res.status(500).json({
+            success: false,
+            message: "Error al verificar activos registrados"
+        });
+    }
+});
 module.exports = router;

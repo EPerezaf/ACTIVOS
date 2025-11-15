@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../styles/footer.css">
 
     <style>
-        .modal {
+        /*.modal {
             display: none;
             position: fixed;
             z-index: 1000;
@@ -76,7 +76,376 @@
         .btn-remove {
             background: red;
             color: white;
+        }*/
+
+        .description {
+            color: #5a6c7d;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            line-height: 1.6;
         }
+
+        /* Estilo del botón principal */
+        .btn-buscar-personal {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            border: none;
+            padding: 4px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 0;
+            width: 280px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-buscar-personal:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        }
+
+        .btn-buscar-personal:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-buscar-personal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-buscar-personal:hover::after {
+            left: 100%;
+        }
+
+        .btn-buscar-personal i {
+            font-size: 1.2rem;
+        }
+
+        /* Estilos mejorados para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            padding: 25px 30px;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .close {
+            color: white;
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .search-section {
+            margin-bottom: 25px;
+        }
+
+        .search-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            text-align: left;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background-color: white;
+        }
+
+        .results-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            background-color: #f9f9f9;
+        }
+
+        .result-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .result-item:hover {
+            background-color: #f0f7ff;
+            transform: translateX(5px);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .user-role {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+
+        .btn-cerrar {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-cerrar:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estilos para scrollbar */
+        .results-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .btn-buscar-personal {
+                width: 250px;
+                padding: 14px 25px;
+            }
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .button-style {
+            padding: 25px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-style h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+        }
+
+
+
+        /* ESTILO 4 - Botón Neumórfico */
+        .btn-neumorphic {
+            background: #f0f0f0;
+            color: #444;
+            border: none;
+            padding: 4px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 40%;
+        }
+
+        .btn-neumorphic:hover {
+            box-shadow: inset 5px 5px 10px #d9d9d9, inset -5px -5px 10px #ffffff;
+            transform: translateY(2px);
+        }
+
+
 
         body {
             font-family: Arial, sans-serif;
@@ -104,6 +473,9 @@
 <body>
     <h1>Editar solicitud de compra</h1>
     <div class="container">
+        <button type="button" id="btnProceso" class="btn-buscar-personal">Mandar a Proceso</button>
+        <br>
+        <br>
         <form id="formEditarSolicitud">
             <div class="input-flotante">
                 <div class="input-wrapper">
@@ -131,155 +503,148 @@
             </div>
             <div class="container">
                 <label for="">Personal</label><br>
-                <button type="button" id="abrirPersonal" class="btn-add">Abrir Busqueda Personal</button>
+                <button type="button" id="abrirPersonal" class="btn-neumorphic">
+                    <i class="fas fa-search"></i>
+                    Abrir Busqueda Personal
+                </button>
                 <div id="listaPersonal"></div>
             </div>
             <div class="container">
                 <label for="">Conceptos</label><br>
-                <button type="button" id="abrirConcepto" class="btn-add">
+                <button type="button" id="abrirConcepto" class="btn-neumorphic">
+                    <i class="fas fa-search"></i>
                     Abrir Busqueda de Concepto Activo
                 </button>
+                <br>
                 <div id="listaConcepto"></div>
             </div>
             <div class="container">
                 <label for="">Proveedores</label><br>
-                <button type="button" id="abrirProveedores" class="btn-add">
+                <button type="button" id="abrirProveedores" class="btn-neumorphic">
+                    <i class="fa fa-search"></i>
                     Abrir Busqueda de Proveedores
                 </button>
                 <div id="listaProveedores"></div>
             </div>
             <button type="submit" id="btn-Guardar" class="btn-accion btnGuardar">Guardar Cambios</button>
         </form>
+    </div>
 
-        <!--MODAL PARA PERSONAL-->
-        <div id="modalPersonal" class="modal">
-            <div class="modal-content">
+    <!-- MODAL PARA PERSONAL -->
+    <div id="modalPersonal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Búsqueda de Personal</h2>
                 <span class="close">&times;</span>
-                <h2>Busqueda de Personal</h2>
+            </div>
 
-                <!--BUSQUEDA PARA PERSONAL-->
+            <div class="modal-body">
+                <!-- BUSQUEDA PARA PERSONAL -->
                 <div class="search-section">
                     <h3>Buscar Personal</h3>
-                    <input type="text" id="buscarPersonal" placeholder="Buscar por nombre o apellidos">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="buscarPersonal" placeholder="Buscar por nombre o apellidos">
+                    </div>
+
                     <div id="resultadoPersonalModal" class="results-container">
                     </div>
                 </div>
-                <button id="cerrarPersonal">Cerrar</button>
             </div>
-        </div>
 
-        <!--MODAL PARA CONCEPTOS-->
-        <div id="modalConcepto" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Busqueda de Informacion</h2>
-
-                <!--BUSQUEDA PARA CONCEPTOS-->
-                <div class="search-section">
-                    <h3>Buscar Conceptos</h3>
-                    <input type="text" id="buscarConcepto" placeholder="Buscar por nombre de Concepto">
-                    <div id="resultadoConceptoModal" class="results-container"></div>
-                </div>
-                <button id="cerrarConcepto">Cerrar</button>
+            <div class="modal-footer">
+                <button class="btn-cerrar" id="cerrarPersonal">
+                    <i class="fas fa-times"></i>
+                    Cerrar
+                </button>
             </div>
-        </div>
-
-        <!--MODAL PARA PROVEEDORES-->
-        <div id="modalProveedores" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Busqueda de Informacion</h2>
-
-                <!--BUSQUEDA DE PROVEEDORES-->
-                <div class="search-section">
-                    <h3>Buscar Proveedores</h3>
-                    <input type="text" id="buscarProveedor" placeholder="Buscar proveedor por nickName">
-                    <div id="resultadoProveedoresModal" class="results-container"></div>
-                </div>
-                <button id="cerrarProveedor">Cerrar</button>
-            </div>
-        </div>
-    </div>
-    <button><a href="listaSolicitudCompras.html">Regresar</a></button>
-    <button type="button" id="btnProceso">Mandar a Proceso</button>
-    <form id="formEditarSolicitud">
-        <label>ID:</label>
-        <input type="text" id="id" name="id" readonly><br>
-
-        <label>Estatus:</label>
-        <input type="text" id="estatus" name="estatus" readonly><br>
-
-        <label>Clasificacion</label>
-        <input type="text" id="clasificacion" name="clasificacion" readonly><br>
-
-        <label for="">Descripcion</label>
-        <textarea id="descripcion" name="descripcion"></textarea><br>
-
-        <label for="">Personal</label>
-        <button type="button" id="abrirPersonal" class="btn-add">Abrir busqueda Personal</button>
-        <div id="listaPersonal"></div>
-
-        <label for="">Coceptos</label>
-        <button type="button" id="abrirConcepto" class="add-btn">
-            Abrir busqueda de Concepto Activo
-        </button>
-        <div id="listaConcepto"></div>
-
-        <label for="">Proveedores</label>
-        <div id="listaProveedores"></div>
-        <button type="button" id="abrirProveedores" class="btn-add">Abrir busqueda de Proveedores</button><br>
-
-        <button id="btn-Guardar" type="submit">Guardar Cambios</button>
-    </form>
-
-    <!--MODAL PARA PERSONAL-->
-    <div id="modalPersonal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Busqueda de Personal</h2>
-
-            <!--BUSQUEDA PARA PERSONAL-->
-            <div class="search-section">
-                <h3>Buscar Personal</h3>
-                <input type="text" id="buscarPersonal" placeholder="Buscar por nombre o apellidos">
-                <div id="resultadoPersonalModal" class="results-container">
-                </div>
-            </div>
-            <button id="cerrarPersonal">Cerrar</button>
         </div>
     </div>
 
     <!--MODAL PARA CONCEPTOS-->
+
     <div id="modalConcepto" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Busqueda de Informacion</h2>
-
-            <!--BUSQUEDA PARA CONCEPTOS-->
-            <div class="search-section">
-                <h3>Buscar Conceptos</h3>
-                <input type="text" id="buscarConcepto" placeholder="Buscar por nombre de Concepto">
-                <div id="resultadoConceptoModal" class="results-container"></div>
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Busqueda de Informacion</h2>
             </div>
-            <button id="cerrarConcepto">Cerrar</button>
+            <!--BUSQUEDA PARA CONCEPTOS-->
+            <div class="modal-body">
+                <div class="search-section">
+                    <h3>Buscar Conceptos</h3>
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="buscarConcepto" placeholder="Buscar por nombre de Concepto">
+                    </div>
+                    <div id="resultadoConceptoModal" class="results-container"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="cerrarConcepto" class="btn-cerrar">
+                    <i class="fas fa-times"></i>
+                    Cerrar</button>
+            </div>
         </div>
     </div>
 
     <!--MODAL PARA PROVEEDORES-->
     <div id="modalProveedores" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Busqueda de Informacion</h2>
-
-            <!--BUSQUEDA DE PROVEEDORES-->
-            <div class="search-section">
-                <h3>Buscar Proveedores</h3>
-                <input type="text" id="buscarProveedor" placeholder="Buscar proveedor por nickName">
-                <div id="resultadoProveedoresModal" class="results-container"></div>
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Busqueda de Informacion</h2>
             </div>
-            <button id="cerrarProveedor">Cerrar</button>
+            <!--BUSQUEDA DE PROVEEDORES-->
+            <div class="modal-body">
+                <div class="search-section">
+                    <h3>Buscar Proveedores</h3>
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="buscarProveedor" placeholder="Buscar proveedor por nickName">
+                    </div>
+
+                    <div id="resultadoProveedoresModal" class="results-container"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="cerrarProveedor" class="btn-cerrar">
+                    <i class="fas fa-times"></i>
+                    Cerrar</button>
+
+            </div>
         </div>
     </div>
+    </div>
+    
+    <div id="modalRegistroActivo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Entrada de Activo</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="modal-body">
+                <div class="search-section">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    
+                    <div id="registroActivo" class="results-container"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cerrar" id="cerrarRegistro">
+                    <i class="fas fa-times"></i>
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <script src="../scripts/scriptEditarSolicitud.js"></script>
     <script src="../scripts/navbar.js"></script>

@@ -7,7 +7,8 @@ let solicitudActual = null; //VARIABLE GLOBAL PARA ALMACENAR LA SOLICITUD
 //FUNCION PARA OBTENER EL TOKEN 
 function getAuthHeaders(){
     const token = localStorage.getItem("token");
-    if(!token){
+    const role = localStorage.getItem("role");
+    if(!token || !role){
         //REDIRIGIR AL LOGIN SI NO HAY TOKEN
         window.location.href = "/html/index.html";
         return {};
@@ -52,7 +53,7 @@ window.onload = async () => {
         if(res.status === 401){
             localStorage.removeItem("token")
             localStorage.removeItem("role");
-            window.location.href ="/htlm/index.html";
+            window.location.href ="/html/index.html";
             return;
         }
 
@@ -223,14 +224,26 @@ window.onload = async () => {
 };
 
 // FUNCIÓN PARA DESHABILITAR TODA LA EDICIÓN Y MOSTRAR BOTÓN DE REGISTRAR ACTIVO
-function deshabilitarEdicion() {
+async function deshabilitarEdicion() {
     console.log("Deshabilitando edición - Solicitud autorizada");
-    
-    // 1. Ocultar todos los botones existentes
-    ocultarTodosLosBotones();
-    
-    // 2. Crear y mostrar el botón de "Registrar Activo"
-    crearBotonRegistrarActivo();
+
+    //1.VERIFICAR SI YA TIENE ACTIVOS REGISTRADOS
+    const tieneActivos = await verificarActivosRegistrados();
+    console.log("¿Tiene activos registrados?", tieneActivos);
+
+    if(tieneActivos){
+        //SI YA TIENE ACTIVOS REGISTRADOS, SOLO MOSTRAR EL MENSAJE
+        console.log("Mostrando mensaje de activos ya registrados");
+        mostrarMensajeActivosRegistrados();
+
+        //ASEGURARSE QUE TODOS LOS BOTONES ESTEN OCULTOS
+        ocultarTodosLosBotones();
+    }else {
+        //SI NO TIENE ACTIVOS REGISTRADOS, MOSTRAR BOTON DE REGISTRO
+        console.log("Mostrando boton de registrar activos");
+        ocultarTodosLosBotones();
+        crearBotonRegistrarActivo();
+    }
     
     // 3. Cambiar título
     const titulos = document.querySelectorAll('h1, h2');
@@ -259,8 +272,100 @@ function deshabilitarEdicion() {
     if (form) {
         form.style.opacity = '0.9';
     }
+
+    const botonesEliminar = document.querySelectorAll(".btn-remove-grupo");
+    if(botonesEliminar){
+        Array.from(botonesEliminar).forEach(boton => {
+            boton.style.display = "none";
+            boton.disabled = true;
+        });
+    }
     
     console.log("Edición deshabilitada - Botón Registrar Activo mostrado");
+}
+
+//FUNCION PARA VERIFICAR SI YA TIENE ACTIVOS REGISTRADOS
+async function verificarActivosRegistrados() {
+    try{
+        console.log(`Verificando activos para solicitud ID: ${id}`);
+        const headers = getAuthHeaders();
+        const res = await fetch(`/api/routeListaSolicitudCompra/solicitud/${id}/tieneActivos`, {
+            headers: headers
+        });
+
+        console.log("Status de respuesta:", res.status);
+        if(res.ok){
+            const data = await res.json();
+            console.log("Respuesta de verificacion de activos:", data);
+            return data.tieneActivos;
+        }else{
+            console.error("Error en respuesta: ", res.status);
+            return false;
+        }
+        
+        
+    }catch(error){
+        console.error("Error al verificar activos: ", error);
+        return false; 
+    }
+}
+
+//FUNCION PARA MOSTRAR MENSAJE CUANDO YA TIENE ACMTIVOS REGISTRADOS
+function mostrarMensajeActivosRegistrados(){
+    const contenedorBotones = document.createElement("div");
+    contenedorBotones.className = "acciones-completadas";
+    contenedorBotones.style.cssText =`
+        text-align: center;
+        margin: 20px 0;
+        padding: 20px;
+        background-color: #e9ecef;
+        border-radius: 8px;
+        border: 2px solid #6c757d;
+    `;
+
+    contenedorBotones.innerHTML = `
+        <h3 style="color: #495057; margin-bottom: 10px;">✅ Activos Registrados</h3>
+        <p style="color: #6c757d; margin-bottom: 15px;">
+            Los activos de esta solicitud ya han sido registrados en el sistema de inventario.
+        </p>
+        <button type="button" id="btnVerActivos" style="
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        ">
+            📋 Ver Activos Registrados
+        </button>
+    `;
+
+    //BUSCAR DONDE INSERTAR EL MENSAJE
+     const posiblesContenedores = [
+        document.querySelector('.acciones'),
+        document.querySelector('.form-actions'),
+        document.getElementById('formEditarSolicitud'),
+        document.querySelector('form')
+    ];
+    
+    let contenedorEncontrado = null;
+    for (const contenedor of posiblesContenedores) {
+        if (contenedor) {
+            contenedorEncontrado = contenedor;
+            break;
+        }
+    }
+
+    if (contenedorEncontrado) {
+        contenedorEncontrado.appendChild(contenedorBotones);
+    }
+    
+    // Agregar funcionalidad al botón de ver activos
+    document.getElementById('btnVerActivos').addEventListener('click', function() {
+        // Aquí puedes redirigir a una página que muestre los activos de esta solicitud
+        alert('Aquí mostrarías la lista de activos registrados para esta solicitud');
+        // window.location.href = `/html/activosSolicitud.html?idSolicitud=${id}`;
+    });
 }
 
 // FUNCIÓN PARA OCULTAR TODOS LOS BOTONES EXISTENTES
@@ -268,7 +373,8 @@ function ocultarTodosLosBotones() {
     // Ocultar elementos por ID
     const idsOcultar = [
         "abrirPersonal", "abrirConcepto", "abrirProveedores",
-        "btnProceso", "btnGuardar", "abrirBusqueda", "btn-Guardar"
+        "btnProceso", "btnGuardar", "abrirBusqueda", "btn-Guardar", 
+        "btnRegistrarActivo"
     ];
     
     idsOcultar.forEach(id => {
@@ -289,8 +395,8 @@ function ocultarTodosLosBotones() {
             elemento.disabled = true;
         });
     });*/
-    const botonesEliminar = document.querySelector(".btn-remove");
-    if(botonesEliminar){
+    const botonesEliminar = document.querySelector(".btn-remove-grupo");
+    if(botonesEliminar.length > 0){
         Array.from(botonesEliminar).forEach(boton => {
             boton.style.display = 'none';
             boton.disabled = true;
@@ -330,6 +436,7 @@ function crearBotonRegistrarActivo() {
     // Crear el botón
     const btnRegistrar = document.createElement('button');
     btnRegistrar.id = 'btnRegistrarActivo';
+    btnRegistrar.type ="button"
     btnRegistrar.textContent = '📦 Registrar Activo';
     btnRegistrar.style.cssText = `
         padding: 12px 24px;
@@ -399,10 +506,140 @@ function crearBotonRegistrarActivo() {
 }
 
 // FUNCIÓN PARA REGISTRAR EL ACTIVO (debes implementar según tus necesidades)
-function registrarActivo() {
+async function registrarActivo() {
     console.log("Iniciando proceso de registro de activo...");
-    
-    // Aquí va tu lógica para registrar el activo
+    const modal = document.getElementById("modalRegistroActivo");
+    const abrirBtn = document.getElementById("btnRegistrarActivo");
+    const cerrarBtn = document.getElementById("cerrarRegistro");
+    const closeSapn = document.querySelector(".close");
+
+    if(!modal || !abrirBtn || !cerrarBtn || !closeSapn){
+        console.error("Elmentos del modal no encontrados");
+        return;
+    }
+    console.log("abriendo el modal")
+    //ABRIR MODAL 
+    modal.style.display = "block";
+    console.log("modal abierto")
+    const resultadoRegistro = document.getElementById("registroActivo");
+    if(resultadoRegistro) resultadoRegistro.innerHTML = "";
+
+    //CERRAR EL MODAL
+    cerrarBtn.addEventListener("click", () => cerrarModal(modal));
+
+    //TRAER INFORMACION 
+    try{
+        const headers = getAuthHeaders();
+        if(!headers.Authorization){
+            return;
+        }
+
+        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudes/${id}`,{
+            headers: headers
+        });
+
+        if(res.status === 401){
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            window.location.href = "/html/index.html";
+            return;
+        }
+
+        if(!res.ok){
+            throw new Error(`Error ${res.status}: ${res.statusText}`);
+        }
+        const solicitud = await res.json();
+        solicitudActual = solicitud;
+
+        if(!solicitud){
+            alert("Solicitud no encontarda");
+            return;
+        }
+
+        //RELLENAR LOS CAMPOS
+        const resultadoRegistro = document.getElementById("registroActivo");
+        resultadoRegistro.innerHTML = "";
+        solicitud.conceptoActivo.forEach((p, index) => {
+            const filasConcepto = document.createElement("div");
+            filasConcepto.classList.add("fila");
+            filasConcepto.innerHTML = `
+                <div class="grupo-inputs-contenedor">
+                    <div class="input-flotante-contenedor">
+                        <input type="text" value="${p.sc_cca_familia || ''}" readonly>
+                        <label>Familia</label>
+                    </div>
+                    <div class="input-flotante-contenedor">
+                        <input type="text" value="${p.sc_cca_subFamilia || ''}" readonly>
+                        <label>Sub Familia</label>
+                    </div>
+                    <br>
+                    <div class="input-flotante-contenedor">
+                        <input type="text" value="${p.sc_cca_descripcion || ''}" readonly>
+                        <label>Concepto Activo</label>
+                    </div>
+                </div>
+                    <br>
+                    <div class="input-flotante-contenedor">
+                        <input type="text" id="nomenclatura-${index}">
+                        <label>Nomenclatura</label>
+                    </div>
+                    <br>
+                    <div class="input-flotante-contenedor">
+                        <input type="text" id="marca-${index}">
+                        <label>Marca</label>
+                    </div>
+                    <br>
+                    <div class="input-flotante-contenedor">
+                        <input type="text" id="modelo-${index}">
+                        <label>Modelo</label>
+                    </div>
+                    <br>
+                    <div class="input-flotante-contenedor">
+                        <input type="text" id="descripcionAdicional-${index}">
+                        <label>Descripcion Adicional</label>
+                    </div>
+                    <br>
+                    <div class="input-flotante-contenedor">
+                        <input type="text" id="costo-${index}">
+                        <label>Costo</label>
+                    </div>
+                    <br>
+                    <div class="input-flotante-contenedor">
+                        <input type="text" id="numSerie-${index}">
+                        <label>Numero de Serie</label>
+                    </div>
+                
+            `;
+            resultadoRegistro.appendChild(filasConcepto)
+        });
+
+        //AGREGAR BUTTON PARA GUARDADO
+        const btnGuardarRegistro = document.createElement("button");
+        btnGuardarRegistro.textContent = "Registrar Activo"
+        btnGuardarRegistro.type = "button";
+        btnGuardarRegistro.style.cssText = `
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        `;
+        btnGuardarRegistro.onclick = function() {
+            guardarRegistroActivo(solicitud);
+        };
+
+        resultadoRegistro.appendChild(btnGuardarRegistro);
+
+        
+    }catch(e){
+        console.log("Error al cargar datos para registro: ", e);
+        alert("Error al cargar los datos de la solciitud");
+    }
+
+    /*// Aquí va tu lógica para registrar el activo
     // Por ejemplo:
     
     // 1. Obtener datos de la solicitud actual
@@ -426,6 +663,60 @@ function registrarActivo() {
         // 4. Aquí puedes hacer una petición a tu API para registrar el activo
         // registrarActivoEnSistema(datosSolicitud);
         
+    }*/
+}
+async function guardarRegistroActivo(solicitud){
+    const modal = document.getElementById("modalRegistroActivo")
+    try{
+        console.log("Guardando registro de activo...");
+
+        const activosRegistrados = [];
+        const conceptos = solicitud.conceptoActivo;
+
+        for(let i = 0; i < conceptos.length; i++){
+            const activoData = {
+                familia: conceptos[i].sc_cca_familia || '',
+                subFamilia: conceptos[i].sc_cca_subFamilia || '',
+                conceptoActivo: conceptos[i].sc_cca_descripcion || '',
+                nomenclatura: document.getElementById(`nomenclatura-${i}`)?.value || '',
+                marca: document.getElementById(`marca-${i}`)?.value || '',
+                modelo: document.getElementById(`modelo-${i}`)?.value || '',
+                descripcionAdicional: document.getElementById(`descripcionAdicional-${i}`)?.value || '',
+                costo: document.getElementById(`costo-${i}`)?.value || '',
+                numSerie: document.getElementById(`numSerie-${i}`)?.value || '',
+                solcitudCompraId: solicitud.id
+            };
+
+            if(!activoData.nomenclatura || !activoData.numSerie){
+                throw new Error(`El concepto ${i + 1} requiere nomenclatura y numero de serie`);
+            }
+
+            activosRegistrados.push(activoData);
+        }
+
+        console.log("Datos a guardar: ", activosRegistrados);
+
+        const headers = getAuthHeaders();
+        const res = await fetch(`/api/routeListaSolicitudCompra/registroActivo`,{
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(activosRegistrados)
+        });
+
+        console.log("Estatus de respuesta: ", res.status);
+
+        if(res.ok){
+            alert("Activos registrados correctamente en el inventario");
+            cerrarModal(modal);
+            window.location.reload();
+        }else {
+            const errorData = await res.json();
+            console.error("Error en el servidor: ", errorData);
+            throw new Error(errorData.message || `Error ${res.status}: ${res.statusText}`);
+        }
+    }catch(e){
+        console.error("Error al guardar registro:", e);
+        alert("Error al guardar el registro de activos" + e.message);
     }
 }
 
@@ -807,6 +1098,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inicializarPersonal();
     inicializarProveedor();
     inicializarConceptoActivo();
+    registrarActivo();
 });
 
 function inicializarPersonal(){
@@ -864,8 +1156,8 @@ function inicializarPersonal(){
                     }
 
                     resultadoPersonalDiv.innerHTML = usuarios.map(u => 
-                        `<div>
-                            <button onclick='seleccionarPersonal(${JSON.stringify(u)})'>
+                        `<div class="result-item">
+                            <button class="btn-buscar-personal" onclick='seleccionarPersonal(${JSON.stringify(u)})'>
                             ${u.nombre} ${u.aPaterno} ${u.aMaterno}
                             </button>
                         </div>`
@@ -974,8 +1266,8 @@ function inicializarConceptoActivo(){
                         return;
                     }
                     resultadoConceptoDiv.innerHTML = activo.map(u => 
-                        `<div>
-                            <button onclick='seleccionarConcepto(${JSON.stringify(u)})'>
+                        `<div class="result-item">
+                            <button class="btn-buscar-personal" onclick='seleccionarConcepto(${JSON.stringify(u)})'>
                                 ${u.conceptoActivos}
                             </button>
                         </div>`
@@ -1085,8 +1377,8 @@ function inicializarProveedor() {
                         return;
                     }
                     resultadoProveedorDiv.innerHTML = proveedor.map(u => 
-                        `<div>
-                            <button onclick='seleccionarProveedor(${JSON.stringify(u)})'>
+                        `<div class="result-item">
+                            <button class="btn-buscar-personal" onclick='seleccionarProveedor(${JSON.stringify(u)})'>
                             ${u.nickName} ${u.razonSocial} ${u.rfc}
                             </button>
                         </div>`
