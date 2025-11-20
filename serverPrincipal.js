@@ -52,6 +52,7 @@ const listaSubFamiliaRoute = require('./routes/routeListaSubFamilia');
 const listaActivosRoute = require('./routes/routeListaActivos');
 const listaProveedorRoute = require('./routes/routeListaProveedor');
 const listaPersonalRoute = require('./routes/routeListaPersonal');
+const listaRegistroActivoRoute = require('./routes/routeRegistroActivo');
 //INICIO DE SESION
 const authRoutes = require("./routes/routeAuth");
 const solicitudesRoutes = require("./routes/solicitudesRoutes");
@@ -72,6 +73,7 @@ app.use('/api/routeListaSubFamilia', listaSubFamiliaRoute);
 app.use('/api/routeListaActivos', listaActivosRoute);
 app.use('/api/routeListaProveedor', listaProveedorRoute);
 app.use('/api/routeListaPersonal', listaPersonalRoute);
+app.use('/api/routeRegistroActivo', listaRegistroActivoRoute);
 //RUTA PARA AUTH
 app.use("/api/routeAuth", authRoutes);
 app.use("/api", solicitudesRoutes);

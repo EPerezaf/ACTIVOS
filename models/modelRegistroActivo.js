@@ -14,7 +14,7 @@ const registroAct = new mongoose.Schema({
     idSolicitud: {type: Number},
     estatus:{
         type: String,
-        enum: ['Activo', 'Inactivo', 'Baja'],
+        enum: ['Activo', 'Cancelado', 'Baja'],
         default: 'Activo'
     },
     fechaRegistro: { type: Date, default: Date.now},
