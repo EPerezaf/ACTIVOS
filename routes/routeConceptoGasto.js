@@ -27,4 +27,26 @@ router.post('/conceptoGasto', async (req, res) => {
     }
 });
 
+router.get('/buscarGasto', async (req,res) =>{
+    console.log("Se escribio: ", req.query);
+    try{
+        const { buscar } = req.query;
+        console.log("Valor recibido: ", buscar);
+
+        let query = {};
+        if(buscar){
+            query = {
+                $or: [
+                    { conceptoGasto: { $regex: buscar, $options: 'i' } },
+                ]
+            };
+        }
+        const gastos = await registroConceptoGasto.find(query).limit(20);
+        res.json(gastos);
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "Error al buscar conceptos de gastos"});
+    }
+});
+
 module.exports = router;

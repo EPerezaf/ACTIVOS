@@ -128,6 +128,27 @@ router.put("/listaRegistroActivoEliminacion/:id", async (req,res) => {
             message: "Error al eliminar"
         });
     }
-})
+});
+
+router.get('/buscarActivo', async (req,res) => {
+    console.log("Se escribio: ", req.query);
+    try{
+        const { buscar } = req.query;
+        console.log("VALOR RECIBIDO: ", buscar);
+        let query = {};
+        if(buscar){
+            query = {
+                $or: [
+                    { conceptoActivo: { $regex: buscar, $options: 'i' } }
+                ]
+            };
+        }
+        const activos = await registroActivo.find(query).limit(20);
+        res.json(activos);
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "ERROR AL BUSCAR ACTIVOS"});
+    }
+});
 
 module.exports = router;

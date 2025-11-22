@@ -53,6 +53,7 @@ const listaActivosRoute = require('./routes/routeListaActivos');
 const listaProveedorRoute = require('./routes/routeListaProveedor');
 const listaPersonalRoute = require('./routes/routeListaPersonal');
 const listaRegistroActivoRoute = require('./routes/routeRegistroActivo');
+const solicitudGastoRoute = require('./routes/routeSolicitudGasto');
 //INICIO DE SESION
 const authRoutes = require("./routes/routeAuth");
 const solicitudesRoutes = require("./routes/solicitudesRoutes");
@@ -74,6 +75,7 @@ app.use('/api/routeListaActivos', listaActivosRoute);
 app.use('/api/routeListaProveedor', listaProveedorRoute);
 app.use('/api/routeListaPersonal', listaPersonalRoute);
 app.use('/api/routeRegistroActivo', listaRegistroActivoRoute);
+app.use('/api/routeSolicitudGasto', solicitudGastoRoute);
 //RUTA PARA AUTH
 app.use("/api/routeAuth", authRoutes);
 app.use("/api", solicitudesRoutes);
