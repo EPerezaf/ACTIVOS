@@ -1,5 +1,6 @@
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
+const modoEdicion = !!id;
 
 //FUNCION PARA OBTENER EL TOKEN 
 function getAuthHeaders() {
@@ -35,17 +36,309 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //SI HAY ID, CARGAR DATOS EXISTENTES
     if(id){
-        inicializarEditarSolicitud();
+        //inicializarEditarSolicitud();
+        cargarDatosEdicion();
     }
     
     //INICIALIZAR MDOALES
     inicializarActivo();
-    //inicializarProveedor();
-    //inicializarConceptoGasto();
     inicializarGuardado();
 });
 
 let timeout = null;
+
+// FUNCIÓN PARA CARGAR DATOS EN MODO EDICIÓN
+async function cargarDatosEdicion() {
+    try {
+        const headers = getAuthHeaders();
+        const res = await fetch(`/api/routeSolicitudGasto/solicitudGasto/${id}`, {
+            headers: headers
+        });
+
+        if (!res.ok) {
+            throw new Error('Error al cargar los datos de la solicitud');
+        }
+
+        const resultado = await res.json();
+        
+        if (!resultado.success) {
+            alert('Error: ' + resultado.message);
+            return;
+        }
+
+        const solicitud = resultado.data;
+        
+        // LLENAR LOS CAMPOS DEL FORMULARIO
+        document.getElementById("clasificacion").value = solicitud.clasificacionGasto;
+        document.getElementById("descripcionGasto").value = solicitud.descripcionGasto;
+        document.getElementById("tipoGasto").value = solicitud.tipoGasto;
+        document.getElementById("lectura").value = solicitud.lectura || '';
+
+        // LLENAR LOS ACTIVOS
+        const contenedorActivo = document.getElementById("contenedorActivo");
+        contenedorActivo.innerHTML = ''; // Limpiar contenedor
+
+        solicitud.activos.forEach(activo => {
+            // ASEGURAR QUE EL DATASET TENGA TODOS LOS CAMPOS NECESARIOS
+            const activoData = {
+                id: activo.idActivo,
+                conceptoActivo: activo.conceptoActivo, // Asegurar que este campo esté presente
+                familia: activo.familia,
+                subFamilia: activo.subFamilia,
+                nomenclatura: activo.nomenclatura,
+                numSerie: activo.numSerie
+            };
+
+            const fila = document.createElement("div");
+            fila.classList.add("fila", "activo-completo");
+            fila.dataset.activo = JSON.stringify(activoData);
+
+            fila.innerHTML = `
+                <div class="grupo-inputs-contenedor">
+                    <!-- DATOS DEL ACTIVO -->
+                    <div class="input-flotante-contenedor">
+                        <input type="text" value="${activo.conceptoActivo}" readonly>
+                        <label>Activo</label>
+                    </div>
+                </div>
+                    
+                    <!-- CONCEPTO DE GASTO PARA ESTE ACTIVO -->
+                    <div class="input-flotante-contenedor">
+                        <input type="text" class="concepto-gasto-input" value="${activo.conceptoGasto}" readonly>
+                        <label>Concepto de Gasto</label>
+                    </div>
+                    <button type="button" class="btn-seleccionar-gasto" onclick="seleccionarGastoParaActivo(this)">Seleccionar</button>
+                    
+                    <!-- CONTENEDOR PARA PROVEEDORES DE ESTE ACTIVO -->
+                    <div class="proveedores-contenedor">
+                        <label>Proveedores para este activo:</label>
+                        <button type="button" class="btn-agregar-proveedor" onclick="agregarProveedorParaActivo(this)">+ Agregar Proveedor</button>
+                        <div class="proveedores-lista">
+                            ${activo.proveedores.map(proveedor => `
+                                <div class="proveedor-fila">
+                                    <div class="grupo-inputs-contenedor">
+                                        <div class="input-flotante-contenedor">
+                                            <input type="text" value="${proveedor.razonSocial}" readonly>
+                                            <label>Razon Social</label>
+                                        </div>
+                                        <div class="input-flotante-contenedor">
+                                            <input type="text" value="${proveedor.nickName}" readonly>
+                                            <label>Nick Name</label>
+                                        </div>
+                                        <div class="input-flotante-contenedor">
+                                            <input type="number" value="${proveedor.monto}" placeholder="0.00" step="0.01" readonly>
+                                            <label>Costo</label>
+                                        </div>
+                                        <input type="hidden" value="${proveedor.idProveedor}">
+                                        <button type="button" class="btn-remove-grupo" onclick="this.parentElement.parentElement.remove()">X</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn-remove-grupo">X</button>
+                
+            `;
+            
+            fila.querySelector(".btn-remove-grupo").addEventListener("click", () => fila.remove());
+            contenedorActivo.appendChild(fila);
+        });
+
+        // CAMBIAR EL TÍTULO Y EL BOTÓN SI ESTAMOS EDITANDO
+        document.querySelector("h1").textContent = "Editar Solicitud de Gasto";
+        document.getElementById("btnGuardar").textContent = "Actualizar Solicitud";
+
+        //AGREGAR BOTON PARA ENVIAR A PROCESO 
+        agregarBotonEnviarProceso(solicitud.estatusCompras);
+
+    } catch (error) {
+        console.error("Error al cargar datos para edición:", error);
+        alert("Error al cargar los datos de la solicitud");
+    }
+}
+
+// FUNCIÓN PARA AGREGAR BOTÓN DE ENVIAR A PROCESO
+function agregarBotonEnviarProceso(estatusActual) {
+    const userRole = localStorage.getItem("role");
+    
+    // SOLO PERMITIR A ADMINISTRADOR Y JEFE DE ACTIVOS ENVIAR A PROCESO
+    const rolesPermitidos = ["Administrador", "Jefe de Activos"];
+    
+    // SOLO MOSTRAR SI EL ESTATUS ACTUAL ES "Pendiente"
+    if (rolesPermitidos.includes(userRole) && estatusActual === "Pendiente") {
+        const btnGuardar = document.getElementById("btnGuardar");
+        const btnEnviarProceso = document.createElement("button");
+        
+        btnEnviarProceso.type = "button";
+        btnEnviarProceso.id = "btnEnviarProceso";
+        btnEnviarProceso.className = "btnGuardar";
+        btnEnviarProceso.textContent = "Enviar a Proceso";
+        btnEnviarProceso.style.backgroundColor = "#ff9800";
+        btnEnviarProceso.style.marginLeft = "10px";
+        
+        btnEnviarProceso.addEventListener("click", enviarAProceso);
+        
+        btnGuardar.parentNode.insertBefore(btnEnviarProceso, btnGuardar.nextSibling);
+    }
+}
+
+// FUNCIÓN PARA ENVIAR SOLICITUD A PROCESO
+async function enviarAProceso() {
+    if (!confirm("¿Estás seguro de que deseas enviar esta solicitud a proceso? Una vez enviada, no podrás editarla.")) {
+        return;
+    }
+
+    try {
+        // PRIMERO ACTUALIZAR LOS DATOS
+        const datosActualizados = await obtenerDatosFormulario();
+        if (!datosActualizados) return;
+
+        // LUEGO ENVIAR A PROCESO
+        const headers = getAuthHeaders();
+        const res = await fetch(`/api/routeSolicitudGasto/solicitudGasto/${id}/enviarProceso`, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(datosActualizados)
+        });
+
+        const responseText = await res.text();
+        let result;
+        
+        try {
+            result = JSON.parse(responseText);
+        } catch (e) {
+            throw new Error(`Respuesta del servidor: ${responseText}`);
+        }
+
+        if (!res.ok) {
+            throw new Error(result.message || `Error ${res.status}: ${res.statusText}`);
+        }
+
+        if (result.success) {
+            alert(result.message);
+            window.location.href = "/html/listasolicitudgasto.html";
+        } else {
+            alert(`Error: ${result.message}`);
+        }
+
+    } catch (error) {
+        console.error("Error al enviar a proceso:", error);
+        alert("Error al enviar la solicitud a proceso: " + error.message);
+    }
+}
+
+
+// FUNCIÓN PARA OBTENER DATOS DEL FORMULARIO (REUTILIZABLE)
+async function obtenerDatosFormulario() {
+    const contenedorActivo = document.getElementById("contenedorActivo");
+
+    if (!contenedorActivo) {
+        alert("ERROR: Contenedor de activos no encontrado");
+        return null;
+    }
+
+    // OBTENER DATOS
+    const clasificacion = document.getElementById("clasificacion").value;
+    const descripcionGasto = document.getElementById("descripcionGasto").value;
+    const tipoGasto = document.getElementById("tipoGasto").value;
+    const lectura = document.getElementById("lectura").value;
+
+    const data = {
+        clasificacionGasto: clasificacion,
+        descripcionGasto: descripcionGasto,
+        tipoGasto: tipoGasto,
+        lectura: lectura,
+        activos: [],
+    };
+
+    const filasActivo = contenedorActivo.querySelectorAll(".fila");
+    
+    if (filasActivo.length === 0) {
+        alert("ERROR: Debe seleccionar al menos un activo");
+        return null;
+    }
+
+    // VALIDAR QUE CADA ACTIVO TENGA GASTO
+    let todosTienenGasto = true;
+    let errores = [];
+    
+    filasActivo.forEach((fila, index) => {
+        const conceptoGastoInput = fila.querySelector('.concepto-gasto-input');
+        if (!conceptoGastoInput || !conceptoGastoInput.value.trim()) {
+            errores.push(`El activo ${index + 1} no tiene concepto de gasto asignado`);
+            todosTienenGasto = false;
+        }
+    });
+    
+    if (!todosTienenGasto) {
+        alert("ERROR: " + errores.join('\n'));
+        return null;
+    }
+
+    // RECOLECTAR DATOS DE ACTIVOS
+    filasActivo.forEach((fila, index) => {
+        if (fila.dataset.activo) {
+            const activoCompleto = JSON.parse(fila.dataset.activo);
+            const conceptoGastoInput = fila.querySelector('.concepto-gasto-input');
+            const conceptoGasto = conceptoGastoInput ? conceptoGastoInput.value.trim() : "";
+
+            // OBTENER PROVEEDORES
+            const proveedores = [];
+            const filasProveedor = fila.querySelectorAll('.proveedor-fila');
+
+            filasProveedor.forEach((proveedorFila) => {
+                const inputs = proveedorFila.querySelectorAll("input");
+                if (inputs.length >= 4) {
+                    const proveedorData = {
+                        idProveedor: parseInt(inputs[3]?.value) || 0,
+                        razonSocial: inputs[0].value.trim(),
+                        nickName: inputs[1].value.trim(),
+                        monto: parseFloat(inputs[2].value) || 0
+                    };
+
+                    if (proveedorData.razonSocial && proveedorData.monto > 0) {
+                        proveedores.push(proveedorData);
+                    }
+                }
+            });
+
+            const activoData = {
+                idActivo: parseInt(activoCompleto.id) || 0,
+                conceptoActivo: activoCompleto.conceptoActivo || activoCompleto.conceptoGasto || "Sin nombre",
+                familia: activoCompleto.familia || "",
+                subFamilia: activoCompleto.subFamilia || "",
+                nomenclatura: activoCompleto.nomenclatura || "",
+                numSerie: activoCompleto.numSerie || "",
+                conceptoGasto: conceptoGasto,
+                proveedores: proveedores
+            };
+
+            data.activos.push(activoData);
+        }
+    });
+
+    // VALIDACIONES FINALES
+    const tieneProveedores = data.activos.some(activo => activo.proveedores.length > 0);
+    if (!tieneProveedores) {
+        alert("ERROR: Debe seleccionar al menos un proveedor con monto mayor a 0");
+        return null;
+    }
+
+    let montosValidos = true;
+    data.activos.forEach((activo, index) => {
+        activo.proveedores.forEach((proveedor, provIndex) => {
+            if (proveedor.monto <= 0) {
+                alert(`ERROR: El proveedor ${provIndex + 1} del activo ${index + 1} tiene un monto inválido`);
+                montosValidos = false;
+            }
+        });
+    });
+    
+    if (!montosValidos) return null;
+
+    return data;
+}
 
 function inicializarActivo() {
     const modal = document.getElementById("modalActivo");
@@ -454,7 +747,7 @@ function inicializarGuardado(){
                 activos: [],
             };
 
-            console.log("INICIANDO PROCESO DE GUARDADO");
+            console.log("INICIANDO PROCESO DE " + (modoEdicion ? "ACTUALIZACION" : "GUARDADO"));
 
             const filasActivo = contenedorActivo.querySelectorAll(".fila");
             console.log("Filas de Activos encontradas: ", filasActivo.length);
@@ -517,16 +810,28 @@ function inicializarGuardado(){
                         }
                     });
 
+                    // ASEGURAR QUE TODOS LOS CAMPOS REQUERIDOS ESTÉN PRESENTES
                     const activoData = {
                         idActivo: parseInt(activoCompleto.id) || 0,
-                        conceptoActivo: activoCompleto.conceptoActivo,
-                        familia: activoCompleto.familia,
-                        subFamilia: activoCompleto.subFamilia,
-                        nomenclatura: activoCompleto.nomenclatura,
-                        numSerie: activoCompleto.numSerie,
+                        conceptoActivo: activoCompleto.conceptoActivo || activoCompleto.conceptoGasto || "Sin nombre", // CORREGIDO
+                        familia: activoCompleto.familia || "",
+                        subFamilia: activoCompleto.subFamilia || "",
+                        nomenclatura: activoCompleto.nomenclatura || "",
+                        numSerie: activoCompleto.numSerie || "",
                         conceptoGasto: conceptoGasto,
                         proveedores: proveedores
                     };
+
+                    // VALIDAR CAMPOS OBLIGATORIOS
+                    if (!activoData.conceptoActivo || activoData.conceptoActivo === "Sin nombre") {
+                        alert(`ERROR: El activo ${index + 1} no tiene un nombre válido`);
+                        return;
+                    }
+
+                    if (!activoData.conceptoGasto) {
+                        alert(`ERROR: El activo ${index + 1} no tiene concepto de gasto asignado`);
+                        return;
+                    }
 
                     console.log(`Activo ${index + 1} procesado:`, activoData);
                     data.activos.push(activoData);
@@ -560,9 +865,15 @@ function inicializarGuardado(){
             try{
                 console.log("Enviando datos al servidor...");
                 const headers = getAuthHeaders();
+
+                const url = modoEdicion
+                    ? `/api/routeSolicitudGasto/solicitudGasto/${id}`
+                    : '/api/routeSolicitudGasto/solicitudGasto';
+
+                const method = modoEdicion ? 'PUT' : 'POST';
                 
-                const res = await fetch('/api/routeSolicitudGasto/solicitudGasto',{
-                    method: 'POST',
+                const res = await fetch(url,{
+                    method: method,
                     headers: headers,
                     body: JSON.stringify(data)
                 });
@@ -594,7 +905,7 @@ function inicializarGuardado(){
                 }
             }catch(error){
                 console.error("Error al guardar: ", error);
-                alert("Error al guardar la solicitud: " + error.message);
+                alert("Error al " + (modoEdicion ? "actualizar" : "guardar") + " la solcitud: ", error.message);
             }
         });
     }

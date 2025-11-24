@@ -47,9 +47,21 @@ const solicitudGastoSchema = new mongoose.Schema({
                     },
                     seleccionado: { type: Boolean, default: false}
                 }
-            ]
+            ],
+            // Agregar este campo al nivel del activo
+            proveedorSeleccionado: {
+                idProveedor: { type: Number },
+                razonSocial: String,
+                nickName: String,
+                monto: { type: Number }
+            }
         }
     ],
+    montoTotal: {
+    type: Number,
+    min: 0,
+    default: 0
+},
     // ELIMINAR estos arrays separados ya que ahora están dentro de cada activo
     // conceptoGasto: [
     //     {

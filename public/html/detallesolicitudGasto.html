@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Solicitud de Gasto</title>
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/footer.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .solicitud-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .solicitud-info p {
+            margin: 8px 0;
+        }
+
+        .activo-item {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .proveedor-item {
+            background: #f1f3f4;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .btn-accion {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .btn-autorizar {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-volver {
+            background: #6c757d;
+            color: white;
+        }
+
+        .estatus-pendiente { color: #ffc107; font-weight: bold; }
+        .estatus-proceso { color: #17a2b8; font-weight: bold; }
+        .estatus-autorizada { color: #28a745; font-weight: bold; }
+        .estatus-cancelada { color: #dc3545; font-weight: bold; }
+        .estatus-rechazada { color: #6c757d; font-weight: bold; }
+
+        /* Estilos para el contenedor de botones en detalle */
+.contenedor-botones-detalle {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.botones-accion {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-accion {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.btn-volver {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-volver:hover {
+    background: #5a6268;
+}
+
+.btn-autorizar {
+    background: #28a745;
+    color: white;
+}
+
+.btn-autorizar:hover {
+    background: #218838;
+}
+
+/* Estilos para los botones de proveedores */
+.btn-deseleccionar {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+
+.btn-deseleccionar:hover {
+    background: #d32f2f;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Detalle de Solicitud de Gasto</h1>
+        
+        <div id="contenedorDetalle">
+            <p>Cargando detalles...</p>
+        </div>
+
+        <div id="contenedorBotones" style="margin-top: 20px; text-align: center;">
+            <button onclick="window.location.href = '/html/listaSolicitudGasto.html'" class="btn-accion btn-volver">Volver</button>
+        </div>
+    </div>
+
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts/scriptDetalleSolicitudGasto.js"></script>
+    <script src="../scripts/footer.js"></script>
+</body>
+</html>

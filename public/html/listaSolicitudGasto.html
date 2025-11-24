@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lista de Solicitud Gasto</title>
+        <link rel="stylesheet" href="../styles/navbar.css">
+        <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/footer.css">
+        <style>
+            body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        </style>
+    </head>
+
+    <body>
+        <h1>Solicitudes de Gasto</h1>
+        <div class="contenedor-lista">
+            <div class="lista-header">
+                <div class="barra-busqueda">
+                    <input type="text" class="busqueda-input" placeholder="Buscar Solicitud...">
+                    <button class="btn-accion btn-buscar">Buscar</button>
+                </div>
+                <div class="filtros">
+                    <select name="" id="filtroEstatus" class="filtro-select">
+                        <option value="">Todos los estatus</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Proceso">Proceso</option>
+                        <option value="Autorizada">Autorizada</option>
+                    </select>
+                    <select name="" id="filtroTipoGasto" class="filtro-select">
+                        <option value="">Tipos de mantenimiento</option>
+                        <option value="Preventivo">Preventivo</option>
+                        <option value="Correctivo">Correctivo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="lista-conceptos">
+                <div id="contenedorSolicitudGasto">
+                    <p>Cargando...</p>
+                </div>
+            </div>
+        </div>
+
+        <script src="../scripts/navbar.js"></script>
+        <script src="../scripts/scriptListaSolicitudGasto.js"></script>
+        <script src="../scripts/footer.js"></script>
+    </body>
+</html>
