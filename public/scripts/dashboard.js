@@ -1,53 +1,223 @@
 document.addEventListener("DOMContentLoaded", function() {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    
+    if (!token || !role) {
+        window.location.href = "/html/index.html";
+        return;
+    }
+    
     cargarDashboard();
 });
 
-function cargarDashboard(){
+async function cargarDashboard(){
     const role = localStorage.getItem("role");
     const username = localStorage.getItem("username") || "Usuario";
 
-    //MENSAJE DE BIENVENIDO 
+    // MENSAJE DE BIENVENIDA 
     document.getElementById("welcomeMessage").textContent = 
         `Hola ${username}, tienes el rol de ${role}`;
 
-    //CARGAR ESTADISTICAS Y ACCIONES SEGUN EL ROL 
-    cargarEstadisticas(role);
-    cargarAccionesRapidas(role);
+    try {
+        // CARGAR ESTADÍSTICAS REALES
+        await cargarEstadisticasReales(role);
+        
+        // CARGAR ACCIONES RÁPIDAS
+        cargarAccionesRapidas(role);
+        
+        // CARGAR GRÁFICOS O DATOS ADICIONALES SI ES ADMINISTRADOR
+        if (role === "Administrador") {
+            await cargarDatosAdicionalesAdmin();
+        }
+        
+    } catch (error) {
+        console.error("Error al cargar dashboard:", error);
+        mostrarEstadisticasPorDefecto(role);
+    }
 }
 
-function cargarEstadisticas(role){
+async function cargarEstadisticasReales(role) {
     const statsContainer = document.getElementById("statsContainer");
+    statsContainer.innerHTML = '<div class="cargando">Cargando estadísticas...</div>';
 
-    const estadisticasComunes =[
-        { titulo: "solicitudes Pendientes", valor: "5", icon: "", color: "#f39c12"},
-        { titulo: "Solicitudes Autorizadas", valor:"12", icon:"", color:"#27ae60"}
+    try {
+        const headers = getAuthHeaders();
+        
+        // CARGAR DATOS DE SOLICITUDES
+        const resSolicitudes = await fetch('/api/routeSolicitudGasto/solicitudesGasto', {
+            headers: headers
+        });
+
+        if (!resSolicitudes.ok) throw new Error('Error al cargar solicitudes');
+        
+        const resultadoSolicitudes = await resSolicitudes.json();
+        
+        if (!resultadoSolicitudes.success) {
+            throw new Error(resultadoSolicitudes.message);
+        }
+
+        const solicitudes = resultadoSolicitudes.data;
+        
+        // CALCULAR ESTADÍSTICAS
+        const estadisticas = await calcularEstadisticas(solicitudes, role);
+        
+        // MOSTRAR ESTADÍSTICAS
+        mostrarEstadisticas(estadisticas, role);
+        
+    } catch (error) {
+        console.error("Error al cargar estadísticas reales:", error);
+        throw error;
+    }
+}
+
+async function calcularEstadisticas(solicitudes, role) {
+    // CONTAR POR ESTATUS
+    const conteoEstatus = {
+        Pendiente: 0,
+        Proceso: 0,
+        Autorizada: 0,
+        Cancelada: 0,
+        Rechazada: 0
+    };
+
+    let montoTotalAutorizadas = 0;
+    let montoTotalPendientes = 0;
+    let totalActivos = new Set();
+    let solicitudesRecientes = 0;
+
+    const hace7Dias = new Date();
+    hace7Dias.setDate(hace7Dias.getDate() - 7);
+
+    solicitudes.forEach(solicitud => {
+        // Contar por estatus
+        conteoEstatus[solicitud.estatusCompras] = (conteoEstatus[solicitud.estatusCompras] || 0) + 1;
+        
+        // Calcular montos
+        if (solicitud.estatusCompras === "Autorizada") {
+            montoTotalAutorizadas += solicitud.montoTotal || 0;
+        } else if (solicitud.estatusCompras === "Pendiente") {
+            montoTotalPendientes += solicitud.montoTotal || 0;
+        }
+        
+        // Contar activos únicos
+        if (solicitud.activos && Array.isArray(solicitud.activos)) {
+            solicitud.activos.forEach(activo => {
+                if (activo.conceptoActivo) {
+                    totalActivos.add(activo.conceptoActivo);
+                }
+            });
+        }
+        
+        // Solicitudes recientes (últimos 7 días)
+        if (new Date(solicitud.fechaCreacion) > hace7Dias) {
+            solicitudesRecientes++;
+        }
+    });
+
+    const estadisticasBase = [
+        { 
+            titulo: "Solicitudes Pendientes", 
+            valor: conteoEstatus.Pendiente, 
+            icon: "⏳", 
+            color: "#f39c12",
+            descripcion: "Esperando revisión"
+        },
+        { 
+            titulo: "Solicitudes Autorizadas", 
+            valor: conteoEstatus.Autorizada, 
+            icon: "✅", 
+            color: "#27ae60",
+            descripcion: "Aprobadas y listas"
+        },
+        { 
+            titulo: "En Proceso", 
+            valor: conteoEstatus.Proceso, 
+            icon: "🔄", 
+            color: "#3498db",
+            descripcion: "En revisión/autorización"
+        }
     ];
 
-    let estadisticas = [...estadisticasComunes];
-
-    //AGREGAR ESTADISTICAS ESPECIFICAS POR ROL 
-    if(role === "Administrador"){
-        estadisticas.push(
-            { titulo: "Total Usuarios", valor: 25, icon: "", color: "#3498db"},
-            { titulo: "Activos Registrados", valor: "150", icon: "", color: "#9b59b6"}
+    // AGREGAR ESTADÍSTICAS ESPECÍFICAS POR ROL
+    if (role === "Administrador") {
+        estadisticasBase.push(
+            { 
+                titulo: "Monto Autorizado", 
+                valor: `$${montoTotalAutorizadas.toLocaleString()}`, 
+                icon: "💰", 
+                color: "#2ecc71",
+                descripcion: "Total autorizado"
+            },
+            { 
+                titulo: "Activos con Gastos", 
+                valor: totalActivos.size, 
+                icon: "💻", 
+                color: "#9b59b6",
+                descripcion: "Activos registrados"
+            },
+            { 
+                titulo: "Nuevas (7 días)", 
+                valor: solicitudesRecientes, 
+                icon: "🆕", 
+                color: "#e74c3c",
+                descripcion: "Solicitudes recientes"
+            }
         );
-    }else if(role === "Jefe de Activoss"){
-        estadisticas.push(
-            { titulo: "Activos por Registrar", valor: "8", icon: "", color: "#e74c3c"},
-            { titulo: "Proveedores", valor: "15", icon: "", color: "#1abc9c"}
+    } else if (role === "Jefe de Activos") {
+        estadisticasBase.push(
+            { 
+                titulo: "Por Enviar a Proceso", 
+                valor: conteoEstatus.Pendiente, 
+                icon: "📤", 
+                color: "#e67e22",
+                descripcion: "Listas para enviar"
+            },
+            { 
+                titulo: "Monto Pendiente", 
+                valor: `$${montoTotalPendientes.toLocaleString()}`, 
+                icon: "💸", 
+                color: "#f1c40f",
+                descripcion: "Total pendiente de autorización"
+            }
         );
-    }else if (role === "Gerente General") {
-        estadisticas.push(
-            { titulo: "Por Autorizar", valor: "3", icon: "📝", color: "#e67e22" },
-            { titulo: "Presupuesto Mensual", valor: "$50,000", icon: "💰", color: "#2ecc71" }
+    } else if (role === "Gerente General") {
+        estadisticasBase.push(
+            { 
+                titulo: "Por Autorizar", 
+                valor: conteoEstatus.Proceso, 
+                icon: "📝", 
+                color: "#e67e22",
+                descripcion: "Esperando su autorización"
+            },
+            { 
+                titulo: "Monto en Proceso", 
+                valor: `$${solicitudes
+                    .filter(s => s.estatusCompras === "Proceso")
+                    .reduce((sum, s) => sum + (s.montoTotal || 0), 0)
+                    .toLocaleString()}`, 
+                icon: "💳", 
+                color: "#2ecc71",
+                descripcion: "En espera de autorización"
+            }
         );
     }
 
+    return estadisticasBase;
+}
+
+function mostrarEstadisticas(estadisticas, role) {
+    const statsContainer = document.getElementById("statsContainer");
+
     statsContainer.innerHTML = estadisticas.map(stat => `
         <div class="stat-card" style="border-left: 4px solid ${stat.color}">
-            <div style="font-size: 2rem; margin-bottom: 10px;">${stat.icon}</div>
-            <h3 style="margin: 0 0 10px 0; color: #2c3e50;">${stat.titulo}</h3>
-            <div style="font-size: 1.5rem; font-weight: bold; color: ${stat.color}">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                <div style="font-size: 2rem;">${stat.icon}</div>
+                <div style="font-size: 0.8rem; color: #7f8c8d; background: #f8f9fa; padding: 4px 8px; border-radius: 12px;">
+                    ${stat.descripcion}
+                </div>
+            </div>
+            <h3 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 0.9rem;">${stat.titulo}</h3>
+            <div style="font-size: 1.8rem; font-weight: bold; color: ${stat.color}">
                 ${stat.valor}
             </div>
         </div>
@@ -61,28 +231,79 @@ function cargarAccionesRapidas(role) {
     
     if (role === "Administrador") {
         acciones = [
-            { texto: "Gestionar Usuarios", url: "/html/gestionUsuarios.html", icon: "👥" },
-            { texto: "Ver Reportes", url: "/html/reportes.html", icon: "📊" },
-            { texto: "Configuración", url: "/html/configuracion.html", icon: "⚙️" }
+            { texto: "Ver Todas las Solicitudes", url: "/html/listasolicitudgasto.html", icon: "📋" },
+            { texto: "Bitácora de Gastos", url: "/html/bitacoraGastos.html", icon: "📊" },
+            { texto: "Reportes Completos", url: "/html/bitacoraGastos.html", icon: "📈" },
+            { texto: "Gestionar Sistema", url: "#", icon: "⚙️" }
         ];
     } else if (role === "Jefe de Activos") {
         acciones = [
-            { texto: "Nueva Solicitud", url: "/html/comprasActivos.html", icon: "➕" },
-            { texto: "Ver Inventario", url: "/html/inventario.html", icon: "📦" },
-            { texto: "Registrar Activo", url: "/html/registroActivo.html", icon: "💻" }
+            { texto: "Nueva Solicitud de Gasto", url: "/html/solicitudGasto.html", icon: "➕" },
+            { texto: "Mis Solicitudes", url: "/html/listasolicitudgasto.html?filtro=misSolicitudes", icon: "📝" },
+            { texto: "Solicitudes Pendientes", url: "/html/listasolicitudgasto.html?estatus=Pendiente", icon: "⏳" },
+            { texto: "Registrar Nuevo Activo", url: "/html/registroActivo.html", icon: "💻" }
         ];
     } else if (role === "Gerente General") {
         acciones = [
-            { texto: "Revisar Solicitudes", url: "/html/listaSolicitudCompra.html", icon: "📋" },
-            { texto: "Autorizaciones", url: "/html/autorizaciones.html", icon: "✅" },
-            { texto: "Reportes Financieros", url: "/html/reportes.html", icon: "💰" }
+            { texto: "Revisar Solicitudes", url: "/html/listasolicitudgasto.html?estatus=Proceso", icon: "👀" },
+            { texto: "Solicitudes por Autorizar", url: "/html/listasolicitudgasto.html?estatus=Proceso", icon: "✅" },
+            { texto: "Historial Autorizadas", url: "/html/listasolicitudgasto.html?estatus=Autorizada", icon: "📊" },
+            { texto: "Reportes Financieros", url: "/html/bitacoraGastos.html", icon: "💰" }
         ];
     }
     
     quickActions.innerHTML = acciones.map(accion => `
         <button class="action-btn" onclick="window.location.href='${accion.url}'">
-            <span style="font-size: 1.2rem; margin-right: 8px;">${accion.icon}</span>
-            ${accion.texto}
+            <span style="font-size: 1.5rem; margin-right: 10px;">${accion.icon}</span>
+            <div>
+                <div style="font-weight: bold;">${accion.texto}</div>
+            </div>
         </button>
     `).join('');
+}
+
+async function cargarDatosAdicionalesAdmin() {
+    try {
+        // PODRÍAS AGREGAR MÁS DATOS ESPECÍFICOS PARA ADMIN AQUÍ
+        console.log("Cargando datos adicionales para administrador...");
+        
+        // Por ejemplo: cargar gráficos, estadísticas avanzadas, etc.
+        
+    } catch (error) {
+        console.error("Error al cargar datos adicionales:", error);
+    }
+}
+
+function mostrarEstadisticasPorDefecto(role) {
+    const statsContainer = document.getElementById("statsContainer");
+    
+    const estadisticasPorDefecto = [
+        { titulo: "Solicitudes Pendientes", valor: "0", icon: "⏳", color: "#f39c12" },
+        { titulo: "Solicitudes Autorizadas", valor: "0", icon: "✅", color: "#27ae60" },
+        { titulo: "En Proceso", valor: "0", icon: "🔄", color: "#3498db" }
+    ];
+    
+    statsContainer.innerHTML = estadisticasPorDefecto.map(stat => `
+        <div class="stat-card" style="border-left: 4px solid ${stat.color}">
+            <div style="font-size: 2rem; margin-bottom: 10px;">${stat.icon}</div>
+            <h3 style="margin: 0 0 10px 0; color: #2c3e50;">${stat.titulo}</h3>
+            <div style="font-size: 1.5rem; font-weight: bold; color: ${stat.color}">
+                ${stat.valor}
+            </div>
+        </div>
+    `).join('');
+}
+
+// FUNCIÓN PARA OBTENER EL TOKEN (igual que en otros scripts)
+function getAuthHeaders() {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    if (!token || !role) {
+        window.location.href = "/html/index.html";
+        return {};
+    }
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
 }
