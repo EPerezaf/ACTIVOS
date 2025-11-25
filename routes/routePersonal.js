@@ -37,6 +37,9 @@ router.post('/personal', async (req, res) => {
 
         await nuevoRegistro.save()
         res.json({ message: 'Personal guardado Correctamente', data: nuevoRegistro});
+        if(res.success){
+            window.location.href = "html/listaPersonal.html"
+        }
     } catch (error) {
         res.status(500).json({ message: "Error al guardar", error: error.message });
         console.log("error", error);

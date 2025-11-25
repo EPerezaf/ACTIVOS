@@ -1,23 +1,22 @@
+// FUNCION PARA TRAER LAS SOLICITUDES GUARDADAS
+// LISTASOLICITUDCOMPRA.HTML
 
-//FUNCION PARA TRAER LAS SOLCIITUDES GUARDADAS
-//LISTASOLICITUDCOMPRA.HTML=========================================
+let todasLasSolicitudes = [];
 
-
-//FUNCION PARA PODER TRAER LAS SOLICITUDES DE COMPRAS
+// FUNCION PARA PODER TRAER LAS SOLICITUDES DE COMPRAS
 async function cargarSolicitudes() {
-    const contenedor = document.getElementById('contenedorSolicitudes'); // CORREGIDO
-    contenedor.innerHTML = "<p>Cargando Solicitudesss...</p>";
+    const contenedor = document.getElementById('contenedorSolicitudes');
+    contenedor.innerHTML = "<p>Cargando Solicitudes...</p>";
 
-    //OBTENER EL ROL DEL USUARIO DESDE LOCALSTORAGE
+    // OBTENER EL ROL DEL USUARIO DESDE LOCALSTORAGE
     const useRole = localStorage.getItem("role");
 
-    //VERIFICAR SI HAY UN USUARIO DESDE LOCALSTORAGE
+    // VERIFICAR SI HAY UN USUARIO DESDE LOCALSTORAGE
     const token = localStorage.getItem("token");
-    if(!token){
+    if (!token) {
         window.location.href = "/html/index.html";
         return;
     }
-
 
     try {
         const res = await fetch('/api/routeListaSolicitudCompra/solicitudes', {
@@ -26,56 +25,118 @@ async function cargarSolicitudes() {
             }
         });
 
-        if(res.status === 401){
-            //TOKEN INVALIDO O EXPIRADO 
+        if (res.status === 401) {
+            // TOKEN INVALIDO O EXPIRADO 
             localStorage.removeItem("token");
             localStorage.removeItem("role");
             window.location.href = "/html/index.html";
             return;
         }
 
-        const solicitudes = await res.json();
+        const data = await res.json();
+        
+        // Manejar diferentes estructuras de respuesta
+        if (Array.isArray(data)) {
+            todasLasSolicitudes = data;
+        } else if (data.data && Array.isArray(data.data)) {
+            todasLasSolicitudes = data.data;
+        } else {
+            console.error("Estructura de respuesta no reconocida:", data);
+            todasLasSolicitudes = [];
+        }
 
-        if (solicitudes.length == 0) {
+        console.log("Solicitudes cargadas:", todasLasSolicitudes);
+
+        if (todasLasSolicitudes.length == 0) {
             contenedor.innerHTML = "<p>No hay solicitudes registradas</p>";
             return;
         }
 
-        contenedor.innerHTML = solicitudes.map(s => {
-            const personalHTML = s.personal.map(p =>
-                `<li>${p.nombre} ${p.aPaterno} ${p.aMaterno}</li>`
-            ).join('');
-            const conceptoActivoHTML = s.conceptoActivo.map(f =>
-                `<li> Familia: ${f.sc_cca_familia} - Sub Familia: ${f.sc_cca_subFamilia} - Concepto: ${f.sc_cca_descripcion}</li>`
-            ).join('');
-            const proveedorHTML = s.proveedores.map(j =>
-                `<li>Razon Social:${j.razonSocial} - NickName: ${j.nickname} - Costo:${j.sc_monto}</li>`
-            ).join('');
+        // Cargar opciones de filtro
+        cargarOpcionesFiltro();
 
+        mostrarSolicitudes(todasLasSolicitudes);
 
-            let botonesHTML = '';
-            if(useRole === "Administrador"){
+    } catch (error) {
+        console.error("Error al cargar solicitudes:", error);
+        contenedor.innerHTML = "<p>Error al cargar solicitudes</p>";
+    }
+}
+
+function cargarOpcionesFiltro() {
+    // Cargar clasificaciones únicas
+    const clasificacionesUnicas = [...new Set(todasLasSolicitudes.map(s => s.clasificacionCompras))].filter(Boolean);
+    const filtroClasificacion = document.getElementById('filtroClasificacion');
+    filtroClasificacion.innerHTML = '<option value="">Todas las clasificaciones</option>';
+    
+    clasificacionesUnicas.forEach(clasificacion => {
+        const option = document.createElement('option');
+        option.value = clasificacion;
+        option.textContent = clasificacion;
+        filtroClasificacion.appendChild(option);
+    });
+
+    // Cargar proveedores únicos (de todos los proveedores en todas las solicitudes)
+    const todosLosProveedores = todasLasSolicitudes.flatMap(s => 
+        s.proveedores.map(p => p.razonSocial || p.nickname)
+    ).filter(Boolean);
+    const proveedoresUnicos = [...new Set(todosLosProveedores)];
+    const filtroProveedor = document.getElementById('filtroProveedor');
+    filtroProveedor.innerHTML = '<option value="">Todos los proveedores</option>';
+    
+    proveedoresUnicos.forEach(proveedor => {
+        const option = document.createElement('option');
+        option.value = proveedor;
+        option.textContent = proveedor;
+        filtroProveedor.appendChild(option);
+    });
+}
+
+function mostrarSolicitudes(solicitudes) {
+    const contenedor = document.getElementById('contenedorSolicitudes');
+    const useRole = localStorage.getItem("role");
+
+    if (solicitudes.length == 0) {
+        contenedor.innerHTML = "<p>No hay solicitudes con los filtros aplicados</p>";
+        return;
+    }
+
+    contenedor.innerHTML = solicitudes.map(s => {
+        const personalHTML = s.personal.map(p =>
+            `<li>${p.nombre} ${p.aPaterno} ${p.aMaterno}</li>`
+        ).join('');
+        const conceptoActivoHTML = s.conceptoActivo.map(f =>
+            `<li> Familia: ${f.sc_cca_familia} - Sub Familia: ${f.sc_cca_subFamilia} - Concepto: ${f.sc_cca_descripcion}</li>`
+        ).join('');
+        const proveedorHTML = s.proveedores.map(j =>
+            `<li>Razon Social:${j.razonSocial} - NickName: ${j.nickname} - Costo:${j.sc_monto}</li>`
+        ).join('');
+
+        let botonesHTML = '';
+        if (useRole === "Administrador") {
+            botonesHTML = `
+                <button class=" btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>
+                <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
+                <button onclick="eliminarSolicitud(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`
+        } else if (useRole === "Gerente General") {
+            if (s.estatusCompras === "Proceso") {
                 botonesHTML = `
-                    <button class=" btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>
-                    <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
-                    <button onclick="eliminarSolicitud(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`
-            }else if(useRole === "Gerente General"){
-                    if(s.estatusCompras === "Proceso"){
-                        botonesHTML = `
-                        <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
-                        <button class="btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})" class="btn-accion btn-eliminar">Autorizar</button>`;
-                    }else{
-                        botonesHTML = `
-                        <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>`;
-                    }
-            }else if(useRole === "Jefe de Activos" && s.estatusCompras === "Pendiente"){
+                <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
+                <button class="btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})" class="btn-accion btn-eliminar">Autorizar</button>`;
+            } else {
                 botonesHTML = `
-                    <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
-                    <button onclick="eliminarSolicitud(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`;
-            }                
+                <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>`;
+            }
+        } else if (useRole === "Jefe de Activos" && s.estatusCompras === "Pendiente" && s.estatusCompras === "Proceso") {
+            botonesHTML = `
+                <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
+                <button onclick="eliminarSolicitud(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`;
+        }
 
-            return `
+        // CORRECCIÓN: Cambié new Date.UTC por new Date
+        const fechaAutorizacion = s.fechaAutorizacion ? new Date(s.fechaAutorizacion).toLocaleDateString() : '';
 
+        return `
             <div class="concepto-card">
                 <div class="concepto-header">
                     <h3 class="concepto-titulo">Solicitud Compra #${s.id}</h3>
@@ -84,7 +145,7 @@ async function cargarSolicitudes() {
                 <div class="concepto-body">
                     <p><strong>Clasificacion:</strong> ${s.clasificacionCompras}<p>
                     <p><strong>Fecha de Creacion:</strong>${new Date(s.fechaCreacion).toLocaleDateString()}</p>
-                    ${s.fechaAutorizacion ? `<p>Fecha Autorizacion: ${new Date.UTC(s.fechaAutorizacion).toLocaleDateString()}</p>`: ''}
+                    ${fechaAutorizacion ? `<p><strong>Fecha Autorizacion:</strong> ${fechaAutorizacion}</p>` : ''}
                     <p><strong>Descripcion:</strong>${s.descripcionConceptoCompra}</p>
                     <div>
                         <strong>Personal</strong>
@@ -103,7 +164,7 @@ async function cargarSolicitudes() {
                     <div class="concepto-fecha">
                         <span>📅</span>
                         <p>${new Date(s.fechaCreacion).toLocaleDateString()}</p>
-                        ${s.fechaAutorizacion ? `<p>Fecha Autorizacion: ${new Date.UTC(s.fechaAutorizacion).toLocaleDateString()}</p>`: ''}
+                        ${fechaAutorizacion ? `<p>Fecha Autorizacion: ${fechaAutorizacion}</p>` : ''}
                     </div>
                     <div class="concepto-acciones">
                         <div>${botonesHTML}</div>
@@ -112,19 +173,107 @@ async function cargarSolicitudes() {
             </div>
             <br>
             <br>
-            `;
-        }).join('');
+        `;
+    }).join('');
+}
 
-    } catch (error) {
-        console.error("Error al cargar solicitudes:", error);
-        contenedor.innerHTML = "<p>Error al cargar solicitudes</p>";
+function filtrarSolicitudes() {
+    const filtroEstatus = document.getElementById('filtroEstatus').value;
+    const filtroClasificacion = document.getElementById('filtroClasificacion').value;
+    const filtroProveedor = document.getElementById('filtroProveedor').value;
+    
+    console.log("Aplicando filtros - Estatus:", filtroEstatus, "Clasificacion:", filtroClasificacion, "Proveedor:", filtroProveedor);
+
+    let solicitudesFiltradas = todasLasSolicitudes;
+
+    // Aplicar filtro de estatus
+    if (filtroEstatus !== "") {
+        solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => 
+            solicitud.estatusCompras === filtroEstatus
+        );
     }
+
+    // Aplicar filtro de clasificación
+    if (filtroClasificacion !== "") {
+        solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => 
+            solicitud.clasificacionCompras === filtroClasificacion
+        );
+    }
+
+    // Aplicar filtro de proveedor
+    if (filtroProveedor !== "") {
+        solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => 
+            solicitud.proveedores.some(proveedor => 
+                proveedor.razonSocial === filtroProveedor || proveedor.nickname === filtroProveedor
+            )
+        );
+    }
+
+    console.log("Resultado del filtro:", solicitudesFiltradas);
+    mostrarSolicitudes(solicitudesFiltradas);
+}
+
+function buscarSolicitudes() {
+    const busquedaInput = document.getElementById('busquedaInput');
+    const terminoBusqueda = busquedaInput.value.toLowerCase();
+    const filtroEstatus = document.getElementById('filtroEstatus').value;
+    const filtroClasificacion = document.getElementById('filtroClasificacion').value;
+    const filtroProveedor = document.getElementById('filtroProveedor').value;
+
+    let solicitudesFiltradas = todasLasSolicitudes;
+
+    // Aplicar filtro de búsqueda
+    if (terminoBusqueda) {
+        solicitudesFiltradas = solicitudesFiltradas.filter(solicitud =>
+            (solicitud.descripcionConceptoCompra && solicitud.descripcionConceptoCompra.toLowerCase().includes(terminoBusqueda)) ||
+            (solicitud.clasificacionCompras && solicitud.clasificacionCompras.toLowerCase().includes(terminoBusqueda)) ||
+            (solicitud.personal && solicitud.personal.some(p => 
+                (p.nombre && p.nombre.toLowerCase().includes(terminoBusqueda)) ||
+                (p.aPaterno && p.aPaterno.toLowerCase().includes(terminoBusqueda)) ||
+                (p.aMaterno && p.aMaterno.toLowerCase().includes(terminoBusqueda))
+            )) ||
+            (solicitud.proveedores && solicitud.proveedores.some(proveedor => 
+                (proveedor.razonSocial && proveedor.razonSocial.toLowerCase().includes(terminoBusqueda)) ||
+                (proveedor.nickname && proveedor.nickname.toLowerCase().includes(terminoBusqueda))
+            )) ||
+            (solicitud.conceptoActivo && solicitud.conceptoActivo.some(concepto => 
+                (concepto.sc_cca_familia && concepto.sc_cca_familia.toLowerCase().includes(terminoBusqueda)) ||
+                (concepto.sc_cca_subFamilia && concepto.sc_cca_subFamilia.toLowerCase().includes(terminoBusqueda)) ||
+                (concepto.sc_cca_descripcion && concepto.sc_cca_descripcion.toLowerCase().includes(terminoBusqueda))
+            ))
+        );
+    }
+
+    // Aplicar filtro de estatus
+    if (filtroEstatus !== "") {
+        solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => 
+            solicitud.estatusCompras === filtroEstatus
+        );
+    }
+
+    // Aplicar filtro de clasificación
+    if (filtroClasificacion !== "") {
+        solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => 
+            solicitud.clasificacionCompras === filtroClasificacion
+        );
+    }
+
+    // Aplicar filtro de proveedor
+    if (filtroProveedor !== "") {
+        solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => 
+            solicitud.proveedores.some(proveedor => 
+                proveedor.razonSocial === filtroProveedor || proveedor.nickname === filtroProveedor
+            )
+        );
+    }
+
+    mostrarSolicitudes(solicitudesFiltradas);
 }
 
 async function autorizarSolicitud(id) {
-    if(!confirm(`¿Seguro que deseas autorizar la solicitud #${id}?`)) return;
+    if (!confirm(`¿Seguro que deseas autorizar la solicitud #${id}?`)) return;
 
-    try{
+    try {
         const token = localStorage.getItem("token");
         const res = await fetch(`/api/routeListaSolicitudCompra/solicitudCompra/${id}/autorizar`, {
             method: 'PUT',
@@ -135,21 +284,21 @@ async function autorizarSolicitud(id) {
         });
 
         const result = await res.json();
-        if(result.success){
+        if (result.success) {
             alert(result.message);
             cargarSolicitudes();
-        }else{
+        } else {
             alert(result.message || "Error al autorizar la solicitud");
         }
-    }catch(e){
+    } catch (e) {
         console.error(e);
         alert("Error al autorizar la solicitud");
     }
 }
 
-//FUNCION PARA ELIMINAR 
+// FUNCION PARA ELIMINAR 
 async function eliminarSolicitud(id) {
-    if(!confirm(`¿Seguro que deseas eliminar la solicitud #${id}?`)) return;
+    if (!confirm(`¿Seguro que deseas eliminar la solicitud #${id}?`)) return;
 
     try {
         const token = localStorage.getItem("token");
@@ -157,44 +306,53 @@ async function eliminarSolicitud(id) {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'}
+                'Content-Type': 'application/json'
+            }
         });
 
         const result = await res.json();
-        if(result.success){
+        if (result.success) {
             alert(result.message);
-            // Eliminar del DOM
-            const elem = document.getElementById(`solicitud-${id}`);
-            if(elem) elem.remove();
             cargarSolicitudes();
         } else {
             alert(result.message);
         }
-    } catch(error){
+    } catch (error) {
         console.error(error);
         alert("Error al eliminar la solicitud");
     }
 }
 
-
-//FUNCION PARA EDITAR 
-function editarSolicitud(id){
+// FUNCION PARA EDITAR 
+function editarSolicitud(id) {
     window.location.href = `/html/editarSolicitudes.html?id=${id}`;
 }
 
-//CARGAR AL PRINCIPIO DE LA PAGINA
-document.addEventListener('DOMContentLoaded', function(){
+// Permitir búsqueda con Enter
+document.addEventListener('DOMContentLoaded', function() {
+    const busquedaInput = document.getElementById('busquedaInput');
+    if (busquedaInput) {
+        busquedaInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                buscarSolicitudes();
+            }
+        });
+    }
+});
+
+// CARGAR AL PRINCIPIO DE LA PAGINA
+document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
 
-    if(!token || !role){
+    if (!token || !role) {
         window.location.href = "/html/index.html";
         return;
     }
 
-    //VERIFICAR QUE EL ROL SI TENGA ACCESO A ESTA PAGINA
+    // VERIFICAR QUE EL ROL SI TENGA ACCESO A ESTA PAGINA
     const rolesPermitidos = ["Administrador", "Gerente General", "Jefe de Activos"];
-    if(!rolesPermitidos.includes(role)){
+    if (!rolesPermitidos.includes(role)) {
         alert("No tienes permiso para acceder a esta pagina");
         window.location.href = "/html/index.html";
         return;
@@ -203,7 +361,6 @@ document.addEventListener('DOMContentLoaded', function(){
     cargarSolicitudes();
 });
 
-function verSolicitud(id){
+function verSolicitud(id) {
     window.location.href = `/html/editarSolicitudes.html?id=${id}`;
 }
-

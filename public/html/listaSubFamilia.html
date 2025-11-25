@@ -40,14 +40,17 @@
         <div class="lista-header">
             <div class="barra-busqueda">
                 <input type="text" class="busqueda-input" placeholder="Buscar conceptos...">
-                <button class="btn-accion btn-editar">Buscar</button>
+                <button class="btn-accion btn-editar" onclick="buscarSubFamilias()">Buscar</button>
             </div>
             <div class="filtros">
-                <select name="" id="" class="filtro-select">
+                <select name="" id="filtroEstatus" class="filtro-select" onchange="filtrarSubFamilias()">
                     <option value="">Todos los estatus</option>
+                    <option value="alta">Alta</option>
+                    <option value="baja">Baja</option>
+                    <option value="cancelado">Cancelado</option>
                 </select>
-                <select name="" id="" class="filtro-select">
-                    <option value="">Todas las categorías</option>
+                <select name="" id="filtroFamilia" class="filtro-select" onchange="filtrarSubFamilias()">
+                    <option value="">Todas las Familias</option>
                 </select>
             </div>
         </div>
@@ -62,123 +65,5 @@
     <script src="../scripts/navbar.js"></script>
     <script src="../scripts/footer.js"></script>
 </body>
-
-<div class="lista-conceptos">
-    <div class="concepto-card">
-        <div class="concepto-header">
-            <h3 class="concepto-titulo">Vehículos</h3>
-            <span class="concepto-estatus estatus-alta">Alta</span>
-        </div>
-        <div class="concepto-body">
-            <p>Concepto para gestión de vehículos de la empresa</p>
-        </div>
-        <div class="concepto-meta">
-            <div class="concepto-fecha">
-                <span>📅</span>
-                <span>15/12/2024</span>
-            </div>
-            <div class="concepto-acciones">
-                <button class="btn-accion btn-editar">Editar</button>
-                <button class="btn-accion btn-eliminar">Eliminar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="concepto-card">
-        <div class="concepto-header">
-            <h3 class="concepto-titulo">Equipo de Computo</h3>
-            <span class="concepto-estatus estatus-pendiente">Pendiente</span>
-        </div>
-        <div class="concepto-body">
-            <p>Computadoras, laptops y equipos relacionados</p>
-        </div>
-        <div class="concepto-meta">
-            <div class="concepto-fecha">
-                <span>📅</span>
-                <span>10/12/2024</span>
-            </div>
-            <div class="concepto-acciones">
-                <button class="btn-accion btn-editar">Editar</button>
-                <button class="btn-accion btn-eliminar">Eliminar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="contenedor-lista">
-    <div class="lista-header">
-        <div class="barra-busqueda">
-            <input type="text" class="busqueda-input" placeholder="Buscar conceptos...">
-            <button class="btn-accion btn-editar">🔍 Buscar</button>
-        </div>
-        <div class="filtros">
-            <select class="filtro-select">
-                <option value="">Todos los estatus</option>
-                <option value="alta">Alta</option>
-                <option value="baja">Baja</option>
-                <option value="pendiente">Pendiente</option>
-            </select>
-            <select class="filtro-select">
-                <option value="">Todas las categorías</option>
-                <option value="transporte">Transporte</option>
-                <option value="tecnologia">Tecnología</option>
-                <option value="mobiliario">Mobiliario</option>
-            </select>
-        </div>
-    </div>
-    <div class="lista-contenido">
-        <div class="item-detallado">
-            <div class="item-info">
-                <div class="item-titulo">Vehículos</div>
-                <div class="item-subtitulo">Gestión de transporte empresarial</div>
-                <div class="item-tags">
-                    <span class="tag">Transporte</span>
-                    <span class="tag">Alta</span>
-                </div>
-            </div>
-            <div class="item-acciones">
-                <button class="btn-accion btn-editar">Editar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="contenedor-lista">
-    <div class="lista-header">
-        <div class="barra-busqueda">
-            <input type="text" class="busqueda-input" placeholder="Buscar conceptos...">
-            <button class="btn-accion btn-editar">Buscar</button>
-        </div>
-        <div class="filtros">
-            <select name="" id="" class="filtro-select">
-                <option value="">Todos los estatus</option>
-            </select>
-            <select name="" id="" class="filtro-select">
-                <option value="">Todas las categorías</option>
-            </select>
-        </div>
-    </div>
-</div>
-<div class="lista-conceptos">
-    <div class="concepto-card">
-        <div class="concepto-header">
-            <h3 class="concepto-titulo">Prueba</h3>
-            <span class="concepto-estatus estatus-pendiente">Pendiente</span>
-        </div>
-        <div class="concepto-body">
-            <p>Pruebas pruebas</p>
-        </div>
-        <div class="concepto-meta">
-            <div class="concepto-fecha">
-                <span>📅</span>
-                <span>12/11/2025</span>
-            </div>
-            <div class="concepto-acciones">
-                <button class="btn-accion btn-editar">Editar</button>
-                <button class="btn-accion btn-eliminar">Eliminar</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 </html>

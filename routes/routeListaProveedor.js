@@ -84,7 +84,7 @@ router.put("/listaProveedor/:id", async(req,res) => {
     }catch(e){
         console.log("Error en el PUT /listaProveedor/:id ", e);
         res.status(500).json({
-            success: fasle,
+            success: false,
             message: "Error al actualizar"
         });
     }
@@ -125,6 +125,22 @@ router.put('/listaProveedorEliminar/:id', async (req,res) => {
         res.status(500).json({
             success: false,
             message: "Error al eliminar"
+        });
+    }
+});
+
+// OBTENER CIUDADES ÚNICAS PARA FILTRO
+router.get("/ciudadesUnicas", async (req, res) => {
+    try {
+        const proveedores = await registroProveedor.find();
+        const ciudadesUnicas = [...new Set(proveedores.map(p => p.ciudad))].filter(Boolean);
+        
+        res.json(ciudadesUnicas);
+    } catch (error) {
+        console.error("Error al obtener ciudades únicas:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error al obtener ciudades únicas" 
         });
     }
 });

@@ -112,7 +112,7 @@ if(formProveedores){
         const result = await res.json();
         alert(result.message || "Guardado correctamente");
         formProveedores.reset();
-        if(result.success){
+        if(res.ok){
             window.location.href = "/html/listaProveedores.html";
         }
 

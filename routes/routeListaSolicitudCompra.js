@@ -355,4 +355,39 @@ router.get("/solicitud/:idSolicitud/tieneActivos", authMiddleware, async ( req,r
         });
     }
 });
+
+// OBTENER CLASIFICACIONES ÚNICAS PARA FILTRO
+router.get("/clasificacionesUnicas", authMiddleware, async (req, res) => {
+    try {
+        const solicitudes = await registroSolicitudCompra.find();
+        const clasificacionesUnicas = [...new Set(solicitudes.map(s => s.clasificacionCompras))].filter(Boolean);
+        
+        res.json(clasificacionesUnicas);
+    } catch (error) {
+        console.error("Error al obtener clasificaciones únicas:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error al obtener clasificaciones únicas" 
+        });
+    }
+});
+
+// OBTENER PROVEEDORES ÚNICOS PARA FILTRO
+router.get("/proveedoresUnicos", authMiddleware, async (req, res) => {
+    try {
+        const solicitudes = await registroSolicitudCompra.find();
+        const todosLosProveedores = solicitudes.flatMap(s => 
+            s.proveedores.map(p => p.razonSocial || p.nickname)
+        ).filter(Boolean);
+        const proveedoresUnicos = [...new Set(todosLosProveedores)];
+        
+        res.json(proveedoresUnicos);
+    } catch (error) {
+        console.error("Error al obtener proveedores únicos:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error al obtener proveedores únicos" 
+        });
+    }
+});
 module.exports = router;

@@ -87,10 +87,16 @@ if (formPersonal) {
             });
 
             const result = await res.json();
-            alert(result.message || "Guardado correctamente");
-            formPersonal.reset();
-            if(result.success){
+            console.log("Respuesta completa del servidor:", result); // Para depuración
+            
+            // Verificar si la respuesta fue exitosa basándonos en el status HTTP
+            if (res.ok) {
+                alert("Guardado correctamente");
+                console.log("Redirigiendo a listaPersonal.html");
                 window.location.href = "/html/listaPersonal.html";
+            } else {
+                // Si el servidor devuelve un error
+                alert(result.message || result.error || "Error al guardar");
             }
         }catch(e){
             console.error("Error al guardar: ", e);

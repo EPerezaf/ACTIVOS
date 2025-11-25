@@ -163,18 +163,22 @@
     <div class="contenedor-lista">
         <div class="lista-header">
             <div class="barra-busqueda">
-                <input type="text" class="busqueda-input" placeholder="Buscar Solicitud..">
-                <button class="btn-accion btn-editar">Buscar</button>
+                <input type="text" id="busquedaInput" class="busqueda-input" placeholder="Buscar Solicitud..">
+                <button class="btn-accion btn-editar" onclick="buscarSolicitudes()">Buscar</button>
             </div>
             <div class="filtros">
-                <select name="" id="" class="filtro-select">
-                    <option value="">Todos los estatus</option>
+                <select name="" id="filtroEstatus" class="filtro-select" onchange="filtrarSolicitudes()">
+                    <option value="">Todas las estatus</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Proceso">Proceso</option>
+                    <option value="Autorizada">Autorizada</option>
+                    <option value="Cancelada">Cancelada</option>
                 </select>
-                <select name="" id="" class="filtro-select">
-                    <option value="">Todas las proveedores</option>
-                </select>
-                <select name="" id="" class="filtro-select">
+                <select name="" id="filtroClasificacion" class="filtro-select" onchange="filtrarSolicitudes()">
                     <option value="">Todo el personal</option>
+                </select>
+                <select name="" id="filtroProveedor" class="filtro-select" onchange="filtrarSolicitudes()">
+                    <option value="">Todos los proveedores</option>
                 </select>
             </div>
         </div>

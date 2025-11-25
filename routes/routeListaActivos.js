@@ -115,4 +115,36 @@ router.put('/listaActivosEliminacion/:id', async (req,res) => {
     }
 });
 
+// OBTENER FAMILIAS ÚNICAS PARA FILTRO
+router.get("/familiasUnicas", async (req, res) => {
+    try {
+        const activos = await registroActivos.find();
+        const familiasUnicas = [...new Set(activos.map(a => a.conceptoFamilia))].filter(Boolean);
+        
+        res.json(familiasUnicas);
+    } catch (error) {
+        console.error("Error al obtener familias únicas:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error al obtener familias únicas" 
+        });
+    }
+});
+
+// OBTENER SUBFAMILIAS ÚNICAS PARA FILTRO
+router.get("/subfamiliasUnicas", async (req, res) => {
+    try {
+        const activos = await registroActivos.find();
+        const subFamiliasUnicas = [...new Set(activos.map(a => a.conceptoSubFamilia))].filter(Boolean);
+        
+        res.json(subFamiliasUnicas);
+    } catch (error) {
+        console.error("Error al obtener subfamilias únicas:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error al obtener subfamilias únicas" 
+        });
+    }
+});
+
 module.exports = router;

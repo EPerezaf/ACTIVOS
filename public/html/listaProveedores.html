@@ -37,11 +37,17 @@
             <div class="lista-header">
                 <div class="barra-busqueda">
                     <input type="text" class="busqueda-input" placeholder="Busqueda de proveedor...">
-                    <button class="btn-accion btn-editar">Buscar</button>
+                    <button class="btn-accion btn-editar" onclick="buscarProveedores()">Buscar</button>
                 </div>
                 <div class="filtros">
-                    <select name="" id="" class="filtro-select">
+                    <select name="" id="filtroEstatus" class="filtro-select" onchange="filtrarProveedores()">
                         <option value="">Todos los estatus</option>
+                        <option value="alta">Alta</option>
+                        <option value="baja">Baja</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                    <select name="" id="filtroCiudad" class="filtro-select" onchange="filtrarProveedores()">
+                        <option value="">Todas las ciudades</option>
                     </select>
                 </div>
             </div>

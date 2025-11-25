@@ -115,4 +115,36 @@ router.put("/listaPersonalEliminacion/:id", async (req,res) => {
     }
 })
 
+// OBTENER ESTADOS ÚNICOS PARA FILTRO
+router.get("/estadosUnicos", async (req, res) => {
+    try {
+        const personal = await registroPersonal.find();
+        const estadosUnicos = [...new Set(personal.map(p => p.p_estado))].filter(Boolean);
+        
+        res.json(estadosUnicos);
+    } catch (error) {
+        console.error("Error al obtener estados únicos:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error al obtener estados únicos" 
+        });
+    }
+});
+
+// OBTENER CIUDADES ÚNICAS PARA FILTRO
+router.get("/ciudadesUnicas", async (req, res) => {
+    try {
+        const personal = await registroPersonal.find();
+        const ciudadesUnicas = [...new Set(personal.map(p => p.p_ciudad))].filter(Boolean);
+        
+        res.json(ciudadesUnicas);
+    } catch (error) {
+        console.error("Error al obtener ciudades únicas:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error al obtener ciudades únicas" 
+        });
+    }
+});
+
 module.exports = router;

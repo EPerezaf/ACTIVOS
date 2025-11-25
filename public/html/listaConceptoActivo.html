@@ -36,15 +36,21 @@
         <div class="contenedor-lista">
             <div class="lista-header">
                 <div class="barra-busqueda">
-                    <input type="text" class="busqueda-input" placeholder="Buscar Concepto...">
-                    <button class="btn-accion btn-editar">Buscar</button>
+                    <input type="text" id="busquedaInput" class="busqueda-input" placeholder="Buscar Concepto...">
+                    <button class="btn-accion btn-editar" onclick="buscarActivos()">Buscar</button>
                 </div>
                 <div class="filtros">
-                    <select name="" id="" class="filtro-select">
+                    <select name="" id="filtroEstatus" class="filtro-select" onchange="filtrarActivos()">
                         <option value="">Todos los estatus</option>
+                        <option value="alta">Alta</option>
+                        <option value="baja">Baja</option>
+                        <option value="cancelado">Cancelado</option>
                     </select>
-                    <select name="" id="" class="filtro-select">
-                        <option value="">Todas las categorias</option>
+                    <select name="" id="filtroFamilia" class="filtro-select" onchange="filtrarActivos()">
+                        <option value="">Todas las Familias</option>
+                    </select>
+                    <select name="" id="filtroSubFamilia" class="filtro-select">
+                        <option value="">Todas las Sub Familias</option>
                     </select>
                 </div>
             </div>

@@ -111,4 +111,19 @@ router.put('/listaSubFamiliaEliminacion/:id', async (req,res) => {
     }
 });
 
+// OBTENER FAMILIAS ÚNICAS PARA FILTRO
+router.get("/familiasUnicas", async (req, res) => {
+    try {
+        const subFamilias = await registroSubFamilia.find();
+        const familiasUnicas = [...new Set(subFamilias.map(sf => sf.conceptoFamilia))].filter(Boolean);
+        
+        res.json(familiasUnicas);
+    } catch (error) {
+        console.error("Error al obtener familias únicas:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error al obtener familias únicas" 
+        });
+    }
+});
 module.exports = router;
