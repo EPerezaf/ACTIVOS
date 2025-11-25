@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora de Gastos por Activo</title>
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/footer.css">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+        }
+
+        .filtros-section {
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        @media (min-width: 768px) {
+            .filtros-grid {
+                grid-template-columns: 1fr 1fr 1fr auto;
+            }
+        }
+
+        .filtro-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .filtro-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .filtro-input, .filtro-select {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .btn-buscar {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-descargar {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .btn-buscar, .btn-descargar {
+                width: auto;
+                margin-bottom: 0;
+            }
+            
+            .btn-descargar {
+                margin-left: 10px;
+            }
+        }
+
+        .btn-buscar:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-descargar:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .resultados-section {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        .estadisticas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tarjeta-estadistica {
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tarjeta-estadistica h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: var(--secondary-color);
+        }
+
+        .tarjeta-estadistica .valor {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .tabla-gastos {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            min-width: 600px;
+        }
+
+        .tabla-gastos th,
+        .tabla-gastos td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tabla-gastos th {
+            background: var(--dark-color);
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        .tabla-gastos tr:hover {
+            background: var(--light-color);
+        }
+
+        .estatus-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+            min-width: 90px;
+        }
+
+        .estatus-Pendiente { background: #fff3cd; color: #856404; }
+        .estatus-Proceso { background: #d1ecf1; color: #0c5460; }
+        .estatus-Autorizada { background: #d4edda; color: #155724; }
+        .estatus-Cancelada { background: #f8d7da; color: #721c24; }
+
+        .sin-resultados {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary-color);
+            font-style: italic;
+        }
+
+        .cargando {
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary-color);
+        }
+
+        /* Autocompletado */
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ced4da;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .autocomplete-item:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-activo {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-activo h3 {
+            margin: 0 0 10px 0;
+            color: #0056b3;
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+        }
+
+        .detalles-activo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .detalle-item {
+            font-size: 14px;
+        }
+
+        .detalle-item strong {
+            color: #495057;
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 767px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .filtros-section {
+                padding: 15px;
+            }
+            
+            .tabla-gastos th, 
+            .tabla-gastos td {
+                padding: 8px;
+                font-size: 14px;
+            }
+            
+            .estadisticas {
+                grid-template-columns: 1fr;
+            }
+            
+            .detalles-activo {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 5px;
+                padding: 10px;
+            }
+            
+            .filtros-section {
+                padding: 10px;
+            }
+            
+            .tabla-gastos {
+                font-size: 12px;
+            }
+            
+            .tabla-gastos th, 
+            .tabla-gastos td {
+                padding: 6px;
+            }
+            
+            .estatus-badge {
+                min-width: 70px;
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Bitácora de Gastos por Activo</h1>
+        
+        <div class="filtros-section">
+            <div class="filtros-grid">
+                <div class="filtro-group">
+                    <label for="filtroActivo">Buscar Activo:</label>
+                    <div class="autocomplete-container">
+                        <input type="text" id="filtroActivo" class="filtro-input" 
+                               placeholder="Escribe para buscar activos..." 
+                               autocomplete="off">
+                        <div id="autocompleteResults" class="autocomplete-results" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <div class="filtro-group">
+                    <label for="filtroEstatus">Estatus:</label>
+                    <select id="filtroEstatus" class="filtro-select">
+                        <option value="">Todos los estatus</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Proceso">Proceso</option>
+                        <option value="Autorizada">Autorizada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+                
+                <div class="filtro-group">
+                    <label for="filtroFecha">Periodo:</label>
+                    <select id="filtroFecha" class="filtro-select">
+                        <option value="">Todo el periodo</option>
+                        <option value="30">Últimos 30 días</option>
+                        <option value="90">Últimos 3 meses</option>
+                        <option value="180">Últimos 6 meses</option>
+                        <option value="365">Último año</option>
+                    </select>
+                </div>
+                
+                <div class="botones-filtro">
+                    <button class="btn-buscar" onclick="cargarBitacora()">🔍 Buscar</button>
+                    <button class="btn-descargar" onclick="descargarReporte()">📥 Descargar Reporte</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="infoActivoSeleccionado" class="info-activo" style="display: none;"></div>
+
+        <div class="resultados-section">
+            <div id="estadisticas" class="estadisticas"></div>
+            <div id="resultadosBitacora"></div>
+        </div>
+    </div>
+
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts/scriptBitacoraGastos.js"></script>
+    <script src="../scripts/footer.js"></script>
+</body>
+</html>
