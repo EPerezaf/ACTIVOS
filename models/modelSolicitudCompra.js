@@ -24,6 +24,12 @@ const solicitudCompra = new mongosee.Schema({
             sc_cca_familia: String,
             sc_cca_subFamilia: String,
             sc_cca_descripcion: String,
+            proveedorSeleccionado: {  // AGREGAR ESTE CAMPO
+                idProveedor: String,
+                razonSocial: String,
+                nickname: String,
+                sc_monto: Number
+            }
         }
     ],
     proveedores: [

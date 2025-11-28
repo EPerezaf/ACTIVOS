@@ -78,6 +78,9 @@ async function cargarDatosEdicion() {
         const contenedorActivo = document.getElementById("contenedorActivo");
         contenedorActivo.innerHTML = ''; // Limpiar contenedor
 
+        //VERIFICAR SI HAY ELEMENTOS NO ACTIVOS EN LA SOLICITUD 
+        let tieneElementosNoActivos = false;
+
         solicitud.activos.forEach(activo => {
             // ASEGURAR QUE EL DATASET TENGA TODOS LOS CAMPOS NECESARIOS
             const activoData = {
@@ -86,19 +89,27 @@ async function cargarDatosEdicion() {
                 familia: activo.familia,
                 subFamilia: activo.subFamilia,
                 nomenclatura: activo.nomenclatura,
-                numSerie: activo.numSerie
+                numSerie: activo.numSerie,
+                estatus: activo.estatus || 'alta'
             };
 
             const fila = document.createElement("div");
             fila.classList.add("fila", "activo-completo");
             fila.dataset.activo = JSON.stringify(activoData);
 
+            //AGREGAR CLASE DE ADVERTENCIA SI NO ESTA ACTIVO
+            if(activoData.estatus.toLowerCase() !== 'alta'){
+                fila.classList.add('elemento-no-activo');
+                fila.style.borderColor = '#ff9800';
+                fila.style.backgroundColor = '#fff3e0'
+            }
+
             fila.innerHTML = `
                 <div class="grupo-inputs-contenedor">
                     <!-- DATOS DEL ACTIVO -->
                     <div class="input-flotante-contenedor">
                         <input type="text" value="${activo.conceptoActivo}" readonly>
-                        <label>Activo</label>
+                        <label>Activo ${activoData.estatus.toLowerCase() !== 'alta' ? '(No activo)': ''}</label>
                     </div>
                 </div>
                     
@@ -145,6 +156,10 @@ async function cargarDatosEdicion() {
             contenedorActivo.appendChild(fila);
         });
 
+        if(tieneElementosNoActivos){
+            mostrarAdvertenciaElementosNoActivos();
+        }
+
         // CAMBIAR EL TÍTULO Y EL BOTÓN SI ESTAMOS EDITANDO
         document.querySelector("h1").textContent = "Editar Solicitud de Gasto";
         document.getElementById("btnGuardar").textContent = "Actualizar Solicitud";
@@ -155,6 +170,29 @@ async function cargarDatosEdicion() {
     } catch (error) {
         console.error("Error al cargar datos para edición:", error);
         alert("Error al cargar los datos de la solicitud");
+    }
+}
+
+// FUNCIÓN PARA MOSTRAR ADVERTENCIA DE ELEMENTOS NO ACTIVOS
+function mostrarAdvertenciaElementosNoActivos() {
+    const advertencia = document.createElement("div");
+    advertencia.style.cssText = `
+        background-color: #fff3e0;
+        border: 2px solid #ff9800;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        color: #e65100;
+        font-weight: bold;
+    `;
+    advertencia.innerHTML = `
+        ⚠️ <strong>Advertencia:</strong> Esta solicitud contiene elementos que ya no están activos. 
+        Puedes mantenerlos para referencia histórica, pero no podrás agregar nuevos elementos no activos.
+    `;
+    
+    const contenedorPrincipal = document.querySelector('.container');
+    if (contenedorPrincipal) {
+        contenedorPrincipal.insertBefore(advertencia, contenedorPrincipal.firstChild);
     }
 }
 
@@ -386,7 +424,14 @@ function inicializarActivo() {
                     headers: getAuthHeaders()
                 });
                 const activo = await res.json();
-                if (activo.length === 0) {
+
+                //FILTRAR SOLO ACTIVOS CON ESTATUS "ALTA"
+                const activosActivos = activo.filter(a =>
+                    a.estatus && a. estatus.toLowerCase() === 'alta'
+                );
+                console.log(`Activos encontrados: ${activo.length}, Activos: ${activosActivos.length}`);
+
+                if (activosActivos.length === 0) {
                     resultadoActivoDiv.innerHTML = "<p>NO se encontro algun activo";
                     return;
                 }
@@ -547,7 +592,12 @@ function abrirModalGastoParaActivo() {
                     });
                     const gastos = await res.json();
 
-                    if(gastos.length === 0){
+                    const gastosActivos = gastos.filter(g =>
+                        g.estatus && g.estatus.toLowerCase() === "alta"
+                    );
+                    console.log(`Conceptos de gasto encontrados: ${gastos.length}, Activos: ${gastosActivos.length}`);
+                    
+                    if(gastosActivos.length === 0){
                         resultadoGastoDiv.innerHTML = "<p>No se encontraron resultados</p>";
                         return;
                     }
@@ -599,7 +649,14 @@ function abrirModalProveedorParaActivo() {
                         headers: getAuthHeaders()
                     });
                     const proveedores = await res.json();
-                    if (proveedores.length === 0) {
+
+                    //FILTRAR SOLO PROVEEDORES CON ESTATUS "ALTA"
+                    const proveedoresActivos = proveedores.filter(p=>
+                        p.estatusProveedor && p.estatusProveedor.toLowerCase() === "alta"
+                    );
+                    console.log(`Proveedores encontrados: ${proveedores.length}, Activos: ${proveedoresActivos.length}`);
+
+                    if (proveedoresActivos.length === 0) {
                         resultadoProveedorDiv.innerHTML = '<p>No se encontraron resultados</p>';
                         return;
                     }

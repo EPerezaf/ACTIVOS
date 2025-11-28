@@ -37,7 +37,7 @@ function inicializarAplicacion() {
     const modal = document.getElementById("modalBusqueda");
     const abrirBtn = document.getElementById("abrirBusqueda");
     const cerrarBtn = document.getElementById("cerrarModal");
-    const closeSpan = document.querySelector(".close");
+    const closeSpan = document.querySelector("#modalBusqueda .close");
 
     if (!modal || !abrirBtn || !cerrarBtn || !closeSpan) {
         console.error("Elementos del  modal no encontrados");
@@ -80,14 +80,21 @@ function inicializarAplicacion() {
                     const res = await fetch(`/api/routePersonal/traerPersonal?buscar=${encodeURIComponent(texto)}`);
                     const usuarios = await res.json();
 
+                    //FILTRAR SOLO PERSONAL CON ESTATUS
+                    const usuariosActivos = usuarios.filter(u =>
+                        u.estatusPersonal && u.estatusPersonal.toLowerCase() === "alta"
+                    );
+
+                    console.log(`Personal encontrado: ${usuarios.length}, Activos: ${usuariosActivos.length}`);
+
                     if (usuarios.length === 0) {
                         resultadosPersonalDiv.innerHTML = "<p>NO se encontraron resultados<p>";
                         return;
                     }
 
                     resultadosPersonalDiv.innerHTML = usuarios.map(u =>
-                        `<div>
-                        <button onclick='seleccionarPersonal(${JSON.stringify(u)})'>
+                        `<div class="result-item">
+                        <button class="btn-buscar-personal" onclick='seleccionarPersonal(${JSON.stringify(u)})'>
                         ${u.nombre} ${u.aPaterno} ${u.aMaterno}
                         </button>
                         </div>`
@@ -154,7 +161,7 @@ function inicializarConceptoActivo() {
     const modal = document.getElementById("modalConceptoActivos");
     const abrirBtn = document.getElementById("abrirBusquedaActivos");
     const cerrarBtn = document.getElementById("cerrarModalActivos");
-    const closeSpan = document.querySelector(".close");
+    const closeSpan = document.querySelector("#modalConceptoActivos .close");
 
     if(!modal || !abrirBtn || !cerrarBtn || !closeSpan){
         console.error("Elementos del modal no encontrados");
@@ -196,14 +203,21 @@ function inicializarConceptoActivo() {
                     const res = await fetch(`/api/routeConceptoActivos/buscarActivo?buscar=${encodeURIComponent(texto)}`);
                     const activo = await res.json();
 
+                    //FILTRAR SOLO CONCEPTOS ACTIVOS CON ESTSTUS "ALTA"
+                    const activosActivos = activo.filter(a =>
+                        a.estatus && a.estatus.toLowerCase() === "alta"
+                    );
+
+                    console.log(`Conceptos encontrados: ${activosActivos.length}, Activos: ${activosActivos.length}`);
+                    
                     if(activo.length === 0){
                         resultadoActivoDiv.innerHTML = "<p> NO se encontraron activos</p>";
                         return;
                     }
 
                     resultadoActivoDiv.innerHTML = activo.map(u => 
-                        `<div>
-                        <button onclick='seleccionarConceptoActivo(${JSON.stringify(u)})'>
+                        `<div class="result-item">
+                        <button class="btn-buscar-personal" onclick='seleccionarConceptoActivo(${JSON.stringify(u)})'>
                         ${u.conceptoActivos} 
                         </button>
                         
@@ -213,7 +227,7 @@ function inicializarConceptoActivo() {
                     console.error("Error en la busqueda de activos: ",error);
                     resultadoActivoDiv.innerHTML = "<p>Error en la busqueda de activos</p>";
                 }
-            });
+            }, 400);
         });
     }
 }
@@ -311,13 +325,20 @@ function inicializarProveedores(){
                     const res = await fetch(`/api/routeProveedor/buscarProveedores?buscar=${encodeURIComponent(texto)}`);
                     const proveedores = await res.json();
 
+                    //FILTRAR SOLO PROVEEDORES CON ESTATUS "ALTA"
+                    const proveedoresActivos = proveedores.filter(p =>
+                        p.estatusProveedor && p.estatusProveedor.toLowerCase() === "alta"
+                    );
+
+                    console.log(`Proveedores encontrados: ${proveedores.length}, Activos: ${proveedoresActivos.length}`);
+
                     if(proveedores.length == 0){
                         resultadosProveedoresDiv.innerHTML = '<p> NO SE ENCONTRARON PROVEEDORES!!</p>';
                         return;
                     }
                     resultadosProveedoresDiv.innerHTML = proveedores.map(u =>
-                        `<div>
-                        <button onclick='seleccionarProveedor(${JSON.stringify(u)})'>
+                        `<div class="result-item">
+                        <button class="btn-buscar-personal" onclick='seleccionarProveedor(${JSON.stringify(u)})'>
                         ${u.nickName} ${u.razonSocial} ${u.rfc}
                         </button>
                         </div>`
@@ -387,6 +408,14 @@ window.addEventListener("click", (event) => {
         cerrarModal(event.target);
     }
 });
+
+//FUNCION PARA ELIMINAR FILA 
+function eliminarFila(boton){
+    const fila = boton.closest('.fila');
+    if(fila){
+        fila.remove();
+    }
+}
 
 function inicializarGuardado(){
     const btnGuardar = document.getElementById("guardarBtn");

@@ -118,6 +118,15 @@ router.get('/solicitudes/:id', authMiddleware,async (req, res) => {
             return res.status(404).json({ message: "Solicitud no encontrada" });
         }
 
+        // Incluir la información completa de los proveedores seleccionados
+        const solicitudConProveedores = {
+            ...solicitud.toObject(),
+            conceptoActivo: solicitud.conceptoActivo.map(activo => ({
+                ...activo,
+                proveedorSeleccionado: activo.proveedorSeleccionado || null
+            }))
+        };
+
         res.json(solicitud);
     } catch (error) {
         console.error("Error en GET /solicitudes/:id", error);
@@ -388,6 +397,97 @@ router.get("/proveedoresUnicos", authMiddleware, async (req, res) => {
             success: false,
             message: "Error al obtener proveedores únicos" 
         });
+    }
+});
+
+// ENDPOINT PARA SELECCIONAR PROVEEDOR
+// ENDPOINT CORREGIDO PARA SELECCIONAR PROVEEDOR
+// ENDPOINT CORREGIDO PARA SELECCIONAR PROVEEDOR
+// ENDPOINT MEJORADO PARA SELECCIONAR PROVEEDOR
+router.put('/solicitudCompra/:id/seleccionarProveedor', authMiddleware, roleMiddleware(["Gerente General", "Administrador"]), async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { indexActivo, indexProveedor } = req.body;
+
+        console.log('Seleccionando proveedor:', { id, indexActivo, indexProveedor });
+
+        const solicitud = await registroSolicitudCompra.findOne({ id: id });
+        if (!solicitud) {
+            return res.status(404).json({ success: false, message: "Solicitud no encontrada" });
+        }
+
+        // Verificar que el índice del activo existe
+        if (!solicitud.conceptoActivo[indexActivo]) {
+            return res.status(400).json({ success: false, message: "Activo no encontrado" });
+        }
+
+        // Verificar que el índice del proveedor existe
+        if (!solicitud.proveedores[indexProveedor]) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Proveedor no encontrado",
+                indexProveedor: indexProveedor,
+                totalProveedores: solicitud.proveedores.length
+            });
+        }
+
+        const proveedor = solicitud.proveedores[indexProveedor];
+
+        // IMPORTANTE: Limpiar cualquier proveedor seleccionado anteriormente para este activo
+        solicitud.conceptoActivo[indexActivo].proveedorSeleccionado = undefined;
+
+        // Asignar el NUEVO proveedor seleccionado al activo
+        solicitud.conceptoActivo[indexActivo].proveedorSeleccionado = {
+            razonSocial: proveedor.razonSocial,
+            nickname: proveedor.nickname,
+            sc_monto: proveedor.sc_monto,
+            indexProveedor: indexProveedor
+        };
+
+        await solicitud.save();
+
+        res.json({
+            success: true,
+            message: "Proveedor seleccionado correctamente",
+            activo: solicitud.conceptoActivo[indexActivo]
+        });
+
+    } catch (error) {
+        console.error("Error en PUT /seleccionarProveedor:", error);
+        res.status(500).json({ success: false, message: "Error al seleccionar proveedor" });
+    }
+});
+
+// ENDPOINT PARA DESELECCIONAR PROVEEDOR
+router.put('/solicitudCompra/:id/deseleccionarProveedor', authMiddleware, roleMiddleware(["Gerente General", "Administrador"]), async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { indexActivo } = req.body;
+
+        const solicitud = await registroSolicitudCompra.findOne({ id: id });
+        if (!solicitud) {
+            return res.status(404).json({ success: false, message: "Solicitud no encontrada" });
+        }
+
+        // Verificar que el índice del activo existe
+        if (!solicitud.conceptoActivo[indexActivo]) {
+            return res.status(400).json({ success: false, message: "Activo no encontrado" });
+        }
+
+        // Remover el proveedor seleccionado
+        solicitud.conceptoActivo[indexActivo].proveedorSeleccionado = undefined;
+
+        await solicitud.save();
+
+        res.json({
+            success: true,
+            message: "Proveedor deseleccionado correctamente",
+            activo: solicitud.conceptoActivo[indexActivo]
+        });
+
+    } catch (error) {
+        console.error("Error en PUT /deseleccionarProveedor:", error);
+        res.status(500).json({ success: false, message: "Error al deseleccionar proveedor" });
     }
 });
 module.exports = router;

@@ -23,18 +23,42 @@ document.addEventListener("DOMContentLoaded", function(){
 
 //CARGA LAS FAMILIA DE ACTIVOS EN EL SELECT
 async function cargarSelectFamilia() {
-    const response = await fetch('/api/routeSubFamilia/traerFamilia');
-    const familias = await response.json();
+    try{
+        const response = await fetch('/api/routeSubFamilia/traerFamilia');
+        const familias = await response.json();
 
-    const lista = document.getElementById('listaFamilia');
-    lista.innerHTML = '<option value="">Seleccione una Familia de Activos</option>';
+        const lista = document.getElementById('listaFamilia');
+        lista.innerHTML = '<option value="">Seleccione una Familia de Activos</option>';
 
-    familias.forEach(u => {
-        const option = document.createElement('option');
-        option.value = u.id;
-        option.textContent = u.concepto;
-        lista.appendChild(option);
-    });
+        //FILTRAR SOLO LAS FAMILIAS CON ESTATUS ALTA
+        const familiasActivas = familias.filter(u =>
+            u.estatus && u.estatus.toLowerCase() === "alta"
+        );
+
+        console.log("Familias Activas: ", familiasActivas);
+        console.log("Total de familias: ", familias.length, "Familias activas:", familiasActivas.length);
+
+        if(familiasActivas.length === 0){
+            const option = document.createElement('option');
+            option.value = "";
+            option.textContent = "No hay familias activas disponibles";
+            option.disabled = true;
+            option.selected = true;
+            lista.appendChild(option);
+            return;
+        }
+
+        familiasActivas.forEach(u => {
+            const option = document.createElement('option');
+            option.value = u.id;
+            option.textContent = u.concepto;
+            lista.appendChild(option);
+        });
+    }catch(error){
+        console.log("Error al cargar familias: ", error);
+        const lista = document.getElementById("listaFamilia");
+        lista.innerHTML = '<option value="">Error al cargar familias</option>';
+    }
 }
 
 window.onload = async () => {

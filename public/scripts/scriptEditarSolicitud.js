@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     //VERIFICAR QUE EL ROL TENGA ACCESO A ESTA PAGINA 
-    const rolesPermitidos = ["Administrador", "Jefe de Activos",];
+    const rolesPermitidos = ["Administrador", "Jefe de Activos", "Gerente General"];
     if(!rolesPermitidos.includes(role)){
         alert("No tienes permisos para acceder a esta pagina");
         window.location.href = "/html/index.html";
@@ -70,6 +70,10 @@ window.onload = async () => {
 
         //VERIFICAR SI LA SOLICITUD ESTA AUTORIZADA
         const estaAutorizada = solicitud.estatusCompras === "Autorizada";
+        const estaProceso = solicitud.estatusCompras === "Proceso";
+        if(estaProceso){
+            deshabilitarProceso();
+        }
 
         if(estaAutorizada){
             deshabilitarEdicion();
@@ -223,6 +227,12 @@ window.onload = async () => {
     }
 };
 
+function deshabilitarProceso() {
+    const btnProceso = document.getElementById("btnProceso");
+    
+    if(btnProceso) btnProceso.style.display= "none";
+}
+
 // FUNCIÓN PARA DESHABILITAR TODA LA EDICIÓN Y MOSTRAR BOTÓN DE REGISTRAR ACTIVO
 async function deshabilitarEdicion() {
     console.log("Deshabilitando edición - Solicitud autorizada");
@@ -362,8 +372,7 @@ function mostrarMensajeActivosRegistrados(){
     
     // Agregar funcionalidad al botón de ver activos
     document.getElementById('btnVerActivos').addEventListener('click', function() {
-        // Aquí puedes redirigir a una página que muestre los activos de esta solicitud
-        alert('Aquí mostrarías la lista de activos registrados para esta solicitud');
+        window.location.href = `/html/listaRegistroActivo.html`;
         // window.location.href = `/html/activosSolicitud.html?idSolicitud=${id}`;
     });
 }
@@ -1099,6 +1108,9 @@ document.addEventListener('DOMContentLoaded', function () {
     inicializarProveedor();
     inicializarConceptoActivo();
     registrarActivo();
+
+    // Verificar estado de autorización periódicamente
+    setInterval(verificarEstadoAutorizacion, 2000);
 });
 
 function inicializarPersonal(){
@@ -1149,6 +1161,13 @@ function inicializarPersonal(){
                         headers: getAuthHeaders()
                     });
                     const usuarios = await res.json();
+
+                    //FILTRAR SOLO PERSONAL CON ESTATUS "ALTA"
+                    const usuariosActivos = usuarios.filter(u =>
+                        u.estatusPersonal && u.estatusPersonal.toLowerCase() === "alta"
+                    );
+
+                    console.log(`Personal encontrado: ${usuarios.length}, Activos: ${usuariosActivos.length}`);
 
                     if(usuarios.length === 0 ) {
                         resultadoPersonalDiv.innerHTML = "<p>No se encontraron personal</p>";
@@ -1261,6 +1280,13 @@ function inicializarConceptoActivo(){
                     });
                     const activo = await res.json();
 
+                    //FILTRAR SOLO CONCEPTOS ACTIVOS CON ESTATUS "ALTA"
+                    const activosActivos = activosDisponibles.filter(a =>
+                        a.estatus && a.estatus.toLowerCase() ==="alta"
+                    );
+
+                    console.log(`Conceptos encontrados: ${activosActivos.length}, Activos: ${activosActivos.length}`);
+
                     if(activo.length === 0) {
                         resultadoConceptoDiv.innerHTML = "<p>No se encontraron resultados de Activos</p>";
                         return;
@@ -1315,7 +1341,7 @@ function seleccionarConcepto(activo){
 
     //LIMPIAR RESULTADOS DE BUSQUEAD
     const resultadoConceptoDiv = document.getElementById("resultadoConcepto");
-    const inputConcepto = document.getElementById("buscarConceptoModal");
+    const inputConcepto = document.getElementById("buscarConcepto");
     const modal = document.getElementById("modalConcepto");
 
     if(resultadoConceptoDiv) resultadoConceptoDiv.value ="";
@@ -1371,6 +1397,13 @@ function inicializarProveedor() {
                         headers: getAuthHeaders()
                     });
                     const proveedor = await res.json();
+
+                    //FILTRAR ESTATUS DE PROVEEDORES EN "ALTA"
+                    const proveedoresActivos = proveedores.filter(p => 
+                        p.estatusProveedor && p.estatusProveedor.toLowerCase() === 'alta'
+                    );
+
+                    console.log(`Proveedores encontrados: ${proveedores.length}, Activos: ${proveedoresActivos.length}`);
 
                     if(proveedor.length === 0) {
                         resultadoProveedorDiv.innerHTML = '<p>No se encontraron proveedores</p>';

@@ -417,7 +417,37 @@
         .grupo-inputs-contenedor {
             position: relative;
         }
-        
+        /* ESTILOS PARA ELEMENTOS NO ACTIVOS */
+.elemento-no-activo {
+    border: 2px solid #ff9800 !important;
+    background-color: #fff3e0 !important;
+    position: relative;
+}
+
+.elemento-no-activo::before {
+    content: "⚠️ No activo";
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: #ff9800;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+/* ESTILOS PARA BOTONES DESHABILITADOS CUANDO HAY ELEMENTOS NO ACTIVOS */
+.btn-deshabilitado {
+    background-color: #cccccc !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+.btn-deshabilitado:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
     </style>
 </head>
 <body>

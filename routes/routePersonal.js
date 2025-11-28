@@ -57,12 +57,19 @@ router.get('/traerPersonal', async (req, res) => {
         let query = {};
         if (buscar) {
             query = {
-                $or: [
-                    { nombre: { $regex: buscar, $options: 'i' } },
-                    { aPaterno: { $regex: buscar, $options: 'i' } },
-                    { aMaterno: { $regex: buscar, $options: 'i' } }
+                $and: [
+                    {
+                        $or: [
+                            { nombre: { $regex: buscar, $options: 'i' } },
+                            { aPaterno: { $regex: buscar, $options: 'i' } },
+                            { aMaterno: { $regex: buscar, $options: 'i' } }
+                        ]
+                    },
+                    { estatusPersonal: { $regex: /^alta$/i } }
                 ]
             };
+        }else {
+            query = { estatusPersonal: { $regex: /^alta$/i } };
         }
         const usuarios = await registroPersonal.find(query).limit(20);
         res.json(usuarios);

@@ -58,7 +58,7 @@ const rutasPorRol = {
             icon: "📋",
             tipo: "dropdown",
             submenu: [
-                { nombre: "Lista de Compras", url: "/html/listaSolicitudCompra.html", icon: "🛒" },
+                { nombre: "Lista de Compras", url: "/html/listaSolicitudCompras.html", icon: "🛒" },
                 { nombre: "Lista de Gastos", url: "/html/listaSolicitudGasto.html", icon: "💰" },
             ]
         },
@@ -102,7 +102,8 @@ const rutasPorRol = {
                 { nombre: "Lista de Personal", url: "/html/listaPersonal.html", icon: ""},
                 { nombre: "Lista de Proveedores", url: "/html/listaProveedores.html", icon: ""},
                 { nombre: "Lista de Solicitudes de Compras", url: "/html/listaSolicitudCompras.html", icon: ""},
-                { nombre: "Lista de Solicitud Gasto", url:"/html/listaSolicitudGasto.html", icon: ""}
+                { nombre: "Lista de Solicitud Gasto", url:"/html/listaSolicitudGasto.html", icon: ""},
+                { nombre: "Lista de Activos", url: "/html/listaRegistroActivo.html", icon: ""},
             ]
         },
     ]

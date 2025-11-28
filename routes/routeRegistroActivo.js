@@ -136,12 +136,23 @@ router.get('/buscarActivo', async (req,res) => {
         const { buscar } = req.query;
         console.log("VALOR RECIBIDO: ", buscar);
         let query = {};
-        if(buscar){
+        if (buscar) {
             query = {
-                $or: [
-                    { conceptoActivo: { $regex: buscar, $options: 'i' } }
+                $and: [
+                    {
+                        $or: [
+                            { conceptoActivo: { $regex: buscar, $options: 'i' } },
+                            { familia: { $regex: buscar, $options: 'i' } },
+                            { subFamilia: { $regex: buscar, $options: 'i' } },
+                            { nomenclatura: { $regex: buscar, $options: 'i' } },
+                            { numSerie: { $regex: buscar, $options: 'i' } }
+                        ]
+                    },
+                    { estatus: { $regex: /^alta$/i } } // SOLO ACTIVOS
                 ]
             };
+        } else {
+            query = { estatus: { $regex: /^alta$/i } };
         }
         const activos = await registroActivo.find(query).limit(20);
         res.json(activos);

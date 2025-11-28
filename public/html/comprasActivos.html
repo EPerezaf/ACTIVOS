@@ -9,18 +9,6 @@
     <link rel="stylesheet" href="../styles/style.css">
     <link rel="stylesheet" href="../styles/footer.css">
     <style>
-        .fila {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-
-        .fila input[readonly] {
-            background: #f0f0f0;
-            border: 1px solid #ccc;
-        }
-
         .btn-add,
         .btn-remove {
             cursor: pointer;
@@ -33,64 +21,6 @@
             background: green;
             color: white;
         }
-
-        .btn-remove {
-            background: red;
-            color: white;
-        }
-
-        /*MODAL O VENTANA EMERGENTE*/
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgb(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: black;
-        }
-
-        .search-section {
-            margin-bottom: 15px;
-        }
-
-        .search-section input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .results-container {
-            border: 1px solid #ddd;
-            max-height: 200px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
-
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -111,6 +41,413 @@
             color: #2c3e50;
             text-align: center;
         }
+
+        /* Estilos mejorados para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            padding: 25px 30px;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .close {
+            color: white;
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .search-section {
+            margin-bottom: 25px;
+        }
+
+        .search-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            text-align: left;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background-color: white;
+        }
+
+        .results-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            background-color: #f9f9f9;
+        }
+
+        .result-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .result-item:hover {
+            background-color: #f0f7ff;
+            transform: translateX(5px);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+
+        .btn-cerrar {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-cerrar:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estilos para scrollbar */
+        .results-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .btn-buscar-personal {
+                width: 250px;
+                padding: 14px 25px;
+            }
+        }
+
+        /* ESTILO 4 - Botón Neumórfico */
+        .btn-neumorphic {
+            background: #f0f0f0;
+            color: #444;
+            border: none;
+            padding: 4px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 40%;
+        }
+
+        .btn-neumorphic:hover {
+            box-shadow: inset 5px 5px 10px #d9d9d9, inset -5px -5px 10px #ffffff;
+            transform: translateY(2px);
+        }
+
+        .description {
+            color: #5a6c7d;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            line-height: 1.6;
+        }
+
+        /* Estilo del botón principal */
+        .btn-buscar-personal {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            border: none;
+            padding: 4px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 0;
+            width: 280px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-buscar-personal:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        }
+
+        .btn-buscar-personal:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-buscar-personal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-buscar-personal:hover::after {
+            left: 100%;
+        }
+
+        .btn-buscar-personal i {
+            font-size: 1.2rem;
+        }
+
+        /* NUEVOS ESTILOS PARA LA ESTRUCTURA ANIDADA */
+        .activo-completo {
+            border: 2px solid #ddd;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .proveedores-contenedor {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f1f3f4;
+            border-radius: 8px;
+            border-left: 4px solid #4285f4;
+        }
+
+        .proveedores-lista {
+            margin-top: 10px;
+        }
+
+        .btn-seleccionar-gasto, .btn-agregar-proveedor {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-seleccionar-gasto:hover, .btn-agregar-proveedor:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+        }
+
+        .proveedor-fila {
+            margin: 8px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .concepto-gasto-input {
+            background-color: #f9f9f9 !important;
+            cursor: pointer;
+        }
+
+        .concepto-gasto-input:focus {
+            background-color: white !important;
+        }
+
+        .grupo-inputs-contenedor {
+            position: relative;
+        }
+        /* ESTILOS PARA ELEMENTOS NO ACTIVOS */
+.elemento-no-activo {
+    border: 2px solid #ff9800 !important;
+    background-color: #fff3e0 !important;
+    position: relative;
+}
+
+.elemento-no-activo::before {
+    content: "⚠️ No activo";
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: #ff9800;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+/* ESTILOS PARA BOTONES DESHABILITADOS CUANDO HAY ELEMENTOS NO ACTIVOS */
+.btn-deshabilitado {
+    background-color: #cccccc !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+.btn-deshabilitado:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
     </style>
 </head>
 
@@ -166,148 +503,93 @@
         <!-- Modal para búsquedas -->
     <div id="modalBusqueda" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Búsqueda de Información</h2>
-
-            <!-- Búsqueda de Personal -->
-            <div class="search-section">
-                <h3>Buscar Personal</h3>
-                <input type="text" id="buscarPersonalModal" placeholder="Buscar por nombre o apellidos">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Búsqueda de Información</h2>
+            </div>
+            <div class="modal-body">
+                <div class="search-section">
+                    <h3>Buscar Personal</h3>
+                    <i class="fas fa-search"></i>
+                    <div class="input-flotante">
+                        <div class="input-wrapper">
+                            <input type="text" id="buscarPersonalModal" placeholder="Buscar por nombre o apellidos">
+                        </div>
+                    </div>
+                </div>
                 <div id="resultadosBusquedaModal" class="results-container"></div>
             </div>
-            <button id="cerrarModal">Cerrar</button>
+            <div class="modal-footer">
+                <button id="cerrarModal" class="btn-cerrar">
+                    <i class="fas fa.times"></i>
+                    Cerrar
+                </button>
+            </div>
         </div>
     </div>
 
     <!--MODAL PARA CONCEPTO ACTIVOS-->
     <div id="modalConceptoActivos" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Busqueda de Concepto Compra</h2>
-
-            <!--Busqueda de Concepto ACTIVOS-->
-            <div class="search-section">
-                <h3>Buscar Concepto Compra</h3>
-                <input type="text" id="buscarActivoModal" placeholder="Buscar concepto de activos">
-                <div id="resultadosActivoModal" class="results-container"></div>
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Busqueda de Concepto Compra</h2>
             </div>
-            <button id="cerrarModalActivos">Cerrar</button>
+            <div class="modal-body">
+                <div class="search-section">
+                    <h3>Buscar Concepto Compra</h3>
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <div class="input-flotante">
+                            <div class="input-wrapper">
+                                <input type="text" id="buscarActivoModal" placeholder="Buscar concepto de activos">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="resultadosActivoModal" class="results-container"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cerrarModalActivos" class="btn-cerrar">
+                    <i class="fas fa-times"></i>
+                    Cerrar
+                </button>
+            </div>
+            
         </div>
     </div>
 
     <!--MODAL PARA PROVEEDORES-->
     <div id="modalProveedores" class="modal">
         <div class="modal-content">
-            <span class="clsoe">&times;</span>
-            <h2>Busqueda de Proveedores</h2>
-
-            <!--BUSQUEDA DE PROVEEDORES-->
-            <div class="search-section">
-                <h3>Buscar Proveedor</h3>
-                <input type="text" id="buscarProveedores" placeholder="Buscar Proveedores">
-                <div id="resultadoProveedoresModal" class="results-container"></div>
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Busqueda de Proveedores</h2>
             </div>
-            <button id="cerrarModalProveedores">Cerrar</button>
-        </div>
-    </div>
-    </div>
-
-    <!--<header></header>
-    <h1>Solicitud De Compras</h1>
-    <select name="clasificacionCompras" id="clasificacionCompras">
-        <option value="" disabled selected>Selecione una clasificacion</option>
-        <option value="Urgente">Urgente</option>
-        <option value="Importante">Importante</option>
-        <option value="Normal">Normal</option>
-    </select>
-    <br>
-    <br>
-    <textarea placeholder="Descripcion de solicitud de Compra" id="descripcionConceptoCompras"></textarea>
-
-    <div>
-        <h2>Selección de Concepto Compra</h2>
-        <button id="abrirBusquedaActivos" class="btn-add">Abrir Busqueda</button>
-        <div id="contenedorConceptoActivo"></div>
-    </div>
-
-    <div>
-        <h2>Seleccion de Proveedores</h2>
-        <div id="contenedorProveedores"></div>
-        <button id="abrirProveedores" class="btn-add">Abrir Busqueda de Proveedores</button>
-    </div>
-
-    <div>
-        <h2>Selección de personal</h2>
-        <div id="contenedorPersonal"></div>
-        <!-- Botón para abrir el modal de búsqueda --
-        <button id="abrirBusqueda" class="btn-add">Abrir Búsqueda</button>
-    </div>
-
-    <div>
-        <h2>Clasificacion de compra</h2>
-        <select id="sc_seleccionCompra" name="sc_seleccionCompra">
-            <option value="" disabled selected>Seleccione una opcion</option>
-            <option value="consumible">Consumible</option>
-            <option value="activo">Activo</option>
-        </select>
-    </div>
-
-
-
-
-    <BR></BR>
-
-    <button id="guardarBtn">Guardar</button>
-
-    <!-- Modal para búsquedas --
-    <div id="modalBusqueda" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Búsqueda de Información</h2>
-
-            <!-- Búsqueda de Personal --
-            <div class="search-section">
-                <h3>Buscar Personal</h3>
-                <input type="text" id="buscarPersonalModal" placeholder="Buscar por nombre o apellidos">
-                <div id="resultadosBusquedaModal" class="results-container"></div>
+            <div class="modal-body">
+                <div class="search-section">
+                    <h3>Buscar Proveedor</h3>
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>                    
+                        <div class="input-flotante">
+                            <div class="input-wrapper">
+                                <input type="text" id="buscarProveedores" placeholder="Buscar Proveedores">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="resultadoProveedoresModal" class="results-container"></div>
+                </div>
             </div>
-            <button id="cerrarModal">Cerrar</button>
-        </div>
-    </div>
-
-    <!--MODAL PARA CONCEPTO ACTIVOS--
-    <div id="modalConceptoActivos" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Busqueda de Concepto Compra</h2>
-
-            <!--Busqueda de Concepto ACTIVOS--
-            <div class="search-section">
-                <h3>Buscar Concepto Compra</h3>
-                <input type="text" id="buscarActivoModal" placeholder="Buscar concepto de activos">
-                <div id="resultadosActivoModal" class="results-container"></div>
+            <div class="modal-footer">
+                <button id="cerrarModalProveedores" class="btn-cerrar">
+                    <i class="fas fa-times"></i>
+                    Cerrar
+                </button>
             </div>
-            <button id="cerrarModalActivos">Cerrar</button>
         </div>
+            
     </div>
-
-    <!--MODAL PARA PROVEEDORES--
-    <div id="modalProveedores" class="modal">
-        <div class="modal-content">
-            <span class="clsoe">&times;</span>
-            <h2>Busqueda de Proveedores</h2>
-
-            <!--BUSQUEDA DE PROVEEDORES--
-            <div class="search-section">
-                <h3>Buscar Proveedor</h3>
-                <input type="text" id="buscarProveedores" placeholder="Buscar Proveedores">
-                <div id="resultadoProveedoresModal" class="results-container"></div>
-            </div>
-            <button id="cerrarModalProveedores">Cerrar</button>
-        </div>
-    </div>-->
-
-
+</div>
 
     <!--<script src="scriptForm.js"></script>-->
     <script src="../scripts/scriptSolicitudCompra.js"></script>

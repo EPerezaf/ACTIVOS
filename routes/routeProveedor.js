@@ -55,11 +55,18 @@ router.get('/buscarProveedores', async (req,res) => {
         let query = {};
         if(buscar){
             query = {
-                $or: [
-                    { nickName: { $regex: buscar, $options: 'i' } },
-                    { razonSocial: { $regex: buscar, $options: 'i' } }
+                $and:[
+                    {
+                        $or: [
+                            { nickName: { $regex: buscar, $options: 'i' } },
+                            { razonSocial: { $regex: buscar, $options: 'i' } }
+                        ]
+                    },
+                    { estatusProveedor: { $regex: /^alta$/i } }
                 ]
             };
+        }else{
+            query = { estatusProveedor: { $regex: /^alta$/i } };
         }
         const proveedores = await registroProveedor.find(query).limit(20);
         res.json(proveedores);

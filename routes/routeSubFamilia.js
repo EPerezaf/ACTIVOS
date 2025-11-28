@@ -37,7 +37,10 @@ router.post('/subFamilia', async (req, res) => {
 
 router.get('/traerFamilia', async (req, res) => {
     try {
-        const conceptFamilia = await registroFamilia.find();
+        const conceptFamilia = await registroFamilia.find({
+            estatus: {$regex: /^alta$/i }
+        });
+        console.log(`Familias activas encontradas: ${conceptFamilia.length}`);
         res.json(conceptFamilia);
     } catch (error) {
         res.status(500).json({ message: "Error al obtener los datos" });

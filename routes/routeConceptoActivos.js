@@ -35,9 +35,12 @@ router.post('/conceptoActivos', async (req, res) => {
 //CONSULTA DE LISTA DE MODELO SUB FAMILIA
 router.get('/traerSubFamilia', async (req, res) => {
     try {
-        const conceptoSubFamilia = await registroSubFamilia.find();
+        const conceptoSubFamilia = await registroSubFamilia.find({
+            estatus: { $regex: /^alta$/i }
+        });
         res.json(conceptoSubFamilia);
     } catch (error) {
+        console.log("Error al obtener familias activas: ", error);
         res.status(500).json({ message: "Error a obtener los datos" });
     }
 })
@@ -54,11 +57,16 @@ router.get('/buscarSubFamilia', async (req,res) => {
         if(buscar){
             query = {
                 $or: [
-                    { conceptoFamilia: { $regex: buscar, $options: 'i' } }
+                    { conceptoFamilia: { $regex: buscar, $options: 'i' } },
+                    { estatus: { $regex: /^alta$/i }}
                 ]
             };
+        }else{
+            query = { estatus: { $regex: /^alta$/i } };
         }
+
         const subFamilia = await registroSubFamilia.find(query).limit(20);
+        console.log(`SubFamilias activas encontradas: ${subFamilia.length}`);
         res.json(subFamilia);
     }catch (error) {
         console.error(error);
@@ -77,10 +85,13 @@ router.get('/buscarActivo', async (req, res) => {
         let query = {};
         if(buscar){
             query = {
-                $or: [
-                    { conceptoActivos: {$regex: buscar, $options: 'i' } }                    
+                $and: [
+                    { conceptoActivos : { $regex: buscar, $options: 'i' } },
+                    { estatus: { $regex: /^alta$/i } }
                 ]
-            }
+            };
+        }else{
+            query = { estatus: { $regex: /^alta$/i } };
         }
         const concepto = await registroConceptoActivos.find(query).limit(20);
         res.json(concepto);
@@ -89,5 +100,35 @@ router.get('/buscarActivo', async (req, res) => {
         res.status(500).json({ message: "Error al buscar el activo"});
     }
 })
+
+// BUSCAR SUBFAMILIAS POR FAMILIA ESPECÍFICA (SOLO ACTIVAS)
+// conceptoActivos.html
+router.get('/buscarSubFamiliaPorFamilia', async (req, res) => {
+    console.log("Buscando subfamilias para familia:", req.query);
+    try {
+        const { familia } = req.query;
+        console.log("FAMILIA RECIBIDA:", familia);
+        
+        if (!familia) {
+            return res.status(400).json({ message: "Se requiere el parámetro 'familia'" });
+        }
+
+        // Buscar subfamilias que pertenezcan EXACTAMENTE a esta familia y estén activas
+        const query = {
+            conceptoFamilia: { $regex: `^${familia}$`, $options: 'i' }, // Búsqueda exacta case insensitive
+            estatus: { $regex: /^alta$/i } // SOLO SUBFAMILIAS ACTIVAS
+        };
+
+        console.log("Query ejecutado:", query);
+        
+        const subfamilias = await registroSubFamilia.find(query);
+        console.log(`Subfamilias encontradas para "${familia}": ${subfamilias.length}`);
+        
+        res.json(subfamilias);
+    } catch (error) {
+        console.error("Error al buscar subfamilias por familia:", error);
+        res.status(500).json({ message: "Error al buscar subfamilias" });
+    }
+});
 
 module.exports = router;

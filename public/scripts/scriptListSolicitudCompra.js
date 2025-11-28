@@ -105,32 +105,74 @@ function mostrarSolicitudes(solicitudes) {
         const personalHTML = s.personal.map(p =>
             `<li>${p.nombre} ${p.aPaterno} ${p.aMaterno}</li>`
         ).join('');
-        const conceptoActivoHTML = s.conceptoActivo.map(f =>
-            `<li> Familia: ${f.sc_cca_familia} - Sub Familia: ${f.sc_cca_subFamilia} - Concepto: ${f.sc_cca_descripcion}</li>`
-        ).join('');
+        const conceptoActivoHTML = s.conceptoActivo.map((f,index) =>{
+            const proveedorSeleccionado = f.proveedorSeleccionado;
+            const proveedorInfo = proveedorSeleccionado ?
+             `<br><strong style="color: #28a745;">✓ Proveedor seleccionado: ${proveedorSeleccionado.razonSocial} (${proveedorSeleccionado.nickname}) - $${proveedorSeleccionado.sc_monto?.toLocaleString() || '0'}</strong>` : 
+                '';
+             return `<li> Familia: ${f.sc_cca_familia} - Sub Familia: ${f.sc_cca_subFamilia} - Concepto: ${f.sc_cca_descripcion}${proveedorInfo}</li>`
+        }).join('');
         const proveedorHTML = s.proveedores.map(j =>
             `<li>Razon Social:${j.razonSocial} - NickName: ${j.nickname} - Costo:${j.sc_monto}</li>`
         ).join('');
 
+        // Calcular monto total de proveedores seleccionados
+        let montoTotalSeleccionado = 0;
+        if (s.conceptoActivo && Array.isArray(s.conceptoActivo)) {
+            s.conceptoActivo.forEach(activo => {
+                if (activo.proveedorSeleccionado && activo.proveedorSeleccionado.sc_monto) {
+                    montoTotalSeleccionado += parseFloat(activo.proveedorSeleccionado.sc_monto);
+                }
+            });
+        }
+
         let botonesHTML = '';
-        if (useRole === "Administrador") {
+        if(useRole === "Administrador"){
+            //ADMINITRADOR: TODOS LOS PERMISOS
             botonesHTML = `
-                <button class=" btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>
-                <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
-                <button onclick="eliminarSolicitud(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`
-        } else if (useRole === "Gerente General") {
-            if (s.estatusCompras === "Proceso") {
-                botonesHTML = `
-                <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
-                <button class="btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})" class="btn-accion btn-eliminar">Autorizar</button>`;
-            } else {
-                botonesHTML = `
-                <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>`;
+                <button class="btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})">Autorizar</button>
+                <button class="btn-accion btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
+                <button class="btn-accion btn-eliminar" onclick="eliminarSolicitud(${s.id})">Eliminar</button>
+            `;
+        }else if(useRole === "Gerente General"){
+            //GERENTE GENERAL: SOLO PUEDE AUTORIZAR SOLICITUDES EN PROCESO Y CANCELAR
+           if(s.estatusCompras === "Proceso") {
+            // Verificar si todos los activos tienen proveedor seleccionado
+            const todosConProveedor = s.conceptoActivo && s.conceptoActivo.every(activo => activo.proveedorSeleccionado);
+            botonesHTML = `
+                <button class="btn-accion btn-autorizar" onclick="autorizarSolicitud(${s.id})" ${!todosConProveedor ? 'disabled' : ''}>Autorizar</button>
+                <button class="btn-accion btn-eliminar" onclick="cancelarSolicitud(${s.id})">Cancelar</button>
+                <button class="btn-accion btn-proveedor" onclick="seleccionarProveedorSolicitud(${s.id})">Seleccionar Proveedor</button>
+            `;
+            if (!todosConProveedor) {
+                botonesHTML += `<span style="color: #dc3545; font-size: 12px; margin-left: 10px;">Faltan proveedores por seleccionar</span>`;
             }
-        } else if (useRole === "Jefe de Activos" && s.estatusCompras === "Pendiente" && s.estatusCompras === "Proceso") {
+           }else if(s.estatusCompras === "Autorizada"){
             botonesHTML = `
-                <button onclick="editarSolicitud(${s.id})" class="btn-accion btn-editar">Editar</button>
-                <button onclick="eliminarSolicitud(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`;
+                <button class="btn-accion btn-proveedor" onclick="verDetalleSolicitud(${s.id})">Ver detalle</button>
+            `
+           }else{
+            botonesHTML = `
+                <button class="btn-accion btn-ver" onclick="verDetalleSolicitud(${s.id})">Ver Detalle</button>
+            `
+           }
+        }else if(useRole === "Jefe de Activos"){
+            //JEFE DE ACTIVOS: PUEDE EDITAR Y ELIMINAR SOLO SI ESTA EN PENDIENTE, PUEDE MANDAR A PROCESO
+            if(s.estatusCompras === "Pendiente"){
+                botonesHTML = `
+                    <button class="btn-accion btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarSolicitud(${s.id})">Eliminar</button>
+                    <button class="btn-accion btn-proceso" onclick="mandarAProceso(${s.id})">Mandar a Proceso</button>
+                `;
+            }else if(s.estatusCompras === "Autorizada"){
+                botonesHTML = `
+                    <button class="btn-accion btn-registrar" onclick="registrarActivoDesdeLista(${s.id})">Registrar Activo</button>
+                `;
+            }else {
+                botonesHTML = `
+                    <button class="btn-accion btn-ver" onclick="verSolicitud(${s.id})">Ver Detalle</button>
+                `;
+            }
         }
 
         // CORRECCIÓN: Cambié new Date.UTC por new Date
@@ -175,6 +217,93 @@ function mostrarSolicitudes(solicitudes) {
             <br>
         `;
     }).join('');
+}
+
+//PARA JEFE DE ACTIVOS: MANDAR A PROCESO
+async function mandarAProceso(id) {
+    if(!confirm(`¿Seguro que deseas mandar la solicitud #${id} a Proceso?`)) return;
+    try{
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudCompra/${id}/proceso`,{
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await res.json();
+        if(result.success){
+            alert(result.message);
+            cargarSolicitudes();
+        }else {
+            alert(result.message || "Error al mandar a proceso");
+        }
+    }catch(error){
+        console.log(error);
+        alert("Error al mandar a proceso");
+    }
+}
+
+//PARA GERENTE GEENRAL: CANCELAR SOLICITUD
+async function cancelarSolicitud(id) {
+    if(!confirm(`¿Seguro que deseas cancelar la solicitud #${id}`)) return;
+    try{
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/routeListaSolicitudCompra/solicitudCompra/${id}/cancelar`,{
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type':'application/json'
+            }
+        });
+
+        const result = await res.json();
+        if(result.success){
+            alert(result.message);
+            cargarSolicitudes();
+        }else{
+            alert(result.message || "Error al cancelar la solicitud");
+        }
+    }catch(error){
+        console.log(error);
+        alert("Error al cancelar la solicitud");
+    }
+}
+
+//PARA GERENTE GENERAL: SELECCIONAR PROVEEDOR
+async function seleccionarProveedorSolicitud(id) {
+    /*const proveedorSeleccionado = prompt("Ingrese el nombre del proveedor seleccionado:");
+    if(proveedorSeleccionado){
+        try{
+            const token = localStorage.getItem("token");
+            const res = await fetch(`/api/routeListaSolicitudCompra/solicitudCompra/${id}/seleccionarProveedor`,{
+                method: 'PUT',
+                headers: {
+                    'Authorization':`Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ proveedor: proveedorSeleccionado})
+            });
+
+            const result = await res.json();
+            if(result.success){
+                alert("Proveedor seleccionado correctamente");
+                cargarSolicitudes();
+            }else{
+                alert(result.message || "Error al seleccionar proveedor");
+            }
+        }catch(error){
+            console.error(error);
+            alert("Error al seleccionar al proveedor");
+        }
+    }*/
+   window.location.href = `/html/detalleSolicitudCompra.html?id=${id}`;
+}
+
+//PARA JEFE DE ACTIVOS: REGISTRAR ACTIVO DESDE LA LISTA
+function registrarActivoDesdeLista(id){
+    window.location.href = `/html/editarSolicitudes.html?id=${id}`;
 }
 
 function filtrarSolicitudes() {
@@ -362,5 +491,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function verSolicitud(id) {
-    window.location.href = `/html/editarSolicitudes.html?id=${id}`;
+    window.location.href = `/html/editarSolicitudes.html?id=${id}&modo=ver`;
+}
+// FUNCIÓN PARA QUE EL GERENTE GENERAL VEA EL DETALLE SIN EDITAR
+function verDetalleSolicitud(id) {
+    window.location.href = `/html/detalleSolicitudCompra.html?id=${id}`;
 }

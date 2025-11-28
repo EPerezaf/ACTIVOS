@@ -1,14 +1,44 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-    
-    if (!token || !role) {
-        window.location.href = "/html/index.html";
+    if (!verificarAutenticacion()) {
         return;
     }
     
-    cargarDashboard();
+    // CARGAR DASHBOARD CON REINTENTOS
+    cargarDashboardConReintentos();
 });
+
+async function cargarDashboardConReintentos(maxReintentos = 3) {
+    let intentos = 0;
+    
+    while (intentos < maxReintentos) {
+        try {
+            await cargarDashboard();
+            break; // Éxito, salir del bucle
+        } catch (error) {
+            intentos++;
+            console.warn(`Intento ${intentos} fallido:`, error);
+            
+            if (intentos === maxReintentos) {
+                // MOSTRAR ERROR FINAL
+                const statsContainer = document.getElementById("statsContainer");
+                statsContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #e74c3c;">
+                        <div style="font-size: 4rem;">😞</div>
+                        <h3>No se pudieron cargar los datos</h3>
+                        <p>Por favor, verifica tu conexión e intenta nuevamente.</p>
+                        <button onclick="cargarDashboardConReintentos()" 
+                                style="background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px;">
+                            Reintentar
+                        </button>
+                    </div>
+                `;
+            } else {
+                // ESPERAR ANTES DEL SIGUIENTE INTENTO
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+    }
+}
 
 async function cargarDashboard(){
     const role = localStorage.getItem("role");
@@ -43,17 +73,40 @@ async function cargarEstadisticasReales(role) {
     try {
         const headers = getAuthHeaders();
         
+        // VERIFICAR SI TENEMOS HEADERS VÁLIDOS
+        if (!headers.Authorization) {
+            throw new Error('Token no disponible');
+        }
+        
+        console.log("Realizando solicitud con token:", headers.Authorization.substring(0, 20) + "...");
+
         // CARGAR DATOS DE SOLICITUDES
         const resSolicitudes = await fetch('/api/routeSolicitudGasto/solicitudesGasto', {
-            headers: headers
+            method: 'GET',
+            headers: headers,
+            credentials: 'include' // IMPORTANTE para cookies de sesión
         });
 
-        if (!resSolicitudes.ok) throw new Error('Error al cargar solicitudes');
+        console.log("Respuesta del servidor:", resSolicitudes.status, resSolicitudes.statusText);
+
+        if (resSolicitudes.status === 401) {
+            // TOKEN EXPIRADO O INVÁLIDO
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            localStorage.removeItem("username");
+            window.location.href = "/html/index.html";
+            return;
+        }
+
+        if (!resSolicitudes.ok) {
+            throw new Error(`Error HTTP: ${resSolicitudes.status} ${resSolicitudes.statusText}`);
+        }
         
         const resultadoSolicitudes = await resSolicitudes.json();
+        console.log("Datos recibidos:", resultadoSolicitudes);
         
         if (!resultadoSolicitudes.success) {
-            throw new Error(resultadoSolicitudes.message);
+            throw new Error(resultadoSolicitudes.message || 'Error en la respuesta del servidor');
         }
 
         const solicitudes = resultadoSolicitudes.data;
@@ -66,6 +119,23 @@ async function cargarEstadisticasReales(role) {
         
     } catch (error) {
         console.error("Error al cargar estadísticas reales:", error);
+        
+        // MOSTRAR ESTADÍSTICAS POR DEFECTO EN CASO DE ERROR
+        mostrarEstadisticasPorDefecto(role);
+        
+        // MOSTRAR MENSAJE DE ERROR AL USUARIO
+        const statsContainer = document.getElementById("statsContainer");
+        statsContainer.innerHTML = `
+            <div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #e74c3c;">
+                <div style="font-size: 3rem;">⚠️</div>
+                <h3>Error al cargar estadísticas</h3>
+                <p>${error.message}</p>
+                <button onclick="cargarDashboard()" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    Reintentar
+                </button>
+            </div>
+        `;
+        
         throw error;
     }
 }
@@ -294,16 +364,40 @@ function mostrarEstadisticasPorDefecto(role) {
     `).join('');
 }
 
-// FUNCIÓN PARA OBTENER EL TOKEN (igual que en otros scripts)
+// FUNCIÓN MEJORADA PARA OBTENER EL TOKEN
 function getAuthHeaders() {
     const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-    if (!token || !role) {
+    
+    if (!token) {
+        console.error("No se encontró token en localStorage");
         window.location.href = "/html/index.html";
         return {};
     }
+    
     return {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
     };
+}
+
+// VERIFICAR AUTENTICACIÓN AL INICIO
+function verificarAutenticacion() {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    
+    if (!token || !role) {
+        console.warn("No hay token o rol, redirigiendo al login");
+        window.location.href = "/html/index.html";
+        return false;
+    }
+    
+    // VERIFICAR SI EL TOKEN ES VÁLIDO (formato básico)
+    if (token.length < 10) {
+        console.warn("Token inválido, redirigiendo al login");
+        localStorage.clear();
+        window.location.href = "/html/index.html";
+        return false;
+    }
+    
+    return true;
 }
