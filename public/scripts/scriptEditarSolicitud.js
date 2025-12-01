@@ -85,7 +85,7 @@ window.onload = async () => {
         document.getElementById("estatus").value = solicitud.estatusCompras;
         document.getElementById("clasificacion").value = solicitud.clasificacionCompras;
         document.getElementById("descripcion").value = solicitud.descripcionConceptoCompra;
-        
+        console.log("Recibiendo clasificacion:", solicitud.clasificacionCompras);
 
         //HACER CAMPOS DE SOLO LECTURA SI ESTA AUTORIZADA
         if(estaAutorizada){
@@ -1281,7 +1281,7 @@ function inicializarConceptoActivo(){
                     const activo = await res.json();
 
                     //FILTRAR SOLO CONCEPTOS ACTIVOS CON ESTATUS "ALTA"
-                    const activosActivos = activosDisponibles.filter(a =>
+                    const activosActivos = activo.filter(a =>
                         a.estatus && a.estatus.toLowerCase() ==="alta"
                     );
 
@@ -1396,7 +1396,7 @@ function inicializarProveedor() {
                     const res = await fetch(`/api/routeProveedor/buscarProveedores?buscar=${encodeURIComponent(texto)}`,{
                         headers: getAuthHeaders()
                     });
-                    const proveedor = await res.json();
+                    const proveedores = await res.json();
 
                     //FILTRAR ESTATUS DE PROVEEDORES EN "ALTA"
                     const proveedoresActivos = proveedores.filter(p => 
@@ -1405,11 +1405,11 @@ function inicializarProveedor() {
 
                     console.log(`Proveedores encontrados: ${proveedores.length}, Activos: ${proveedoresActivos.length}`);
 
-                    if(proveedor.length === 0) {
+                    if(proveedores.length === 0) {
                         resultadoProveedorDiv.innerHTML = '<p>No se encontraron proveedores</p>';
                         return;
                     }
-                    resultadoProveedorDiv.innerHTML = proveedor.map(u => 
+                    resultadoProveedorDiv.innerHTML = proveedores.map(u => 
                         `<div class="result-item">
                             <button class="btn-buscar-personal" onclick='seleccionarProveedor(${JSON.stringify(u)})'>
                             ${u.nickName} ${u.razonSocial} ${u.rfc}

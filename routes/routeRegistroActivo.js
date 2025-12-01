@@ -69,6 +69,7 @@ router.put("/listaActivo/:id", async(req,res) => {
 
         //ACTUALIZAR LOS CAMPOS SOLO SI EXISTEN EN EL BODY
         const camposPermitidos = [
+            'estatus',
            'nomenclatura',
            'marca',
            'modelo',
@@ -159,6 +160,42 @@ router.get('/buscarActivo', async (req,res) => {
     }catch(error){
         console.error(error);
         res.status(500).json({ message: "ERROR AL BUSCAR ACTIVOS"});
+    }
+});
+
+router.get('/traerActivo/estatus/:estatus', async (req,res) => {
+    try{
+        const { estatus } = req.params;
+
+        const estatusPermitidos = ['Activo', 'Baja', 'Cancelado'];
+        if(!estatusPermitidos.includes(estatus)){
+            return res.status(400).json({
+                success: false,
+                message: "Estatus no valido, Use: Activo, Baja o Cancelado"
+            });
+        }
+        const activos = await registroActivo.find({ estatus: estatus}).sort({id: id});
+        const resultado = activos.map(u => ({
+            id: u.id,
+            estatus: u.estatus,
+            familia: u.familia,
+            subfamilia: u.subFamilia,
+            conceptoActivo: u.conceptoActivo,
+            nomenclatura: u.nomenclatura,
+            marca: u.marca,
+            modelo: u.modelo,
+            descripcionAdicional: u.descripcionAdicional,
+            numSerie: u.numSerie,
+            idSolicitud: u.idSolicitud,
+            fechaRegistro: u.fechaRegistro,
+        }));
+        res.json(resultado);
+    }catch(error){
+        console.error("Hubo un problema al obtener activos por estatus: ", error);
+        res.status(500).json({
+            success: false,
+            message: "Error al obtener familias filtradas"
+        });
     }
 });
 

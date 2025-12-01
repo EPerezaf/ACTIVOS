@@ -123,7 +123,7 @@ function seleccionarPersonal(usuario) {
 
     fila.innerHTML = `
 
-        <div class="grupo-inputs">
+        <div class="grupo-inputs-contenedor">
             <div class="input-flotante-contenedor">
                 <input type="text" value="${usuario.nombre}" readonly placeholder=" ">
                 <label>Nombre</label>
@@ -244,7 +244,7 @@ function seleccionarConceptoActivo(conceptoActivo) {
     fila.classList.add("fila");
 
     fila.innerHTML= `
-        <div class="grupo-inputs">
+        <div class="grupo-inputs-contenedor">
             <div class="input-flotante-contenedor">
                 <input type="text" value="${conceptoActivo.conceptoSubFamilia}" readonly>
                 <label>Familia</label>
@@ -366,7 +366,7 @@ function seleccionarProveedor(proveedor){
 
     fila.innerHTML = `
 
-        <div class="grupo-inputs">
+        <div class="grupo-inputs-contenedor">
             <div class="input-flotante-contenedor">
                 <input type="text" value="${proveedor.razonSocial}" readonly>
                 <label>Razon Social</label>
@@ -562,6 +562,7 @@ function inicializarGuardado(){
                     contenedorPersonal.innerHTML = "";
                     contenedorConceptoActivo.innerHTML = "";
                     conetenedorProveedores.innerHTML = "";
+                    window.location.href = "/html/listaSolicitudCompras.html";
                 }else {
                     alert(`${result.message}`);
                 }

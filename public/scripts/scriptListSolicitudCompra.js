@@ -161,13 +161,17 @@ function mostrarSolicitudes(solicitudes) {
             if(s.estatusCompras === "Pendiente"){
                 botonesHTML = `
                     <button class="btn-accion btn-editar" onclick="editarSolicitud(${s.id})">Editar</button>
-                    <button class="btn-accion btn-eliminar" onclick="eliminarSolicitud(${s.id})">Eliminar</button>
+                    <button class="btn-accion btn-eliminar" onclick="cancelarSolicitud(${s.id})">Eliminar</button>
                     <button class="btn-accion btn-proceso" onclick="mandarAProceso(${s.id})">Mandar a Proceso</button>
                 `;
             }else if(s.estatusCompras === "Autorizada"){
                 botonesHTML = `
                     <button class="btn-accion btn-registrar" onclick="registrarActivoDesdeLista(${s.id})">Registrar Activo</button>
                 `;
+            }else if(s.estatusCompras === "Cancelada"){
+                botonesHTML = `
+                    <button class="btn-accion btn-proveedor" onclick="verDetalleSolicitud(${s.id})">Ver detalle</button>
+                `
             }else {
                 botonesHTML = `
                     <button class="btn-accion btn-ver" onclick="verSolicitud(${s.id})">Ver Detalle</button>
@@ -261,7 +265,7 @@ async function cancelarSolicitud(id) {
         const result = await res.json();
         if(result.success){
             alert(result.message);
-            cargarSolicitudes();
+            window.location.reload();
         }else{
             alert(result.message || "Error al cancelar la solicitud");
         }

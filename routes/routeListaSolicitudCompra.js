@@ -96,7 +96,6 @@ router.delete('/solicitudCompra/:id', authMiddleware, roleMiddleware(["Jefe de A
     try{
         const id = Number(req.params.id);
         const result = await registroSolicitudCompra.deleteOne({ id });
-
         if(result.deletedCount == 0){
             return res.status(400).json({ success: false, message: "solicitud no encontrada"});
         }
@@ -106,6 +105,32 @@ router.delete('/solicitudCompra/:id', authMiddleware, roleMiddleware(["Jefe de A
         res.status(500).json({ success: false, message: "Error al encontrar la solicitud"});
     }
 });
+
+//ENDPOINT PARA PODER CANCELAR LA SOLICITUD DE COMPRA
+router.put('/solicitudCompra/:id/cancelar', async (req,res) =>{
+    try{
+        const id = parseInt(req.params.id);
+        const result = await registroSolicitudCompra.findOne({ id:id });
+        if(!result){
+            return res.status(404).json({ success: false, message: "Solicitud no encontrada"});
+        }
+
+        //ACTUALIZAR ESTATUS
+        result.estatusCompras = "Cancelada";
+
+        const resultado = await result.save();
+        console.log("Solicitud Cancelada:", resultado);
+
+        res.json({
+            success: true,
+            message: `Solicitud #${id} cancelada correctamente`,
+            solicitud: resultado
+        });
+    }catch(error){
+        console.error("Erro al cancelar solicitud: ", error);
+        res.status(500).json({ success: false, message: "Error al cancelar solicitud"});
+    }
+})
 
 //END POINT PARA EDITAR LA SOLICITUD DE COMPRA
 // Obtener UNA solicitud por id

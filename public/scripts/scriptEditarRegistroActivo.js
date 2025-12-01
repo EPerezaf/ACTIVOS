@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const solicitud = await res.json();
 
             //RELLENAR LOS CAMPOS 
+            document.getElementById("estatus").value = solicitud.estatus;
             document.getElementById("familia").value = solicitud.familia;
             document.getElementById("subFamilia").value = solicitud.subFamilia;
             document.getElementById("conceptoActivo").value = solicitud.conceptoActivo;
@@ -52,7 +53,7 @@ async function guardarActivo (e){
     e.preventDefault();
     try{
         
-
+        const estatus = document.getElementById("estatus").value;
         const nomenclatura = document.getElementById("nomenclatura").value;
         const marca = document.getElementById("marca").value;
         const modelo = document.getElementById("modelo").value;
@@ -61,6 +62,7 @@ async function guardarActivo (e){
         const numSerie = document.getElementById("numSerie").value;
 
         data = {
+            estatus,
             nomenclatura,
             marca,
             modelo,

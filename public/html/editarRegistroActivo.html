@@ -35,6 +35,14 @@
         
         <div class="container">
             <h1>Editar Activo</h1>
+            <div class="select-flotante">
+                <div class="select-wrapper">
+                    <select name="" id="estatus">
+                        <option value="Activo">Activo</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+            </div>
             <div class="input-flotante">
                 <div class="input-wrapper">
                     <input type="text" id="familia" readonly>
@@ -93,12 +101,6 @@
                 <div class="input-wrapper">
                     <input type="text" id="idSolicitud" readonly>
                     <label for="">ID de Solicitud</label>
-                </div>
-            </div>
-            <div class="input-flotante">
-                <div class="input-wrapper">
-                    <input type="text" id="estatus" readonly>
-                    <label for="">Estatus</label>
                 </div>
             </div>
             <center><button id="btnGuardar" class="btnGuardar" type="submit">Guardar</button></center>
