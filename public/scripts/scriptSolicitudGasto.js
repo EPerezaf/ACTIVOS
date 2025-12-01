@@ -427,7 +427,7 @@ function inicializarActivo() {
 
                 //FILTRAR SOLO ACTIVOS CON ESTATUS "ALTA"
                 const activosActivos = activo.filter(a =>
-                    a.estatus && a. estatus.toLowerCase() === 'alta'
+                    a.estatus && a. estatus.toLowerCase() === 'activo'
                 );
                 console.log(`Activos encontrados: ${activo.length}, Activos: ${activosActivos.length}`);
 

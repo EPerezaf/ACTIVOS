@@ -149,11 +149,11 @@ router.get('/buscarActivo', async (req,res) => {
                             { numSerie: { $regex: buscar, $options: 'i' } }
                         ]
                     },
-                    { estatus: { $regex: /^alta$/i } } // SOLO ACTIVOS
+                    { estatus: { $regex: /^activo$/i } } // SOLO ACTIVOS
                 ]
             };
         } else {
-            query = { estatus: { $regex: /^alta$/i } };
+            query = { estatus: { $regex: /^activo$/i } };
         }
         const activos = await registroActivo.find(query).limit(20);
         res.json(activos);

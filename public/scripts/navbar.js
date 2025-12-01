@@ -17,6 +17,7 @@ const rutasPorRol = {
                 { nombre: "Alta Familia", url: "/html/conceptoFamiliaActivos.html", icon: "🛒" },
                 { nombre: "Alta Sub Familia", url: "/html/conceptoSubFamilia.html", icon: "" },
                 { nombre: "Alta Concepto Activo", url: "/html/conceptoActivos.html", icon: "" },
+                { nombre: "Concepto Gasto", url: "/html/conceptoGasto.html", icon: "" },
                 { nombre: "Alta Personal", url: "/html/personal.html", icon: ""},
                 { nombre: "Alta Proveedor", url: "/html/altaProveedor.html", icon: ""},
             ]
@@ -38,11 +39,12 @@ const rutasPorRol = {
                 {nombre: "Lista de Familia", url: "/html/listaFamilia.html", icon: "" },
                 { nombre: "Lista de Sub Familia", url: "/html/listaSubFamilia.html", icon: "" },
                 { nombre: "Lista de Concepto Activos", url: "/html/listaConceptoActivo.html", icon: ""},
+                { nombre: "Lista de Concepto Gasto", url: "/html/listaConceptoGasto.html", icon: ""},
                 { nombre: "Lista de Personal", url: "/html/listaPersonal.html", icon: ""},
                 { nombre: "Lista de Proveedores", url: "/html/listaProveedores.html", icon: ""},
                 { nombre: "Lista Solicitud Compra", url: "/html/listaSolicitudCompras.html", icon: ""},
-                { nombre: "Lista de Activos", url: "/html/listaRegistroActivo.html", icon: ""},
                 { nombre: "Lista de Solicitud Gasto", url:"/html/listaSolicitudGasto.html", icon: ""},
+                { nombre: "Lista de Activos", url: "/html/listaRegistroActivo.html", icon: ""},
             ]
         },
     ],
@@ -62,6 +64,12 @@ const rutasPorRol = {
                 { nombre: "Lista de Gastos", url: "/html/listaSolicitudGasto.html", icon: "💰" },
             ]
         },
+        {
+            nombre: "Bitacora",
+            url: "/html/bitacoraGastos.html",
+            icon: "📈",
+            tipo: "simple",
+        }
     ],
     "Jefe de Activos": [
         { 
@@ -78,6 +86,7 @@ const rutasPorRol = {
                 { nombre: "Alta Familia", url: "/html/conceptoFamiliaActivos.html", icon: "🛒" },
                 { nombre: "Alta Sub Familia", url: "/html/conceptoSubFamilia.html", icon: "" },
                 { nombre: "Alta Concepto Activo", url: "/html/conceptoActivos.html", icon: "" },
+                { nombre: "Concepto Gasto", url: "/html/conceptoGasto.html", icon: "" },
                 { nombre: "Alta Personal", url: "/html/personal.html", icon: ""},
                 { nombre: "Alta Proveedor", url: "/html/altaProveedor.html", icon: ""},
             ]
@@ -99,6 +108,7 @@ const rutasPorRol = {
                 {nombre: "Lista de Familia", url: "/html/listaFamilia.html", icon: "" },
                 { nombre: "Lista de Sub Familia", url: "/html/listaSubFamilia.html", icon: "" },
                 { nombre: "Lista de Concepto Activos", url: "/html/listaConceptoActivo.html", icon: ""},
+                { nombre: "Lista de Concepto Gasto", url: "/html/listaConceptoGasto.html", icon: ""},
                 { nombre: "Lista de Personal", url: "/html/listaPersonal.html", icon: ""},
                 { nombre: "Lista de Proveedores", url: "/html/listaProveedores.html", icon: ""},
                 { nombre: "Lista de Solicitudes de Compras", url: "/html/listaSolicitudCompras.html", icon: ""},
@@ -106,6 +116,12 @@ const rutasPorRol = {
                 { nombre: "Lista de Activos", url: "/html/listaRegistroActivo.html", icon: ""},
             ]
         },
+        {
+            nombre: "Bitacora",
+            url: "/html/bitacoraGastos.html",
+            icon: "📈",
+            tipo: "simple",
+        }
     ]
 };
 //FUNCION PARA CARGAR CSS DINAMICAMENTE

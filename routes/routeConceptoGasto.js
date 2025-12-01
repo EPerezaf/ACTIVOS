@@ -19,7 +19,7 @@ router.post('/conceptoGasto', async (req, res) => {
             estatus,
             conceptoGasto
         });
-
+        console.log("Concepto Guardado", nuevoRegistro);
         await nuevoRegistro.save()
         res.json({ message: 'Concepto guarado correctamente' });
     } catch (error) {

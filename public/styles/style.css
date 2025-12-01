@@ -444,6 +444,11 @@
     color: #721c24;
 }
 
+.estatus-Cancelado {
+    background: #f80000;
+    color: #020000;
+}
+
 .estatus-Pendiente {
     background: #fff3cd;
     color: #856404;
