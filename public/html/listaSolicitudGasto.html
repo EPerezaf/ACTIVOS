@@ -38,16 +38,14 @@
                 <div class="barra-busqueda">
                     <input type="text" class="busqueda-input" placeholder="Buscar Solicitud...">
                     <button class="btn-accion btn-buscar">Buscar</button>
+                    <button class="btn-accion btn-limpiar" onclick="limpiarFiltros()">Limpiar Filtros</button>
                 </div>
                 <div class="filtros">
                     <select name="" id="filtroEstatus" class="filtro-select">
-                        <option value="">Todos los estatus</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Proceso">Proceso</option>
-                        <option value="Autorizada">Autorizada</option>
+                        
                     </select>
                     <select name="" id="filtroTipoGasto" class="filtro-select">
-                        <option value="">Tipos de mantenimiento</option>
+                        <option value="">Todos los tipos</option>
                         <option value="Preventivo">Preventivo</option>
                         <option value="Correctivo">Correctivo</option>
                     </select>

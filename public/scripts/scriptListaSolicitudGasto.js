@@ -21,38 +21,26 @@ async function cargarSolicitudesGasto(filtros = {}) {
         if (filtros.estatus && filtros.estatus !== '') {
             // SI EL USUARIO SELECCIONÓ UN FILTRO MANUAL, USAR ESE
             estatusFiltro = filtros.estatus;
+            console.log(`Usuario selecicono filtro manual: ${estatusFiltro}`);
         } else {
-            // SI NO HAY FILTRO MANUAL, APLICAR FILTRO AUTOMÁTICO POR ROL
-            if (userRole === "Jefe de Activos") {
-                estatusFiltro = 'Autorizada,Pendiente, Proceso';
-            } else if (userRole === "Administrador") {
-                estatusFiltro = 'Proceso,Autorizada,Pendiente';
-            }
-            else if( userRole === "Gerente General"){
-                estatusFiltro = 'Proceso';
-            }
+            console.log("Mostrando TODOS los estatus (sin filtro)")
         }
-        
-        // AGREGAR PARÁMETROS SOLO SI TIENEN VALOR
-        if (estatusFiltro && estatusFiltro !== '') {
-            params.append('estatus', estatusFiltro);
-        }
-        
-        if (filtros.tipoGasto && filtros.tipoGasto !== '') {
+
+        if(filtros.tipoGasto && filtros.tipoGasto !== ''){
             params.append('tipoGasto', filtros.tipoGasto);
         }
-        
-        if (filtros.busqueda && filtros.busqueda !== '') {
+
+        if(filtros.busqueda && filtros.busqueda !== ''){
             params.append('busqueda', filtros.busqueda);
         }
 
         const url = `/api/routeSolicitudGasto/solicitudesGasto?${params.toString()}`;
         
-        console.log('🔍 URL de consulta CORREGIDA:', url);
+        console.log('🔍 URL de consulta:', url);
         console.log('📋 Filtros aplicados:', { 
-            estatus: estatusFiltro, 
-            tipoGasto: filtros.tipoGasto, 
-            busqueda: filtros.busqueda 
+            estatus: estatusFiltro || 'Todos', 
+            tipoGasto: filtros.tipoGasto || 'Todos',
+            busqueda: filtros.busqueda || 'Ninguna'
         });
         
         const res = await fetch(url, {
@@ -99,8 +87,15 @@ async function cargarSolicitudesGasto(filtros = {}) {
         // ACTUALIZAR LOS FILTROS VISUALES PARA REFLEJAR LO QUE SE ESTÁ MOSTRANDO
         actualizarFiltrosVisuales(estatusFiltro, filtros.tipoGasto);
 
+        const solicitudesFiltradasPorRol = filtrarPorRol(solicitudes, userRole, estatusFiltro);
+        console.log(`Solicitudes despues del filtro por rol: ${solicitudesFiltradasPorRol.length}`);
+        if(solicitudesFiltradasPorRol.length === 0){
+            contenedor.innerHTML = "<p>No hay solicitudes disponibles para tu rol con los filtros aplicados</p>";
+            return;
+        }
+
         // ... (resto del código para mostrar las solicitudes se mantiene igual)
-        contenedor.innerHTML = solicitudes.map(s => {
+        contenedor.innerHTML = solicitudesFiltradasPorRol.map(s => {
             const activosHTML = s.activos.map(activo => {
                 const proveedorSeleccionado = activo.proveedorSeleccionado;
                 const proveedoresCount = activo.proveedores ? activo.proveedores.length : 0;
@@ -181,18 +176,42 @@ async function cargarSolicitudesGasto(filtros = {}) {
     }
 }
 
+function filtrarPorRol(solicitudes, userRole, filtroEstatusSeleccionado){
+    if(filtroEstatusSeleccionado && filtroEstatusSeleccionado !== ''){
+        return solicitudes.filter(s => s.estatusCompras === filtroEstatusSeleccionado);
+    }
+    switch(userRole){
+        case "Jefe de Activos":
+            return solicitudes.filter(s=>
+                s.estatusCompras === "Pendiente" ||
+                s.estatusCompras === "Proceso" ||
+                s.estatusCompras === "Autorizada"
+            );
+        case "Gerente General":
+            return solicitudes.filter(s => 
+                s.estatusCompras === "Proceso"||
+                s.estatusCompras === "Autorizada"
+            );
+        case "Administrador":
+            return solicitudes;
+
+        default:
+            return [];
+    }
+}
+
 // FUNCIÓN PARA ACTUALIZAR LOS FILTROS VISUALES
 function actualizarFiltrosVisuales(estatusFiltro, tipoGastoFiltro) {
     const filtroEstatus = document.getElementById('filtroEstatus');
     const filtroTipoGasto = document.getElementById('filtroTipoGasto');
     
-    if (filtroEstatus && estatusFiltro) {
+    if (filtroEstatus && estatusFiltro !== undefined) {
         // Si hay un filtro automático aplicado, actualizar el select
-        filtroEstatus.value = estatusFiltro;
+        filtroEstatus.value = estatusFiltro || '';
     }
     
-    if (filtroTipoGasto && tipoGastoFiltro) {
-        filtroTipoGasto.value = tipoGastoFiltro;
+    if (filtroTipoGasto && tipoGastoFiltro !== '') {
+        filtroTipoGasto.value = tipoGastoFiltro || '';
     }
 }
 
@@ -266,6 +285,7 @@ function filtrarSolicitudes() {
         const filtroEstatus = document.getElementById('filtroEstatus');
         const filtroTipoGasto = document.getElementById('filtroTipoGasto');
         const inputBusqueda = document.querySelector('.busqueda-input');
+        const btnBuscar = document.querySelector('.btn-buscar');
         
         if (!filtroEstatus || !filtroTipoGasto || !inputBusqueda) {
             console.warn('Algunos elementos de filtro no están disponibles');
@@ -302,6 +322,46 @@ function limpiarFiltros() {
     cargarSolicitudesGasto();
 }
 
+function configurarFiltrosPorRol(){
+    const userRole = localStorage.getItem("role");
+    const filtroEstatus = document.getElementById("filtroEstatus");
+    if(!filtroEstatus) return;
+
+    while(filtroEstatus.options.length > 1){
+        filtroEstatus.remove(1);
+    }
+
+    const opcionesPorRol = {
+        "Administrador": [
+            {value: "", text: "Todos los estatus"},
+            {value: "Pendiente", text: "Pendiente"},
+            {value: "Proceso", text: "Proceso"},
+            {value: "Autorizada", text: "Autorizada"}
+        ],
+        "Jefe de Activos": [
+            {value: "", text: "Todos los estatus"},
+            {value: "Pendiente", text: "Pendiente"},
+            {value: "Proceso", text: "Proceso"},
+            {value: "Autorizada", text: "Autorizada"}
+        ],
+        "Gerente General": [
+            {value: "", text: "Todos los estatus"},
+            {value: "Proceso", text: "Proceso"},
+            {value: "Autorizada", text: "Autorizada"}
+        ]
+    }
+
+    const opciones = opcionesPorRol[userRole] || opcionesPorRol["Administrador"];
+    
+    opciones.forEach(opcion => {
+        const option = document.createElement("option");
+        option.value = opcion.value;
+        option.textContent = opcion.text;
+        filtroEstatus.appendChild(option);
+    });
+    
+    console.log(`👤 Filtros configurados para rol: ${userRole}`);
+}
 
 // CARGAR AL PRINCIPIO DE LA PAGINA
 document.addEventListener('DOMContentLoaded', function() {
@@ -320,6 +380,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    configurarFiltrosPorRol();
+    
     // Cargar todas las solicitudes al inicio
     cargarSolicitudesGasto();
 
