@@ -49,7 +49,7 @@ function mostrarActivos(activos){
         const id = activo.id || 'N/A';
         const estatus = activo.estatus || 'Sin estatus';
         const familia = activo.familia;
-        const subfamilia = activo.subfamilia;
+        const subfamilia = activo.subFamilia;
         const conceptoActivo = activo.conceptoActivo;
         const nomenclatura = activo.nomenclatura;
         const marca = activo.marca;
@@ -75,7 +75,7 @@ function mostrarActivos(activos){
                             </div>
                             <div class="concepto-body">
                                 <p><strong>Familia:</strong>${familia}</p>
-                                <p><strong>Sub Familia</strong>${subfamilia}</p>
+                                <p><strong>Sub Familia:</strong> ${subfamilia}</p>
                                 <p><strong>Concepto Activo:</strong>${conceptoActivo}</p>
                                 <p><strong>Nomenclatura:</strong>${nomenclatura}</p>
                                 <p><strong>Marca:</strong>${marca}</p>

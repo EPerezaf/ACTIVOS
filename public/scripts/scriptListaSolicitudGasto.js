@@ -24,7 +24,7 @@ async function cargarSolicitudesGasto(filtros = {}) {
         } else {
             // SI NO HAY FILTRO MANUAL, APLICAR FILTRO AUTOMÁTICO POR ROL
             if (userRole === "Jefe de Activos") {
-                estatusFiltro = 'Pendiente, Proceso';
+                estatusFiltro = 'Autorizada,Pendiente, Proceso';
             } else if (userRole === "Administrador") {
                 estatusFiltro = 'Proceso,Autorizada,Pendiente';
             }
@@ -129,10 +129,16 @@ async function cargarSolicitudesGasto(filtros = {}) {
                     botonesHTML = `
                     <button class="btn-accion btn-autorizar" onclick="autorizarSolicitudGasto(${s.id})">Autorizar</button>`;
                 }
-            } else if(userRole === "Jefe de Activos" && s.estatusCompras === "Pendiente" && s.estatusCompras === "Proceso"){
+            } else if(userRole === "Jefe de Activos" && s.estatusCompras === "Pendiente"){
                 botonesHTML = `
                     <button onclick="editarSolicitudGasto(${s.id})" class="btn-accion btn-editar">Editar</button>
-                    <button onclick="eliminarSolicitudGasto(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>`;
+                    <button onclick="eliminarSolicitudGasto(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>
+                    <button onclick="mandarProceso(${s.id})" class="btn-accion btn-proceso">Proceso</button>`;
+            }else if(userRole === "Jefe de Activos" && s.estatusCompras === "Proceso"){
+                botonesHTML = `
+                    <button onclick="editarSolicitudGasto(${s.id})" class="btn-accion btn-editar">Editar</button>
+                    <button onclick="eliminarSolicitudGasto(${s.id})" class="btn-accion btn-eliminar">Eliminar</button>
+                `;
             }                
 
             return `
@@ -362,4 +368,29 @@ function configurarEventListeners() {
             console.warn(`Elemento ${nombre} no encontrado en el DOM`);
         }
     });
+}
+
+//FUNCION PARA MANDAR A PROCESO
+async function mandarProceso(id){
+    if(!confirm(`¿Seguro que deseas mandar la solicitud #${id} a Proceso?`)) return;
+    try{
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/routeSolicitudGasto/solicitudGasto/:id/enviarProceso`,{
+            method: 'PUT',
+            headers: {
+                'Authorization':`Bearer ${token}`,
+                'Content-Type':'application/json'
+            }
+        });
+        const result = await res.json();
+        if(result.success){
+            alert(result.message);
+            cargarSolicitudesGasto();
+        }else{
+            alert(result.message || "Error al mandar a proceso");
+        }
+    }catch(error){
+        console.log(error);
+        alert("Error al mandar a proceso");
+    }
 }

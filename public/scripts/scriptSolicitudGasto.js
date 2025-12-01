@@ -81,7 +81,7 @@ async function cargarDatosEdicion() {
         //VERIFICAR SI HAY ELEMENTOS NO ACTIVOS EN LA SOLICITUD 
         let tieneElementosNoActivos = false;
 
-        solicitud.activos.forEach(activo => {
+        solicitud.activos.forEach((activo, activoIndex) => {
             // ASEGURAR QUE EL DATASET TENGA TODOS LOS CAMPOS NECESARIOS
             const activoData = {
                 id: activo.idActivo,
@@ -102,6 +102,34 @@ async function cargarDatosEdicion() {
                 fila.classList.add('elemento-no-activo');
                 fila.style.borderColor = '#ff9800';
                 fila.style.backgroundColor = '#fff3e0'
+            }
+
+            // Crear el HTML para los proveedores de este activo
+            let proveedoresHTML = '';
+            if (activo.proveedores && activo.proveedores.length > 0) {
+                proveedoresHTML = activo.proveedores.map((proveedor, proveedorIndex) => {
+                    const proveedorId = `proveedor-${activoIndex}-${proveedorIndex}`;
+                    return `
+                        <div class="proveedor-fila" id="${proveedorId}">
+                            <div class="grupo-inputs-contenedor">
+                                <div class="input-flotante-contenedor">
+                                    <input type="text" value="${proveedor.razonSocial}" readonly>
+                                    <label>Razon Social</label>
+                                </div>
+                                <div class="input-flotante-contenedor">
+                                    <input type="text" value="${proveedor.nickName}" readonly>
+                                    <label>Nick Name</label>
+                                </div>
+                                <div class="input-flotante-contenedor">
+                                    <input type="number" class="monto-proveedor" value="${proveedor.monto}" placeholder="0.00" step="0.01" readonly>
+                                    <label>Costo</label>
+                                </div>
+                                <input type="hidden" class="id-proveedor" value="${proveedor.idProveedor}">
+                                <button type="button" class="btn-remove-proveedor" onclick="eliminarProveedorEspecifico('${proveedorId}')">X</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             }
 
             fila.innerHTML = `
@@ -125,26 +153,7 @@ async function cargarDatosEdicion() {
                         <label>Proveedores para este activo:</label>
                         <button type="button" class="btn-agregar-proveedor" onclick="agregarProveedorParaActivo(this)">+ Agregar Proveedor</button>
                         <div class="proveedores-lista">
-                            ${activo.proveedores.map(proveedor => `
-                                <div class="proveedor-fila">
-                                    <div class="grupo-inputs-contenedor">
-                                        <div class="input-flotante-contenedor">
-                                            <input type="text" value="${proveedor.razonSocial}" readonly>
-                                            <label>Razon Social</label>
-                                        </div>
-                                        <div class="input-flotante-contenedor">
-                                            <input type="text" value="${proveedor.nickName}" readonly>
-                                            <label>Nick Name</label>
-                                        </div>
-                                        <div class="input-flotante-contenedor">
-                                            <input type="number" value="${proveedor.monto}" placeholder="0.00" step="0.01" readonly>
-                                            <label>Costo</label>
-                                        </div>
-                                        <input type="hidden" value="${proveedor.idProveedor}">
-                                        <button type="button" class="btn-remove-grupo" onclick="this.parentElement.parentElement.remove()">X</button>
-                                    </div>
-                                </div>
-                            `).join('')}
+                            ${proveedoresHTML}
                         </div>
                     </div>
                     
@@ -172,6 +181,23 @@ async function cargarDatosEdicion() {
         alert("Error al cargar los datos de la solicitud");
     }
 }
+
+// FUNCIÓN PARA ELIMINAR UN PROVEEDOR ESPECÍFICO
+function eliminarProveedorEspecifico(proveedorId) {
+    if (!confirm("¿Estás seguro de que deseas eliminar este proveedor?")) {
+        return;
+    }
+    
+    const proveedorFila = document.getElementById(proveedorId);
+    if (proveedorFila) {
+        proveedorFila.remove();
+        console.log(`Proveedor ${proveedorId} eliminado exitosamente`);
+    } else {
+        console.error(`No se encontró el proveedor con ID: ${proveedorId}`);
+    }
+}
+
+
 
 // FUNCIÓN PARA MOSTRAR ADVERTENCIA DE ELEMENTOS NO ACTIVOS
 function mostrarAdvertenciaElementosNoActivos() {
@@ -442,7 +468,16 @@ function inicializarActivo() {
                             <button class="btn-buscar-personal" onclick="seleccionarActivo(${JSON.stringify(u).replace(/"/g, '&quot;')})">
                                 ${u.conceptoActivo}
                             </button>
-                            <label>Familia: ${u.familia} - Sub Familia:${u.subFamilia}</label>
+                            <br>
+                            <div>
+                                <label>° Familia: ${u.familia}</label>
+                                <br>
+                                <label>° Sub Familia:${u.subFamilia}</label>
+                                <br>
+                                <label>° Nomenclatura: ${u.nomenclatura}</label>
+                                <br>
+                                <label>° Descripcion Adicion: ${u.descripcionAdicional}</label>
+                            </div>
                         </div>
                     `
                 ).join("");
@@ -956,7 +991,7 @@ function inicializarGuardado(){
 
                 if(result.success){
                     alert(`${result.message}\nID: ${result.id}`);
-                    window.location.reload();
+                    window.location.href = "/html/listaSolicitudGasto.html"
                 }else{
                     alert(`Error: ${result.message}`);
                 }

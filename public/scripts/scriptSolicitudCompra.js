@@ -246,7 +246,7 @@ function seleccionarConceptoActivo(conceptoActivo) {
     fila.innerHTML= `
         <div class="grupo-inputs-contenedor">
             <div class="input-flotante-contenedor">
-                <input type="text" value="${conceptoActivo.conceptoSubFamilia}" readonly>
+                <input type="text" value="${conceptoActivo.conceptoFamilia}" readonly>
                 <label>Familia</label>
             </div>
             <div class="input-flotante-contenedor">

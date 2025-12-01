@@ -221,7 +221,8 @@ async function autorizarSolicitudGasto(solicitudId) {
         const result = await res.json();
         if(result.success){
             alert(result.message);
-            cargarDetalleSolicitud(); // Recargar los detalles
+            //cargarDetalleSolicitud(); // Recargar los detalles
+            window.location.href = "/html/listaSolicitudGasto.html";
         } else {
             alert(result.message || "Error al autorizar la solicitud de gasto");
         }
