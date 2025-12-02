@@ -56,6 +56,7 @@ const listaRegistroActivoRoute = require('./routes/routeRegistroActivo');
 const solicitudGastoRoute = require('./routes/routeSolicitudGasto');
 const bitacoraGastosRoute = require('./routes/routeBitacoraGastos');
 const listaConceptoGastoRoute = require("./routes/routeListaConceptoGasto");
+const bitacoraCompraRoute = require("./routes/routeBitacoraCompras");
 //INICIO DE SESION
 const authRoutes = require("./routes/routeAuth");
 const solicitudesRoutes = require("./routes/solicitudesRoutes");
@@ -80,6 +81,7 @@ app.use('/api/routeRegistroActivo', listaRegistroActivoRoute);
 app.use('/api/routeSolicitudGasto', solicitudGastoRoute);
 app.use('/api/routeBitacoraGastos', bitacoraGastosRoute);
 app.use('/api/routeListaConceptoGasto', listaConceptoGastoRoute);
+app.use('/api/routeBitacoraCompras', bitacoraCompraRoute);
 //RUTA PARA AUTH
 app.use("/api/routeAuth", authRoutes);
 app.use("/api", solicitudesRoutes);

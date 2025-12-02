@@ -47,6 +47,15 @@ const rutasPorRol = {
                 { nombre: "Lista de Activos", url: "/html/listaRegistroActivo.html", icon: ""},
             ]
         },
+        {
+            nombre: "Bitacora",
+            icon: "📈",
+            tipo: "dropdown",
+            submenu: [
+                { nombre: "Bitacora de Compras", url: "/html/bitacoraCompras.html", icon:""},
+                { nombre: "Bitacora de Gastos", url: "/html/bitacoraGastos.html", icon: ""}
+            ]
+        }
     ],
     "Gerente General": [
         { 
@@ -66,9 +75,12 @@ const rutasPorRol = {
         },
         {
             nombre: "Bitacora",
-            url: "/html/bitacoraGastos.html",
             icon: "📈",
-            tipo: "simple",
+            tipo: "dropdown",
+            submenu: [
+                { nombre: "Bitacora de Compras", url: "/html/bitacoraCompras.html", incon:""},
+                { nombre: "Bitacora de Gastos", url: "html/bitacoraGastos.html", icon: ""}
+            ]
         }
     ],
     "Jefe de Activos": [
@@ -118,9 +130,12 @@ const rutasPorRol = {
         },
         {
             nombre: "Bitacora",
-            url: "/html/bitacoraGastos.html",
             icon: "📈",
-            tipo: "simple",
+            tipo: "dropdown",
+            submenu: [
+                { nombre: "Bitacora de Compras", url: "/html/bitacoraCompras.html", icon:""},
+                { nombre: "Bitacora de Gastos", url: "/html/bitacoraGastos.html", icon: ""}
+            ]
         }
     ]
 };

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Bitácora de Solicitudes de Compra</title>
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/footer.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .filtros-section {
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        @media (min-width: 768px) {
+            .filtros-grid {
+                grid-template-columns: repeat(4, 1fr) auto;
+            }
+        }
+
+        .filtro-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .filtro-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .filtro-input, .filtro-select {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .botones-filtro {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .botones-filtro {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .btn-buscar {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-descargar {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .btn-buscar, .btn-descargar {
+                width: auto;
+                min-width: 160px;
+            }
+            
+            .btn-descargar {
+                margin-left: 10px;
+            }
+        }
+
+        .btn-buscar:hover, .btn-descargar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-buscar:hover {
+            background: #0056b3;
+        }
+
+        .btn-descargar:hover {
+            background: #218838;
+        }
+
+        .btn-reset {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .btn-reset {
+                width: auto;
+                min-width: 120px;
+            }
+        }
+
+        .btn-reset:hover {
+            background: #5a6268;
+        }
+
+        /* Estadísticas */
+        .estadisticas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .tarjeta-estadistica {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: var(--transition);
+        }
+
+        .tarjeta-estadistica:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .tarjeta-estadistica h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tarjeta-estadistica .valor {
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .tarjeta-estadistica .subvalor {
+            font-size: 12px;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        /* Tabla de resultados */
+        .resultados-section {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+
+        .tabla-solicitudes {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            min-width: 800px;
+        }
+
+        .tabla-solicitudes th,
+        .tabla-solicitudes td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+
+        .tabla-solicitudes th {
+            background: var(--dark-color);
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+
+        .tabla-solicitudes tr:hover {
+            background: #f8f9fa;
+        }
+
+        .tabla-solicitudes tr:nth-child(even) {
+            background: #fdfdfd;
+        }
+
+        /* Badges de estatus */
+        .estatus-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+            min-width: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .estatus-Pendiente { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .estatus-Proceso { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .estatus-Autorizada { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .estatus-Cancelada { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .estatus-Rechazada { background: #f5e6e8; color: #721c24; border: 1px solid #f1b0b7; }
+        .estatus-Completada { background: #d1f2eb; color: #0c625d; border: 1px solid #a3e4d7; }
+
+        /* Activos dentro de la tabla */
+        .activo-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid var(--info-color);
+        }
+
+        .activo-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .activo-item strong {
+            display: block;
+            color: #495057;
+            margin-bottom: 3px;
+        }
+
+        .activo-item small {
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        /* Estados de carga y error */
+        .cargando {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary-color);
+            font-size: 16px;
+        }
+
+        .cargando::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sin-resultados {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--secondary-color);
+        }
+
+        .sin-resultados h3 {
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+
+        .sin-resultados p {
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 767px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .filtros-section {
+                padding: 15px;
+            }
+            
+            .tabla-solicitudes th, 
+            .tabla-solicitudes td {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .estadisticas {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 5px;
+                padding: 10px;
+            }
+            
+            .tabla-solicitudes {
+                font-size: 12px;
+            }
+            
+            .estatus-badge {
+                min-width: 80px;
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+        }
+
+        /* Totales en la tabla */
+        .total-fila {
+            background: #e8f5e9 !important;
+            font-weight: bold;
+        }
+
+        .total-fila td {
+            border-top: 2px solid #28a745;
+        }
+
+        /* Fechas */
+        .fecha-cell {
+            white-space: nowrap;
+            min-width: 100px;
+        }
+
+        /* Montos */
+        .monto-cell {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Estilos para mostrar información de montos */
+.monto-display {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.badge-promedio, .badge-seleccion {
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.badge-promedio {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge-seleccion {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge-seleccionado {
+    background-color: #4caf50;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    display: inline-block;
+}
+
+.tipo-monto {
+    display: block;
+    text-align: right;
+    font-size: 11px;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+/* Estilos para proveedores */
+.proveedor-info {
+    margin-bottom: 5px;
+    padding: 5px;
+    border-radius: 4px;
+    background: #f8f9fa;
+    font-size: 12px;
+}
+
+.proveedor-seleccionado {
+    background-color: #e8f5e9;
+    border-left: 3px solid #4caf50;
+}
+
+.monto-proveedor {
+    float: right;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 11px;
+}
+
+/* Estilos para activos */
+.activo-item {
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.activo-item.con-proveedor {
+    background-color: #e8f5e9;
+    border-left: 3px solid #4caf50;
+}
+
+.activo-item.sin-proveedor {
+    background-color: #fff3cd;
+    border-left: 3px solid #ffc107;
+}
+
+.proveedor-activo-seleccionado {
+    margin-top: 3px;
+    padding: 3px 5px;
+    background: white;
+    border-radius: 3px;
+    font-size: 11px;
+    border: 1px solid #c8e6c9;
+}
+
+.proveedor-activo-pendiente {
+    margin-top: 3px;
+    padding: 3px 5px;
+    background: white;
+    border-radius: 3px;
+    font-size: 11px;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+/* Barra de progreso para selección de proveedores */
+.progreso-seleccion {
+    margin-top: 5px;
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.barra-progreso {
+    height: 100%;
+    background-color: #4caf50;
+    transition: width 0.3s ease;
+}
+
+.porcentaje-texto {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 8px;
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+/* Tooltips para montos */
+.monto-cell[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    transform: translateY(-100%);
+    margin-top: -5px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Bitácora de Solicitudes de Compra</h1>
+        
+        <!-- Sección de Filtros -->
+        <div class="filtros-section">
+            <div class="filtros-grid">
+                <!-- Filtro por Proveedor -->
+                <div class="filtro-group">
+                    <label for="filtroProveedor">Proveedor:</label>
+                    <input type="text" id="filtroProveedor" class="filtro-input" 
+                           placeholder="Nombre, Razon Social o Nickname...">
+                </div>
+                
+                <!-- Filtro por Estatus -->
+                <div class="filtro-group">
+                    <label for="filtroEstatus">Estatus:</label>
+                    <select id="filtroEstatus" class="filtro-select">
+                        <option value="">Todos los estatus</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Proceso">Proceso</option>
+                        <option value="Autorizada">Autorizada</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Rechazada">Rechazada</option>
+                        <option value="Completada">Completada</option>
+                    </select>
+                </div>
+                
+                <!-- Filtro por Periodo -->
+                <div class="filtro-group">
+                    <label for="filtroFecha">Periodo:</label>
+                    <select id="filtroFecha" class="filtro-select">
+                        <option value="">Todo el periodo</option>
+                        <option value="7">Última semana</option>
+                        <option value="30">Últimos 30 días</option>
+                        <option value="90">Últimos 3 meses</option>
+                        <option value="180">Últimos 6 meses</option>
+                        <option value="365">Último año</option>
+                    </select>
+                </div>
+                
+                <!-- Filtro por Clasificación -->
+                <div class="filtro-group">
+                    <label for="filtroClasificacion">Clasificación:</label>
+                    <select id="filtroClasificacion" class="filtro-select">
+                        <option value="">Todas las clasificaciones</option>
+                        <!-- Se llenará dinámicamente -->
+                    </select>
+                </div>
+                
+                <!-- Filtro por Tipo de Compra -->
+                <div class="filtro-group">
+                    <label for="filtroTipo">Tipo de Compra:</label>
+                    <select id="filtroTipo" class="filtro-select">
+                        <option value="">Todos los tipos</option>
+                        <!-- Se llenará dinámicamente -->
+                    </select>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="botones-filtro">
+                    <button class="btn-buscar" onclick="cargarBitacoraCompras()">
+                        🔍 Buscar
+                    </button>
+                    <button class="btn-descargar" onclick="descargarReporteComprasMejorado()">
+                        📥 Reporte Excel
+                    </button>
+                    <button class="btn-reset" onclick="limpiarFiltros()">
+                        🔄 Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div id="estadisticasCompras" class="estadisticas"></div>
+
+        <!-- Resultados -->
+        <div class="resultados-section">
+            <div id="resultadosBitacoraCompras" class="cargando">Cargando bitácora de compras...</div>
+        </div>
+    </div>
+
+    <script src="../scripts/navbar.js"></script>
+    <script src="../scripts/scriptBitacoraCompras.js"></script>
+    <script src="../scripts/footer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>
